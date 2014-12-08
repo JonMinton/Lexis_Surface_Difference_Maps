@@ -1,0 +1,6 @@
+Slovenia, Life expectancy at birth (period, 1x10)     Last modified: 08-Jul-2013, MPv5 (May07)
+
+  Year        Female   Male    Total
+1983-1989      76.04   67.97   72.08
+1990-1999      78.23   70.37   74.39
+2000-2009      81.07   73.74   77.47

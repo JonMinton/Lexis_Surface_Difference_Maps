@@ -1,0 +1,8 @@
+Luxembourg, Life expectancy at birth (period, 1x10)     Last modified: 28-Jun-2013, MPv5 (May07)
+
+  Year        Female   Male    Total
+1960-1969      72.64   66.22   69.33
+1970-1979      74.35   67.27   70.74
+1980-1989      76.97   70.05   73.54
+1990-1999      79.35   72.96   76.23
+2000-2009      81.67   76.11   78.96
