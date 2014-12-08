@@ -58,6 +58,13 @@ e0_ss <- melt(
   id.var=c("year", "country_code")
   )
 
+# arrange by male life expectancy
+tmp <- subset(e0_ss, year == 2010)
+tmp2 <- dcast(tmp, year + country_code ~ variable)
+arrange(tmp2, desc(male))
+arrange(tmp2, desc(female))
+
+
 g1 <- ggplot(e0_ss)
 
 g2 <- g1 + geom_line(aes(x=year, y=value, group=variable, colour=variable)) + facet_wrap("country_code")
