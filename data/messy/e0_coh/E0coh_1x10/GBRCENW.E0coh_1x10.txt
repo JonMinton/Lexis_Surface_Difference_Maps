@@ -1,0 +1,11 @@
+England and Wales, Civilian National Population, Life expectancy at birth (cohort, 1x10)     Last modified: 26-Apr-2013, MPv5 (May07)
+
+  Year        Female   Male    Total
+1841-1849      43.11   41.40   41.40
+1850-1859      44.85   43.06   43.06
+1860-1869      47.39   45.39   45.39
+1870-1879      50.91   48.49   48.49
+1880-1889      54.09   51.16   51.16
+1890-1899      55.56   52.32   52.32
+1900-1909      60.15   56.77   56.77
+1910-1919      64.53   61.16   61.16

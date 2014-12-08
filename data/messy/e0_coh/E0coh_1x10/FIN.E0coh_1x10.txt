@@ -1,0 +1,8 @@
+Finland, Life expectancy at birth (cohort, 1x10)     Last modified: 16-Nov-2010, MPv5 (May07)
+
+  Year        Female   Male    Total
+1878-1879      44.81   42.30   42.30
+1880-1889      46.12   43.33   43.33
+1890-1899      49.51   45.88   45.88
+1900-1909      54.27   49.89   49.89
+1910-1918      58.78   52.85   52.85

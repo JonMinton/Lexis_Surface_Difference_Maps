@@ -1,0 +1,8 @@
+Switzerland, Life expectancy at birth (cohort, 1x10)     Last modified: 27-Jan-2014, MPv5 (May07)
+
+  Year        Female   Male    Total
+1876-1879      48.03   45.96   45.96
+1880-1889      52.46   50.35   50.35
+1890-1899      57.35   54.63   54.63
+1900-1909      62.69   59.50   59.50
+1910-1919      68.86   65.16   65.16

@@ -20,8 +20,10 @@ rm(list=ls())
 
 require(plyr)
 require(reshape2)
+require(ggplot2)
 require(lattice)
 require(RColorBrewer)
+
 
 
 
@@ -32,14 +34,34 @@ require(RColorBrewer)
 
 # 4) load human mortality database (HMD) data on population counts and death counts
 # in the 'tidy data' format suggested by Hadley Wickham 
-counts <- read.csv("data/counts.csv")
+counts <- read.csv("data/tidy/counts.csv")
 # (For the code used to convert the existing files to the 'tidy' please contact me)
 
 # 5) load a file which shows which of the HMD countries are part of Europe
 
-country_codes <- read.csv("Data/country_codes__new.csv", stringsAsFactors=F)
+country_codes <- read.csv("data/tidy/country_codes__new.csv", stringsAsFactors=F)
 
 europe_codes <- country_codes$short[country_codes$europe==1]
+
+# show changes in e0s for european countries since 1950 
+e0 <- read.csv("data/tidy/e0_per.csv")
+
+e0_ss <- subset(
+  e0,
+  country_code %in% tolower(europe_codes) & year >=1950 & country_code!="bel"
+  )
+
+e0_ss$total <- NULL
+
+e0_ss <- melt(
+  e0_ss,
+  id.var=c("year", "country_code")
+  )
+
+g1 <- ggplot(e0_ss)
+
+g2 <- g1 + geom_line(aes(x=year, y=value, group=variable, colour=variable)) + facet_wrap("country_code")
+
 ######################################################################################
 # DERIVED DATA
 

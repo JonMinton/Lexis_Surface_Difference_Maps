@@ -1,0 +1,8 @@
+Italy, Life expectancy at birth (cohort, 1x10)     Last modified: 24-Oct-2012, MPv5 (May07)
+
+  Year        Female   Male    Total
+1872-1879      38.26   37.56   37.56
+1880-1889      41.26   39.66   39.66
+1890-1899      46.74   43.13   43.13
+1900-1909      51.89   49.57   49.57
+1910-1918      55.87   52.73   52.73
