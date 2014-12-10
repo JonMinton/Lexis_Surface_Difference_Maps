@@ -43,6 +43,9 @@ country_codes <- read.csv("data/tidy/country_codes__new.csv", stringsAsFactors=F
 
 europe_codes <- country_codes$short[country_codes$europe==1]
 
+#######################################################################################
+#######################################################################################
+
 # show changes in e0s for european countries since 1950 
 e0 <- read.csv("data/tidy/e0_per.csv")
 
@@ -184,7 +187,7 @@ dif_logs <- mutate(
 ####################
 ##################
 tiff(
-  "figures/fig_01_europe.tiff",  
+  "figures/fig_02_europe.tiff",  
   height=600, width=1200
 )
 
@@ -194,8 +197,8 @@ europe_log <- contourplot(
                 age <=100 & year >=1950 & year <=2010 ), 
   region=T, 
   par.strip.text=list(cex=1.4, fontface="bold"),
-  ylab="age in years",
-  xlab="year",
+  ylab="Age in years",
+  xlab="Year",
   cex=1.4,
   cuts=50,
   col.regions=rev(heat.colors(200)),
@@ -208,7 +211,7 @@ dev.off()
 ##########################################################
 
 tiff(
-  "figures/fig_02_scotland.tiff",  
+  "figures/fig_03_scotland.tiff",  
   height=600, width=1200
 )
 scot_lev <- levelplot(
@@ -216,8 +219,8 @@ scot_lev <- levelplot(
   data=subset(dif_logs, subset=sex!="total"),
   region=T, 
   par.strip.text=list(cex=1.4, fontface="bold"),
-  ylab="age in years",
-  xlab="year",
+  ylab="Age in years",
+  xlab="Year",
   cex=1.4,
   at = seq(from= -1, to = 1, by=0.2),
   col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
@@ -229,7 +232,7 @@ dev.off()
 ###########################################################
 ###########################################################
 tiff(
-  "figures/fig_03_france.tiff",  
+  "figures/fig_04_france.tiff",  
   height=600, width=1200
 )
 france_lev <- levelplot(
@@ -237,8 +240,8 @@ france_lev <- levelplot(
   data=subset(dif_logs, subset=sex!="total"),
   region=T, 
   par.strip.text=list(cex=1.4, fontface="bold"),
-  ylab="age in years",
-  xlab="year",
+  ylab="Age in years",
+  xlab="Year",
   cex=1.4,
   at = seq(from= -1, to = 1, by=0.2),
   col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
@@ -248,7 +251,7 @@ print(france_lev)
 dev.off()
 
 tiff(
-  "figures/fig_04_norway.tiff",  
+  "figures/fig_05_norway.tiff",  
   height=600, width=1200
 )
 norway_lev <- levelplot(
@@ -267,7 +270,7 @@ print(norway_lev)
 dev.off()
 
 tiff(
-  "figures/fig_05_eng_wales.tiff",  
+  "figures/fig_06_eng_wales.tiff",  
   height=600, width=1200
 )
 eng_lev <- levelplot(
