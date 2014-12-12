@@ -1,0 +1,47 @@
+"short", "long", "europe"
+"AUS", "Australia",  0
+"AUT", "Austria",  1
+"BEL", "Belgium",  1
+"BGR", "Bulgaria",  1 
+"BLR", "Belarus",  0 
+"CAN", "Canada",  0
+"CHE", "Switzerland",  0
+"CHL", "Chile",  0 
+"CZE", "Czech Republic",  1 
+"DEUTE", "East Germany",  0 
+"DEUTNP", "Germany", 1 
+"DEUTW", "West Germany",  0
+"DNK", "Denmark",   1
+"ESP", "Spain", 1
+"EST", "Estonia", 1
+"FIN", "Finland", 1
+"FRACNP", "France (Civilian)", 0
+"FRATNP", "France (Total)", 1
+"GBR_NIR", "Northern Ireland", 1
+"GBR_NP", "United Kingdom", 0
+"GBR_SCO", "Scotland", 1
+"GBRCENW", "England and Wales (Civilian)", 0 
+"GBRTENW", "England and Wales (Total)", 1
+"HUN", "Hungary", 1
+"IRL", "Ireland", 1
+"ISL", "Iceland", 0
+"ISR", "Israel", 0 
+"ITA", "Italy", 1
+"JPN", "Japan", 0
+"LTU", "Lithuania", 1
+"LUX", "Luxembourg", 1
+"LVA", "Latvia", 1
+"NLD", "Netherlands", 1
+"NOR", "Norway", 1
+"NZL_MA", "New Zealand -- Maori", 0 
+"NZL_NM", "New Zealand -- Non-Maori", 0
+"NZL_NP", "New Zealand", 0 
+"POL", "Poland", 1
+"PRT", "Portugal", 1
+"RUS", "Russia", 0
+"SVK", "Slovakia", 1
+"SVN", "Slovenia", 1
+"SWE", "Sweden", 1
+"TWN", "Taiwan", 0 
+"UKR", "Ukraine", 0
+"USA", "The United States of America", 0 

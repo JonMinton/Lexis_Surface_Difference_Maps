@@ -83,6 +83,8 @@ counts_eu <- subset(
   subset=country %in% europe_codes                  
 )
 
+write.csv(counts_eu, file="apps/clp_explorer/data/counts_eu.csv")
+
 # 7) aggregate up count data from all available European nations
 counts_eu_all <- ddply(
   counts_eu,
