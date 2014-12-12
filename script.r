@@ -222,8 +222,8 @@ scot_lev <- levelplot(
   ylab="Age in years",
   xlab="Year",
   cex=1.4,
-  at = seq(from= -1, to = 1, by=0.2),
-  col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
   main=NULL
 )
 print(scot_lev)
@@ -243,8 +243,8 @@ france_lev <- levelplot(
   ylab="Age in years",
   xlab="Year",
   cex=1.4,
-  at = seq(from= -1, to = 1, by=0.2),
-  col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
   main=NULL
 )
 print(france_lev)
@@ -262,8 +262,8 @@ norway_lev <- levelplot(
   ylab="Age in years",
   xlab="Year",
   cex=1.4,
-  at = seq(from= -1, to = 1, by=0.2),
-  col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
   main=NULL
 )
 print(norway_lev)
@@ -281,8 +281,8 @@ eng_lev <- levelplot(
   ylab="Age in years",
   xlab="Year",
   cex=1.4,
-  at = seq(from= -1, to = 1, by=0.2),
-  col.regions = colorRampPalette(rev(brewer.pal(5, "RdBu")))(64),
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
   main=NULL
 )
 print(eng_lev)
