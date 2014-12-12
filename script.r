@@ -45,33 +45,33 @@ europe_codes <- country_codes$short[country_codes$europe==1]
 
 #######################################################################################
 #######################################################################################
-
-# show changes in e0s for european countries since 1950 
-e0 <- read.csv("data/tidy/e0_per.csv")
-
-e0_ss <- subset(
-  e0,
-  country_code %in% tolower(europe_codes) & year >=1950 & country_code!="bel"
-  )
-
-e0_ss$total <- NULL
-
-e0_ss <- melt(
-  e0_ss,
-  id.var=c("year", "country_code")
-  )
-
-# arrange by male life expectancy
-tmp <- subset(e0_ss, year == 2010)
-tmp2 <- dcast(tmp, year + country_code ~ variable)
-arrange(tmp2, desc(male))
-arrange(tmp2, desc(female))
-
-
-g1 <- ggplot(e0_ss)
-
-g2 <- g1 + geom_line(aes(x=year, y=value, group=variable, colour=variable)) + facet_wrap("country_code")
-
+# 
+# # show changes in e0s for european countries since 1950 
+# e0 <- read.csv("data/tidy/e0_per.csv")
+# 
+# e0_ss <- subset(
+#   e0,
+#   country_code %in% tolower(europe_codes) & year >=1950 & country_code!="bel"
+#   )
+# 
+# e0_ss$total <- NULL
+# 
+# e0_ss <- melt(
+#   e0_ss,
+#   id.var=c("year", "country_code")
+#   )
+# 
+# # arrange by male life expectancy
+# tmp <- subset(e0_ss, year == 2010)
+# tmp2 <- dcast(tmp, year + country_code ~ variable)
+# arrange(tmp2, desc(male))
+# arrange(tmp2, desc(female))
+# 
+# 
+# g1 <- ggplot(e0_ss)
+# 
+# g2 <- g1 + geom_line(aes(x=year, y=value, group=variable, colour=variable)) + facet_wrap("country_code")
+# 
 ######################################################################################
 # DERIVED DATA
 
