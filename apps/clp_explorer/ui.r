@@ -29,6 +29,12 @@ shinyUI(fluidPage(
         label = "select range of ages",
         min=0, max=100,
         value=c(0, 80), step=1
+        ),
+      sliderInput(
+        inputId="image_size",
+        label="select image size",
+        min=200, max=3000,
+        value=1000, step=50
         )
     ),
     mainPanel(

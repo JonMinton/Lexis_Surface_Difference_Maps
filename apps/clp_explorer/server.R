@@ -171,8 +171,9 @@ shinyServer(function(input, output){
         )
     } else {out <- NULL}
     return(out)
-  })
-
+  },  width=exprToFunction(input$image_size), 
+      height=exprToFunction(input$image_size/2)
+  )
 
   output$plot02 <- renderPlot({
     tmp <- calc_log_dif()
@@ -192,8 +193,9 @@ shinyServer(function(input, output){
       )
     } else {out <- NULL}
     return(out)
-  })
-
+  },  width=exprToFunction(input$image_size), 
+      height=exprToFunction(input$image_size/2)
+  )
   
   
 })
