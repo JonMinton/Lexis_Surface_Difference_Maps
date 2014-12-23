@@ -115,23 +115,26 @@ shinyServer(function(input, output){
   #subset data
   #produce comparisions
   # 
-  output$text01 <- renderText({
-    tmp <- get_country_selection()
-    if (is.null(tmp)){
-      out <- "No country was selected"
-      
+  output$text_clp_title <- renderText({
+    ctry_selection <- input$country_selection
+    dta <- load_country_selection()
+    
+    if (ctry_selection!="" & !is.null(dta)){
+      min_year <- min(dta$year)
+      max_year <- max(dta$year)
+      min_age <- min(dta$age)
+      max_age <- max(dta$age)
+      out <- paste("Comparative Level Plot for ", ctry_selection, " ", min_year, "-", max_year, 
+                   " (Ages ", min_age, "-", max_age, ")")
     } else {
-      out <- paste(
-        "The country code of the country selected is ", 
-        tmp
-      )
+      out <- ""
     }
       return(out)
   })
 
 
 
-  output$plot01 <- renderPlot({
+  output$plot_overall <- renderPlot({
     tmp <- show_sc_plot()
     if (tmp==T){
       min_year <- max(
@@ -171,11 +174,9 @@ shinyServer(function(input, output){
         )
     } else {out <- NULL}
     return(out)
-  },  width=exprToFunction(input$image_size), 
-      height=exprToFunction(input$image_size/2)
-  )
+  }, height=800, width=1600)
 
-  output$plot02 <- renderPlot({
+  output$plot_clp <- renderPlot({
     tmp <- calc_log_dif()
     
     if (!is.null(tmp)){
@@ -193,9 +194,7 @@ shinyServer(function(input, output){
       )
     } else {out <- NULL}
     return(out)
-  },  width=exprToFunction(input$image_size), 
-      height=exprToFunction(input$image_size/2)
-  )
+  }, height=800, width=1600)
   
   
 })

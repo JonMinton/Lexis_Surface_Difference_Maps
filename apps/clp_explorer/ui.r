@@ -4,10 +4,22 @@ country_codes <- read.csv("data/country_codes__new.csv", stringsAsFactors=F)
 europe_labels <- country_codes$short[country_codes$europe==1]
 names(europe_labels) <- country_codes$long[country_codes$europe==1]
 
-shinyUI(fluidPage(
+shinyUI(fluidPage( 
   titlePanel("Comparative Level Plot Explorer"),
-  sidebarLayout(
-    sidebarPanel(
+  hr(),
+  h2("Information and instructions"),
+  em("Once the data are loaded, please select a country."),
+  em("Once a selection is made, the comparative level plot (CLP) will be generated."),br(),
+  em("Reds on the CLP indicate worse-than-average mortality, and blues indicated better-than-average mortality rates."),br(),
+  em("The darkness of the shade indicates how far the mortality rates differ from the European average."),
+  br(),
+  em("If the box is checked, then a shaded contour map showing mortality rates for Europe as a whole will be shown."),
+  br(),
+  hr(),
+  fluidRow(
+    column(
+      4,
+      h3("Select country"),
       selectInput(
         "country_selection", "select a country",
         choices=c("", names(europe_labels)),
@@ -17,33 +29,40 @@ shinyUI(fluidPage(
         "select_sc_plot",
         "Check to show overall shaded contour plot",
         value=FALSE
-        ),
+      )
+    ),
+    column(
+      4,
+      h3("Select range"),
       sliderInput(
         inputId = "year_range", 
         label = "select range of years",
         min=1900, max=2011,
-        value=c(1950, 2010), step=1
+        value=c(1950, 2010), step=1,
+        format="####"
       ),
       sliderInput(
         inputId = "age_range",
         label = "select range of ages",
         min=0, max=100,
         value=c(0, 80), step=1
-        ),
-      sliderInput(
-        inputId="image_size",
-        label="select image size",
-        min=200, max=3000,
-        value=1000, step=50
-        )
+      )      
     ),
-    mainPanel(
-      textOutput("text01"),
-      br(),
-      plotOutput("plot01"),
-      br(),
-      plotOutput("plot02")
+    column(
+      3,
+      #h3("Other things go here")
     )
-  )
-)
-)
+  ),
+  hr(),
+  h2(textOutput("text_clp_title")),
+  plotOutput("plot_clp", height="100%"),
+  br(),
+  h2("Shaded Contour Plot"),
+  plotOutput("plot_overall", height="100%")
+  
+
+
+  
+
+
+))
