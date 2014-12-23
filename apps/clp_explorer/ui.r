@@ -6,6 +6,8 @@ names(europe_labels) <- country_codes$long[country_codes$europe==1]
 
 shinyUI(fluidPage( 
   titlePanel("Comparative Level Plot Explorer"),
+  helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),br(),
+  helpText(em("23 December 2014"), align="right"),br(),
   hr(),
   h2("Information and instructions"),
   em("Once the data are loaded, please select a country."),
