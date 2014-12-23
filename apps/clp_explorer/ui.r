@@ -50,7 +50,7 @@ shinyUI(fluidPage(
     ),
     column(
       3,
-      #h3("Other things go here")
+      h3("Happy Christmas!")
     )
   ),
   hr(),

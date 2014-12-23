@@ -2,6 +2,9 @@
 
 # Compared with European Average
 
+# Ideas:
+#  - composite plot
+#  
 
 
 # 1)  clear the workspace
