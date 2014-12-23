@@ -29,7 +29,13 @@ shinyUI(fluidPage(
         "select_sc_plot",
         "Check to show overall shaded contour plot",
         value=FALSE
+      ),
+      checkboxInput(
+        "select_composite_plot",
+        "Check to show composite plot",
+        value=FALSE
       )
+      
     ),
     column(
       4,
@@ -58,7 +64,9 @@ shinyUI(fluidPage(
   plotOutput("plot_clp", height="100%"),
   br(),
   h2("Shaded Contour Plot"),
-  plotOutput("plot_overall", height="100%")
+  plotOutput("plot_overall", height="100%"),
+  h2("Composite Plot"),
+  plotOutput("plot_composite", height="100%")
   
 
 

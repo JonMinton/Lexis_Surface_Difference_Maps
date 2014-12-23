@@ -2,8 +2,8 @@
 
 # Compared with European Average
 
-# Ideas:
-#  - composite plot
+# To do
+# 1) use longer series of data for Germany
 #  
 
 
@@ -14,6 +14,7 @@ rm(list=ls())
 require(plyr)
 require(reshape2)
 require(lattice)
+require(latticeExtra)
 require(RColorBrewer)
 
 
@@ -107,17 +108,7 @@ shinyServer(function(input, output){
     return(out)
   })
 
-#  cat("the value of country_selection is", input$country_selection, "\n")
 
-  #select min year
-  #select max year
-  #select min age
-  #select max age
-  #select log or ident
-  
-  #subset data
-  #produce comparisions
-  # 
   output$text_clp_title <- renderText({
     ctry_selection <- input$country_selection
     dta <- load_country_selection()
@@ -127,7 +118,7 @@ shinyServer(function(input, output){
       max_year <- max(dta$year)
       min_age <- min(dta$age)
       max_age <- max(dta$age)
-      out <- paste("Comparative Level Plot for ", ctry_selection, " ", min_year, "-", max_year, 
+      out <- paste0("Comparative Level Plot for ", ctry_selection, " ", min_year, "-", max_year, 
                    " (Ages ", min_age, "-", max_age, ")")
     } else {
       out <- ""
@@ -138,34 +129,12 @@ shinyServer(function(input, output){
 
 
   output$plot_overall <- renderPlot({
-    tmp <- show_sc_plot()
-    if (tmp==T){
-      min_year <- max(
-        min(overall$year),
-        input$year_range[1]
-      )
-      max_year <- min(
-        max(overall$year),
-        input$year_range[2]
-      )
-      
-      min_age <- max(
-        min(overall$age),
-        input$age_range[1] 
-      )
-      max_age <- min(
-        max(overall$age),
-        input$age_range[2]
-      )
-      dta_ss <- subset(
-        overall,
-        subset=sex!="total" &
-          age >= min_age & age <= max_age &
-          year >= min_year & year <= max_year
-      )
+    tag <- show_sc_plot()
+    if (tag==T){
+      dta <- load_country_selection()
       out <- contourplot(
         log(europe) ~ year * age | sex,
-        data=dta_ss,
+        data=subset(dta, subset=sex!="total"),
         region=T,
         par.strip.text=list(cex=1.4, fontface="bold"),
         ylab="Age in years",
@@ -199,6 +168,36 @@ shinyServer(function(input, output){
     return(out)
   }, height=800, width=1600)
   
-  
+  output$plot_composite <- renderPlot({
+    # From levelplot
+    dta <- calc_log_dif()
+    tag <- input$select_composite_plot
+    if (!is.null(dta) & tag==T){
+      clp  <- levelplot(
+        log_dif ~ year * age | sex, 
+        data=subset(dta, subset=sex!="total"),
+        region=T, 
+        par.strip.text=list(cex=1.4, fontface="bold"),
+        ylab="Age in years",
+        xlab="Year",
+        cex=1.4,
+        at = seq(from= -1.2, to = 1.2, by=0.2),
+        col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+        main=NULL
+      )
+      
+     cp <- contourplot(
+        log(europe) ~ year * age | sex,
+        data=dta,
+        region=F,
+        cuts=50,
+        main=NULL
+      )
+      out <- clp + cp
+    } else {out <- NULL}
+    return(out)
+    
+  }, height=800, width=1600)
+
 })
 
