@@ -12,7 +12,10 @@
 
 # Compared with European Average
 
+# Within the European average include the combined East and West Germany as a single country
 
+# i.e. DEUTE + DEUTW = DEUT 
+# (Instead of DEUTNP)
 
 # 1)  clear the workspace
 
@@ -27,63 +30,22 @@ require(RColorBrewer)
 
 
 
-
-
 ######################################################################################
 # SOURCE DATA
 
-# 4) load human mortality database (HMD) data on population counts and death counts
-# in the 'tidy data' format suggested by Hadley Wickham 
-counts <- read.csv("data/tidy/counts.csv")
-# (For the code used to convert the existing files to the 'tidy' please contact me)
-
-# 5) load a file which shows which of the HMD countries are part of Europe
+# load counts with east and west germany combined 
 
 country_codes <- read.csv("data/tidy/country_codes__new.csv", stringsAsFactors=F)
 
 europe_codes <- country_codes$short[country_codes$europe==1]
-
-#######################################################################################
-#######################################################################################
-# 
-# # show changes in e0s for european countries since 1950 
-# e0 <- read.csv("data/tidy/e0_per.csv")
-# 
-# e0_ss <- subset(
-#   e0,
-#   country_code %in% tolower(europe_codes) & year >=1950 & country_code!="bel"
-#   )
-# 
-# e0_ss$total <- NULL
-# 
-# e0_ss <- melt(
-#   e0_ss,
-#   id.var=c("year", "country_code")
-#   )
-# 
-# # arrange by male life expectancy
-# tmp <- subset(e0_ss, year == 2010)
-# tmp2 <- dcast(tmp, year + country_code ~ variable)
-# arrange(tmp2, desc(male))
-# arrange(tmp2, desc(female))
-# 
-# 
-# g1 <- ggplot(e0_ss)
-# 
-# g2 <- g1 + geom_line(aes(x=year, y=value, group=variable, colour=variable)) + facet_wrap("country_code")
-# 
-######################################################################################
-# DERIVED DATA
-
-# 6) find the subset of counts data which is of European countries
-
+counts <- read.csv("data/tidy/counts_germany_combined.csv")
 
 counts_eu <- subset(
   counts,
   subset=country %in% europe_codes                  
 )
 
-write.csv(counts_eu, file="apps/clp_explorer/data/counts_eu.csv")
+write.csv(counts_eu, file="apps/clp_explorer/data/counts_eu.csv", row.names=F)
 
 # 7) aggregate up count data from all available European nations
 counts_eu_all <- ddply(
@@ -120,6 +82,8 @@ mort_eu$n_countries <- NULL
 
 
 mort_eu <- rename(mort_eu, replace=c("death_rate_europe"="europe"))
+
+write.csv(mort_eu, file="apps/clp_explorer/data/europe_overall.csv", row.names=F)
 
 
 # Calculate difference in mort rate for 
