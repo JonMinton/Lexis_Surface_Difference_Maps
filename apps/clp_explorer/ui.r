@@ -7,7 +7,7 @@ names(europe_labels) <- country_codes$long[country_codes$europe==1]
 shinyUI(fluidPage( 
   titlePanel("Comparative Level Plot Explorer"),
   helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),br(),
-  helpText(em("23 December 2014"), align="right"),br(),
+  helpText(em("6 January 2015"), align="right"),br(),
   hr(),
   h2("Information and instructions"),
   em("Once the data are loaded, please select a country."),
@@ -58,7 +58,18 @@ shinyUI(fluidPage(
     ),
     column(
       3,
-      h3("Happy Christmas!")
+      checkboxInput(
+        "show_cohort_line",
+        "Check to overlay a cohort line",
+        value=FALSE
+      ),
+      sliderInput(
+        inputId ="select_cohort_year",
+        label="select the cohort to highlight",
+        min=1900, max=2000,
+        value=1970, step=1,
+        format="####"
+        )
     )
   ),
   hr(),

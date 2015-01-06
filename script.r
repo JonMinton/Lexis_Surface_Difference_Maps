@@ -25,6 +25,7 @@ require(plyr)
 require(reshape2)
 require(ggplot2)
 require(lattice)
+require(latticeExtra)
 require(RColorBrewer)
 
 
@@ -180,6 +181,7 @@ tiff(
   "figures/fig_01_scotland.tiff",  
   height=600, width=1200
 )
+
 scot_lev <- levelplot(
   scotland ~ year * age | sex, 
   data=subset(dif_logs, subset=sex!="total"),
@@ -193,6 +195,7 @@ scot_lev <- levelplot(
   main=NULL
 )
 print(scot_lev)
+
 dev.off()
 
 tiff(
