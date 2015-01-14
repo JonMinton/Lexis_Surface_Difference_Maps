@@ -177,10 +177,26 @@ dif_logs <- mutate(
 
 ##########################################################
 
+# replace values above thresholds by the threshold value for clearer visualisation
+dif_logs$france[dif_logs$france < -1.2] <- -1.2
+dif_logs$france[dif_logs$france >  1.2] <-  1.2
+
+dif_logs$scotland[dif_logs$scotland < -1.2] <- -1.2
+dif_logs$scotland[dif_logs$scotland >  1.2] <-  1.2
+
+dif_logs$england_and_wales[dif_logs$england_and_wales < -1.2] <- -1.2
+dif_logs$england_and_wales[dif_logs$england_and_wales >  1.2] <-  1.2
+
+dif_logs$norway[dif_logs$norway < -1.2] <- -1.2
+dif_logs$norway[dif_logs$norway >  1.2] <-  1.2
+
+
+
 tiff(
   "figures/fig_01_scotland.tiff",  
   height=600, width=1200
 )
+
 
 scot_lev <- levelplot(
   scotland ~ year * age | sex, 
