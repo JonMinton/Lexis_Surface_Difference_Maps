@@ -100,6 +100,11 @@ shinyServer(function(input, output){
       out <- mutate(dta,
                     log_dif = log(specific) - log(europe)
                     )      
+      # hard coding of limits - to change later
+      out$log_dif[out$log_dif < -1.2] <- -1.2
+      out$log_dif[out$log_dif > 1.2] <- 1.2
+      
+      
     } else {out <- NULL}
     return(out)
   })
@@ -167,7 +172,10 @@ shinyServer(function(input, output){
   output$plot_clp <- renderPlot({
     tmp <- calc_log_dif()
     show_cohort <- cohort_line_on()
+    
+    
     if (!is.null(tmp)){
+      
     out  <- levelplot(
         log_dif ~ year * age | sex, 
         data=subset(tmp, subset=sex!="total"),
@@ -199,6 +207,7 @@ shinyServer(function(input, output){
     dta <- calc_log_dif()
     tag <- input$select_composite_plot
     show_cohort <- cohort_line_on()
+    
     if (!is.null(dta) & tag==T){
       clp  <- levelplot(
         log_dif ~ year * age | sex, 
