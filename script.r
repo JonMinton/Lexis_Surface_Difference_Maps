@@ -275,3 +275,84 @@ print(norway_lev)
 dev.off()
 
 
+#########################################################################################
+########## ADDITIONAL - BATHTUB CURVES
+#########################################################################################
+
+# To do : bathtub curves for 1958 and 1970 cohorts
+# Scot  & Eng/Wales
+# Males and females
+## -- compared with European average
+
+
+# Using the rates_wide variable earlier
+
+rates_wide <- mutate(rates_wide, cohort=year-age)
+
+dta_cohorts <- subset(rates_wide, subset=cohort ==1958 | cohort == 1970)
+dta_cohorts <- melt(
+  dta_cohorts,
+  id.vars=c("year", "age", "sex", "cohort"),
+  measure.vars=c("france", "scotland" ,"england_and_wales", "norway", "europe"),
+  variable.name="country", value.name="mortality_rate"
+  )
+dta_cohorts$lt <- "solid"
+dta_cohorts$lt[dta_cohorts$country=="europe"] <- "longdash"
+dta_cohorts$lw <- 1.1
+dta_cohorts$lw[dta_cohorts$country=="europe"] <- 1
+
+dta_cohorts$cohort <- as.factor(dta_cohorts$cohort)
+
+tiff("figures/cohorts_Eng_wales.tiff", 600, 600)
+g1 <- ggplot(data=subset(dta_cohorts, subset=(country=="england_and_wales" | country=="europe") & sex!="total")) +
+  scale_linetype_identity() + scale_size_identity() + 
+  geom_line(aes(x=age, y=mortality_rate, group=country, colour=country, linetype=lt, size=lw)) + 
+  facet_grid(facets= cohort ~ sex) + 
+  scale_y_log10()  +
+  scale_colour_manual(values=c("blue", "red"), guide="none") +  
+  labs(X="Age", y="Mortality rate")
+
+g1
+dev.off()
+
+
+tiff("figures/cohorts_Scotland.tiff", 600, 600)
+g1 <- ggplot(data=subset(dta_cohorts, subset=(country=="scotland" | country=="europe") & sex!="total")) +
+  scale_linetype_identity() + scale_size_identity() + 
+  geom_line(aes(x=age, y=mortality_rate, group=country, colour=country, linetype=lt, size=lw)) + 
+  facet_grid(facets= cohort ~ sex) + 
+  scale_y_log10()  +
+  scale_colour_manual(values=c("blue", "red"), guide="none") +  
+  labs(X="Age", y="Mortality rate")
+
+g1
+dev.off()
+
+
+# Now using diffs variable calculated earlier to present plot diffs
+diffs <- mutate(
+  rates_wide,
+  france=log(france)-log(europe),
+  scotland=log(scotland)-log(europe),
+  england_and_wales=log(england_and_wales)-log(europe),
+  norway=log(norway)-log(europe)
+)
+
+
+diffs_cohorts <- subset(diffs, subset=cohort ==1958 | cohort == 1970)
+diffs_cohorts$europe <- NULL
+diffs_cohorts <- melt(
+  diffs_cohorts,
+  id.vars=c("year", "age", "sex", "cohort"),
+  measure.vars=c("france", "scotland" ,"england_and_wales", "norway"),
+  variable.name="country", value.name="mortality_rate"
+)
+
+diffs_cohorts$cohort <- as.factor(diffs_cohorts$cohort)
+
+
+ggplot(data=subset(dta_cohorts, subset=country=="england_and_wales"  & sex!="total")) +
+  scale_linetype_identity() + scale_size_identity() + 
+  geom_line(aes(x=age, y=mortality_rate)) + 
+  facet_grid(facets= cohort ~ sex) +
+  labs(X="Age", y="Difference in logs of mortality rates\n(Country-specific - European average)")
