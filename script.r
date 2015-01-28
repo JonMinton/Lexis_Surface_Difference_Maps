@@ -330,7 +330,7 @@ dev.off()
 
 
 # Now using diffs variable calculated earlier to present plot diffs
-diffs <- mutate(
+dif_logs <- mutate(
   rates_wide,
   france=log(france)-log(europe),
   scotland=log(scotland)-log(europe),
@@ -339,20 +339,59 @@ diffs <- mutate(
 )
 
 
-diffs_cohorts <- subset(diffs, subset=cohort ==1958 | cohort == 1970)
-diffs_cohorts$europe <- NULL
-diffs_cohorts <- melt(
-  diffs_cohorts,
-  id.vars=c("year", "age", "sex", "cohort"),
-  measure.vars=c("france", "scotland" ,"england_and_wales", "norway"),
-  variable.name="country", value.name="mortality_rate"
+tiff("figures/levelplots_engwales_cohorts_highlighted.tiff", 600, 600)
+# Finally, level plots as above, but with ablines to highlight the two cohorts of interest
+engwales_lev <- levelplot(
+  england_and_wales ~ year * age | sex, 
+  data=subset(dif_logs, subset=sex!="total"),
+  region=T, 
+  par.strip.text=list(cex=1.4, fontface="bold"),
+  ylab="Age in years",
+  xlab="Year",
+  cex=1.4,
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+  main=NULL,
+  panel=function(...){
+    panel.levelplot(...)
+    panel.abline(
+      a=-1958, b=1, 
+      lwd=2, lty="dashed"
+    )
+    panel.abline(
+      a=-1970, b=1,
+      lwd=2, lty="dashed"
+    )
+  }
 )
+print(engwales_lev)
+dev.off()
 
-diffs_cohorts$cohort <- as.factor(diffs_cohorts$cohort)
+tiff("figures/levelplots_scotland_cohorts_highlighted.tiff", 600, 600)
+# Finally, level plots as above, but with ablines to highlight the two cohorts of interest
+scot_lev <- levelplot(
+  scotland ~ year * age | sex, 
+  data=subset(dif_logs, subset=sex!="total"),
+  region=T, 
+  par.strip.text=list(cex=1.4, fontface="bold"),
+  ylab="Age in years",
+  xlab="Year",
+  cex=1.4,
+  at = seq(from= -1.2, to = 1.2, by=0.2),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+  main=NULL,
+  panel=function(...){
+    panel.levelplot(...)
+    panel.abline(
+      a=-1958, b=1, 
+      lwd=2, lty="dashed"
+      )
+    panel.abline(
+      a=-1970, b=1,
+      lwd=2, lty="dashed"
+    )
+  }
+)
+print(scot_lev)
+dev.off()
 
-
-ggplot(data=subset(dta_cohorts, subset=country=="england_and_wales"  & sex!="total")) +
-  scale_linetype_identity() + scale_size_identity() + 
-  geom_line(aes(x=age, y=mortality_rate)) + 
-  facet_grid(facets= cohort ~ sex) +
-  labs(X="Age", y="Difference in logs of mortality rates\n(Country-specific - European average)")
