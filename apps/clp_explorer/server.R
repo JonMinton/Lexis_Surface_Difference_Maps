@@ -277,7 +277,7 @@ shinyServer(function(input, output){
     }
     
     return(out)
-  }, height=250, width=500)
+  })
 
 })
 

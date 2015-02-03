@@ -93,7 +93,7 @@ shinyUI(fluidPage(
   h2("Bathtub Plot"),
   em("This shows the relationship between age and mortality risk for the cohort of interest, "),
   em("for the country of interest (solid line) compared with the average of all countries (dashed line"),
-  plotOutput("plot_bathtub", height="100%"),
+  plotOutput("plot_bathtub"),
   h2("Composite Plot"),
   em("The composite plot combines the colours and shading from the CLP with the contour lines "),
   em("from the Shaded Contour Plot. The contour lines therefore show the European average, "),
