@@ -16,6 +16,7 @@ require(reshape2)
 require(lattice)
 require(latticeExtra)
 require(RColorBrewer)
+require(ggplot2)
 
 
 
@@ -244,6 +245,39 @@ shinyServer(function(input, output){
     return(out)
     
   }, height=800, width=1600)
+  
+  output$plot_bathtub <- renderPlot({
+    show_cohort <- cohort_line_on()
+    
+    if (!show_cohort){
+      out <- NULL
+      
+    } else {
+      dta <- load_country_selection()
+      dta <- mutate(dta, cohort=year-age)
+      this_cohort <- input$select_cohort_year 
+      dta <- subset(dta, subset=cohort ==this_cohort)
+      dta <- melt(
+        dta,
+        id.vars=c("year", "age", "sex", "cohort"),
+        measure.vars=c("specific", "europe"),
+        variable.name="country", value.name="mortality_rate"
+      )
+      dta$lt <- "solid"
+      dta$lt[dta$country=="europe"] <- "longdash"      
+      
+      out <- ggplot(
+        data=subset(dta, subset=sex!="total")) +
+        scale_linetype_identity() +  
+        geom_line(aes(x=age, y=mortality_rate, group=country, colour=country, linetype=lt)) + 
+        facet_grid(facets= . ~ sex) + 
+        scale_y_log10()  +
+        scale_colour_manual(values=c("blue", "red")) +  
+        labs(X="Age", y="Mortality rate")
+    }
+    
+    return(out)
+  }, height=250, width=500)
 
 })
 

@@ -7,7 +7,7 @@ names(europe_labels) <- country_codes$long[country_codes$europe==1]
 shinyUI(fluidPage( 
   titlePanel("Comparative Level Plot Explorer"),
   helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),br(),
-  helpText(em("6 January 2015"), align="right"),br(),
+  helpText(em("3 February 2015"), align="right"),br(),
   hr(),
   h2("Information and instructions"),
   em("Once the data are loaded, please select a country."),
@@ -60,7 +60,7 @@ shinyUI(fluidPage(
       3,
       checkboxInput(
         "show_cohort_line",
-        "Check to overlay a cohort line",
+        "Check to overlay a cohort line and bathtub curves",
         value=FALSE
       ),
       sliderInput(
@@ -90,6 +90,10 @@ shinyUI(fluidPage(
   em("with darker shades indicating higher values."),br(),
   em("All mortality rates are shown on the log scale, to make trends in adulthood easier to identify"),
   plotOutput("plot_overall", height="100%"),
+  h2("Bathtub Plot"),
+  em("This shows the relationship between age and mortality risk for the cohort of interest, "),
+  em("for the country of interest (solid line) compared with the average of all countries (dashed line"),
+  plotOutput("plot_bathtub", height="100%"),
   h2("Composite Plot"),
   em("The composite plot combines the colours and shading from the CLP with the contour lines "),
   em("from the Shaded Contour Plot. The contour lines therefore show the European average, "),
