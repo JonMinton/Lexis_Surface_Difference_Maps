@@ -339,7 +339,7 @@ dif_logs <- mutate(
 )
 
 
-tiff("figures/levelplots_engwales_cohorts_highlighted.tiff", 600, 600)
+tiff("figures/levelplots_engwales_cohorts_highlighted.tiff", 1200, 600)
 # Finally, level plots as above, but with ablines to highlight the two cohorts of interest
 engwales_lev <- levelplot(
   england_and_wales ~ year * age | sex, 
@@ -367,7 +367,7 @@ engwales_lev <- levelplot(
 print(engwales_lev)
 dev.off()
 
-tiff("figures/levelplots_scotland_cohorts_highlighted.tiff", 600, 600)
+tiff("figures/levelplots_scotland_cohorts_highlighted.tiff", 1200, 600)
 # Finally, level plots as above, but with ablines to highlight the two cohorts of interest
 scot_lev <- levelplot(
   scotland ~ year * age | sex, 
