@@ -22,7 +22,9 @@
 rm(list=ls())
 
 require(plyr)
-require(reshape2)
+require(tidyr)
+require(dplyr)
+
 require(ggplot2)
 require(lattice)
 require(latticeExtra)
@@ -36,20 +38,95 @@ require(RColorBrewer)
 
 # load counts with east and west germany combined 
 
-country_codes <- read.csv("data/tidy/country_codes__new.csv", stringsAsFactors=F)
+country_codes <- read.csv("data/tidy/country_codes__new.csv", stringsAsFactors=F) %>%
+  tbl_df
 
 europe_codes <- country_codes$short[country_codes$europe==1]
 counts <- read.csv("data/tidy/counts_germany_combined.csv")
 
-counts_eu <- subset(
-  counts,
-  subset=country %in% europe_codes                  
-)
+counts_eu <- counts  %>% filter(country %in% europe_codes) %>%
+  tbl_df
 
-write.csv(counts_eu, file="apps/clp_explorer/data/counts_eu.csv", row.names=F)
+#write.csv(counts_eu, file="apps/clp_explorer/data/counts_eu.csv", row.names=F)
 
 # 7) aggregate up count data from all available European nations
-counts_eu_all <- ddply(
+mrate_aggregated <- counts_eu %>%
+  group_by(sex, year, age) %>%
+  summarise(
+    n_countries=length(death_count),
+    death_count=sum(death_count),
+    population_count=sum(population_count)
+    ) %>%
+  mutate(death_rate_overall=death_count/population_count, 
+         ldeath_rate_overall = log(death_rate_overall),
+         n=population_count) %>%
+  select(sex, year, age, n_countries, death_rate_overall, ldeath_rate_overall, n)
+
+mrate_each_country <- counts_eu %>%
+  mutate(death_rate_specific=death_count/population_count, 
+         ldeath_rate_specific=log(death_rate_specific),
+         fr=population_count) %>%
+  select(country, year, age, sex, death_rate_specific, ldeath_rate_specific, fr)
+
+mrate_joined <- mrate_each_country %>%
+  inner_join(mrate_aggregated)
+
+var_mrates <- mrate_joined %>%
+  group_by(year, age, sex) %>%
+  summarise(
+    n_countries=n_countries[1],
+    var_mrate =sum(fr*death_rate_specific^2)/n[1] - death_rate_overall[1]^2,
+    var_lmrate = sum(fr*ldeath_rate_specific^2)/n[1] - ldeath_rate_overall[1]^2
+            )
+
+var_mrates %>%
+  ungroup %>%
+  filter(sex!="total" & 
+           age %in% c(0, 5, 10, 15, 20, 30, 40, 50, 60, 70, 80) &
+           year > 1950) %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_mrate, x=year)) +
+  facet_grid(age~sex) + scale_y_log10()
+
+## Hmm, not sure how illuminating this is...
+# How about var contour plot
+ contourplot(
+   log(var_mrate) ~ year * age | sex, 
+   data=subset(var_mrates, subset=sex!="total" & 
+                 age <=80 & year >=1950 & year <=2010 ), 
+   region=T, 
+   par.strip.text=list(cex=1.4, fontface="bold"),
+   ylab="Age in years",
+   xlab="Year",
+   cex=1.4,
+   cuts=50,
+   col.regions=rev(heat.colors(200)),
+   main=NULL,
+   labels=list(cex=1.2),
+   col="grey"
+)
+
+# Seems to work - but seems too similar to mort
+
+# Let's look at the mort rates only
+contourplot(
+  log(death_rate_overall) ~ year * age | sex, 
+  data=subset(mrate_aggregated, subset=sex!="total" & 
+                age <=80 & year >=1950 & year <=2010 ), 
+  region=T, 
+  par.strip.text=list(cex=1.4, fontface="bold"),
+  ylab="Age in years",
+  xlab="Year",
+  cex=1.4,
+  cuts=50,
+  col.regions=rev(heat.colors(200)),
+  main=NULL,
+  labels=list(cex=1.2),
+  col="grey"
+)
+
+  
+  <- ddply(
   counts_eu,
   .(sex, year, age),
   summarise,
@@ -67,6 +144,7 @@ counts_summaries <- ddply(
   n_countries=median(n_countries),
   population_count=sum(population_count)
 )
+
 
 # When was the earliest country's data available?
 country_by_earliest_year <- ddply(counts_eu, .(country), summarise, earliest=min(year))
