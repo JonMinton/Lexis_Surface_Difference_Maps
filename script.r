@@ -263,7 +263,9 @@ dif_mnvars %>%
                   ymin=ifelse(dif_mean < 0, dif_mean, 0),
                   ymax=ifelse(dif_mean > 0, dif_mean, 0)
   )) + 
-  facet_wrap(~country)
+  facet_wrap(~country, ncol=5) + 
+  ggtitle("Males")
+ggsave(filename="dif_males.png", width=10, height=10)
 
 dif_mnvars %>%
   filter(sex=="female" & year >=1970) %>%
@@ -272,7 +274,9 @@ dif_mnvars %>%
                   ymin=ifelse(dif_mean < 0, dif_mean, 0),
                   ymax=ifelse(dif_mean > 0, dif_mean, 0)
   )) + 
-  facet_wrap(~country)
+  facet_wrap(~country, ncol=5) + 
+  ggtitle("Females")
+ggsave(filename="dif_females.png", width=10, height=10)
 
 
 
