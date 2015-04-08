@@ -125,15 +125,155 @@ contourplot(
   col="grey"
 )
 
-  
-  <- ddply(
-  counts_eu,
-  .(sex, year, age),
-  summarise,
-  n_countries=length(death_count),
-  death_count=sum(death_count),
-  population_count=sum(population_count)
-)
+
+
+### Can we do mean-var coplots for all included countries?
+
+# using mrate_aggregated and mrate_each_country
+
+vitstat_all <- counts_eu %>%
+  group_by(sex, year, age) %>%
+  summarise(
+    n_countries=length(death_count),
+    death_count=sum(death_count),
+    population_count=sum(population_count)
+  )
+
+meandeath_all <- vitstat_all %>%
+  group_by(sex, year) %>%
+  summarise(mean_death = sum(age * death_count)/sum(death_count)) %>%
+  filter(sex !="total") 
+
+meandeath_all %>%
+  ggplot(data=.) + 
+  geom_line(aes(y=mean_death, x=year, col=sex, group=sex)) +
+  labs(y="Mean age of death in years", x="Year")
+
+varpar_all <- vitstat_all %>%
+  group_by(sex, year) %>%
+  summarise(var_par_death = sum(death_count * age^2)/sum(death_count))
+
+vardeath_all <- varpar_all %>%
+  inner_join(meandeath_all) %>%
+  mutate(var_death = var_par_death - mean_death^2)
+
+vardeath_all %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_death, x=year, col=sex, group=sex)) +
+  labs(y="Variance in mean age of death in years", x="Year")
+
+vardeath_all %>%
+  filter(year >= 1900) %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_death, x=year, col=sex, group=sex)) +
+  labs(y="Variance in mean age of death in years", x="Year")
+
+meandeath_all %>%
+  filter(year >= 1900) %>%
+  ggplot(data=.) +
+  geom_line(aes(y=mean_death, x=year, col=sex, group=sex)) +
+  labs(y="Mean age of death in years", x="Year")
+
+meandeath_all <- meandeath_all %>%
+  mutate(country="all")
+
+# Now, to do this for each country
+
+#meandeath_each 
+meandeath_each <- counts_eu %>%
+  group_by(country, year, sex) %>%
+  summarise(mean_death= sum(death_count *age) /sum(death_count))
+
+varpar_each <- counts_eu %>%
+  group_by(country, year, sex) %>%
+  summarise(varpar = sum(age^2*death_count) / sum(death_count))
+
+var_each <- meandeath_each %>%
+  inner_join(varpar_each) %>%
+  mutate(var_death =varpar - mean_death^2) %>%
+  select(country, year, sex, mean_death, var_death)
+
+var_each %>%
+  filter(sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(y=mean_death, x=year, col=country, group=country)) + 
+  facet_grid(. ~ sex)
+
+var_each %>%
+  filter(sex !="total") %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_death, x=year, col=country, group=country)) + 
+  facet_grid(. ~ sex)
+
+
+# now to merge 
+mnvar_merged <- vardeath_all %>%
+  select(sex, year, mean_death_overall=mean_death, var_death_overall=var_death) %>%
+  inner_join(var_each)
+
+dif_mnvars <- mnvar_merged %>%
+  mutate(
+    dif_mean=mean_death-mean_death_overall, 
+    dif_var=var_death-var_death_overall
+    )
+
+dif_mnvars %>%
+  filter(sex=="male" & year >=1950) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country)
+
+dif_mnvars %>%
+  filter(sex=="female" & year >=1950) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country)
+
+
+
+dif_mnvars %>%
+  filter(sex=="male" & year >=1970) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_var < 0, dif_var, 0),
+                  ymax=ifelse(dif_var > 0, dif_var, 0)
+  )) + 
+  facet_wrap(~country)
+
+dif_mnvars %>%
+  filter(sex=="female" & year >=1970) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_var < 0, dif_var, 0),
+                  ymax=ifelse(dif_var > 0, dif_var, 0)
+  )) + 
+  facet_wrap(~country)
+
+
+dif_mnvars %>%
+  filter(sex=="male" & year >=1970) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country)
+
+dif_mnvars %>%
+  filter(sex=="female" & year >=1970) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country)
+
 
 
 # 8) want to produce a simple summary of this
