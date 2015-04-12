@@ -665,6 +665,18 @@ fn <- function(x){
 d_ply(comparisons, .(country), fn, .progress="text")
 
 
+comparisons <- mrate_joined %>%
+  select(year, age, sex, country, specific=death_rate_specific, overall=death_rate_overall) %>%
+  mutate(cohort = year - age)
+comparisons <- comparisons %>%
+  group_by(country, sex, cohort) %>%
+  mutate(
+    synth_cohort_specific = cumprod( 1 - specific),
+    synth_cohort_overall = cumprod( 1 - overall),
+    difference= synth_cohort_specific - synth_cohort_overall
+  )
+
+
 fn <- function(x){
   this_country <- x$country[1]
   this_title <- paste("Cohort sections,", this_country)
