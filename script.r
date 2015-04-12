@@ -621,3 +621,68 @@ scot_lev <- levelplot(
 print(scot_lev)
 dev.off()
 
+
+# Cumulative mort advantage/disadvantage by age ---------------------------
+
+# using mrate_joined
+
+comparisons <- mrate_joined %>%
+  select(year, age, sex, country, specific=death_rate_specific, overall=death_rate_overall) %>%
+  mutate(cohort = year - age)
+
+comparisons <- comparisons %>%
+  group_by(country, sex, year) %>%
+  mutate(
+    synth_cohort_specific = cumprod( 1 - specific),
+    synth_cohort_overall = cumprod( 1 - overall),
+    difference= synth_cohort_specific - synth_cohort_overall
+)
+
+comparisons %>%
+  filter(country=="AUT" & sex !="total") %>%
+  ggplot +
+  geom_line(aes(x=age, y=difference, group=sex, col=sex)) + 
+  facet_wrap(~ year) + 
+  ggtitle("AUS")
+
+fn <- function(x){
+  this_country <- x$country[1]
+  this_title <- paste("Year sections,", this_country)
+  
+
+  x %>%
+    filter(sex !="total" & age <=90) %>%
+    ggplot +
+    geom_line(aes(x=age, y=difference, group=sex, col=sex)) + 
+    facet_wrap( ~ year) + 
+    ggtitle(this_title)
+  
+  ggsave(filename=paste0("figures/diffs/year_sections/", this_country, ".png"),
+         height=10, width=10)
+  NULL
+}
+
+d_ply(comparisons, .(country), fn, .progress="text")
+
+
+fn <- function(x){
+  this_country <- x$country[1]
+  this_title <- paste("Cohort sections,", this_country)
+  
+  
+  x %>%
+    filter(sex !="total" & age <=90) %>%
+    ggplot +
+    geom_line(aes(x=age, y=difference, group=sex, col=sex)) + 
+    facet_wrap( ~ cohort) + 
+    ggtitle(this_title)
+  
+  ggsave(filename=paste0("figures/diffs/cohort_sections/", this_country, ".png"),
+         height=10, width=10)
+  NULL
+}
+
+d_ply(comparisons, .(country), fn, .progress="text")
+
+
+
