@@ -16,6 +16,7 @@ require(reshape2)
 require(lattice)
 require(latticeExtra)
 require(RColorBrewer)
+require(ggplot2)
 
 
 
@@ -40,7 +41,12 @@ europe_labels <- country_codes$short[country_codes$europe==1]
 names(europe_labels) <- country_codes$long[country_codes$europe==1]
 
 shinyServer(function(input, output){
-  print("entered main shiny server")
+  print("entered main shiny server")  
+  
+  cohort_line_on <- reactive({
+    out <- input$show_cohort_line
+  })
+  
   #select specific country
   get_country_selection <- reactive({
     tmp <- input$country_selection
@@ -95,6 +101,11 @@ shinyServer(function(input, output){
       out <- mutate(dta,
                     log_dif = log(specific) - log(europe)
                     )      
+      # hard coding of limits - to change later
+      out$log_dif[out$log_dif < -1.2] <- -1.2
+      out$log_dif[out$log_dif > 1.2] <- 1.2
+      
+      
     } else {out <- NULL}
     return(out)
   })
@@ -130,6 +141,7 @@ shinyServer(function(input, output){
 
   output$plot_overall <- renderPlot({
     tag <- show_sc_plot()
+    show_cohort <- cohort_line_on()
     if (tag==T){
       dta <- load_country_selection()
       out <- contourplot(
@@ -142,7 +154,17 @@ shinyServer(function(input, output){
         cex=1.4,
         cuts=50,
         col.regions=rev(heat.colors(200)),
-        main=NULL
+        main=NULL,
+        panel=function(...){
+          panel.contourplot(...)
+          if (show_cohort){
+            panel.abline(
+              a= - input$select_cohort_year,
+              b=1, 
+              lwd=2, lty="dashed"
+              )
+          }
+        }
         )
     } else {out <- NULL}
     return(out)
@@ -150,8 +172,11 @@ shinyServer(function(input, output){
 
   output$plot_clp <- renderPlot({
     tmp <- calc_log_dif()
+    show_cohort <- cohort_line_on()
+    
     
     if (!is.null(tmp)){
+      
     out  <- levelplot(
         log_dif ~ year * age | sex, 
         data=subset(tmp, subset=sex!="total"),
@@ -162,7 +187,17 @@ shinyServer(function(input, output){
         cex=1.4,
         at = seq(from= -1.2, to = 1.2, by=0.2),
         col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-        main=NULL
+        main=NULL,
+        panel=function(...){
+          panel.levelplot(...)
+          if (show_cohort){
+            panel.abline(
+              a= - input$select_cohort_year,
+              b=1, 
+              lwd=2, lty="dashed"
+            )
+          }
+        }
       )
     } else {out <- NULL}
     return(out)
@@ -172,6 +207,8 @@ shinyServer(function(input, output){
     # From levelplot
     dta <- calc_log_dif()
     tag <- input$select_composite_plot
+    show_cohort <- cohort_line_on()
+    
     if (!is.null(dta) & tag==T){
       clp  <- levelplot(
         log_dif ~ year * age | sex, 
@@ -183,7 +220,17 @@ shinyServer(function(input, output){
         cex=1.4,
         at = seq(from= -1.2, to = 1.2, by=0.2),
         col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-        main=NULL
+        main=NULL,
+        panel=function(...){
+          panel.levelplot(...)
+          if (show_cohort){
+            panel.abline(
+              a= - input$select_cohort_year,
+              b=1, 
+              lwd=2, lty="dashed"
+            )
+          }
+        }
       )
       
      cp <- contourplot(
@@ -198,6 +245,39 @@ shinyServer(function(input, output){
     return(out)
     
   }, height=800, width=1600)
+  
+  output$plot_bathtub <- renderPlot({
+    show_cohort <- cohort_line_on()
+    
+    if (!show_cohort){
+      out <- NULL
+      
+    } else {
+      dta <- load_country_selection()
+      dta <- mutate(dta, cohort=year-age)
+      this_cohort <- input$select_cohort_year 
+      dta <- subset(dta, subset=cohort ==this_cohort)
+      dta <- melt(
+        dta,
+        id.vars=c("year", "age", "sex", "cohort"),
+        measure.vars=c("specific", "europe"),
+        variable.name="country", value.name="mortality_rate"
+      )
+      dta$lt <- "solid"
+      dta$lt[dta$country=="europe"] <- "longdash"      
+      
+      out <- ggplot(
+        data=subset(dta, subset=sex!="total")) +
+        scale_linetype_identity() +  
+        geom_line(aes(x=age, y=mortality_rate, group=country, colour=country, linetype=lt)) + 
+        facet_grid(facets= . ~ sex) + 
+        scale_y_log10()  +
+        scale_colour_manual(values=c("blue", "red")) +  
+        labs(X="Age", y="Mortality rate")
+    }
+    
+    return(out)
+  })
 
 })
 

@@ -9,7 +9,7 @@
 "CHL", "Chile",  0 
 "CZE", "Czech Republic",  1 
 "DEUTE", "East Germany",  0 
-"DEUTNP", "Germany", 1 
+"DEUTNP", "Germany", 0 
 "DEUTW", "West Germany",  0
 "DNK", "Denmark",   1
 "ESP", "Spain", 1
@@ -45,3 +45,4 @@
 "TWN", "Taiwan", 0 
 "UKR", "Ukraine", 0
 "USA", "The United States of America", 0 
+"DEUT", "Germany (East & West Combined)", 1
