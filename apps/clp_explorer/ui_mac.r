@@ -6,8 +6,13 @@ names(europe_labels) <- country_codes$long[country_codes$europe==1]
 
 shinyUI(fluidPage( 
   titlePanel("Comparative Level Plot Explorer"),
+<<<<<<< HEAD
+  helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),
+  helpText(em("23 December 2014"), align="right"),br(),
+=======
   helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),br(),
   helpText(em("3 February 2015"), align="right"),br(),
+>>>>>>> 181f4edcd016b5a9c2e655d6b0b95be6cec87443
   hr(),
   h2("Information and instructions"),
   em("Once the data are loaded, please select a country."),
@@ -83,7 +88,7 @@ shinyUI(fluidPage(
   br(),
   h2("Shaded Contour Plot"),
   em("The shaded contour plot shows the European average mortality rate, and how it varies"),
-  em(" over the years for which the data are available. Contour lines connection positions "),
+  em(" over the years for which the data are available. Contour lines connect positions "),
   em("on the Lexis surface (the range of age and year combinations) that have equal values. "),
   em("A slightly upwards sloping line therefore shows a steady improvement in mortality rates."),
   br(), em("The shade of the cells behind the contour lines also indicates the underlying value, "),
