@@ -247,6 +247,22 @@ class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/e5_var_1750_onwards.html")
 
+###
+
+# correlations between means and variances for e0 and e5
+
+dlply(vardeath_all, .(sex), function(x) cor(x=x$mean_death, y= x$var_death))
+dlply(vardeath_e5_all, .(sex), function(x) cor(x=x$mean_e5, y= x$var_death))
+
+# Now for 1950 onwards
+
+vardeath_all %>%
+  filter(year >=1950) %>%
+  dlply(., .(sex), function(x) cor(x=x$mean_death, y= x$var_death))
+
+vardeath_e5_all %>%
+  filter(year >=1950) %>%
+  dlply(., .(sex), function(x) cor(x=x$mean_e5, y= x$var_death))
 # Now to zoom in on 1950 onwards
 
 # e0, mean, 1950+
