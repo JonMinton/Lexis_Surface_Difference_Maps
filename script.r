@@ -487,7 +487,7 @@ class(tab) <- "data.frame"
 print(xtable(tab), type="html", file="tables/dif_e0_males.html")
 
 
-# RMS plot, males, e0 -----------------------------------------------------
+# RMS plot, e0 -----------------------------------------------------
 
 rms_e0 <- dif_mnvars %>%
   filter(year >= 1950) %>%
@@ -500,7 +500,8 @@ rms_e0 %>% filter(year <=2010) %>%
   geom_line(aes(x=year, y=rms_e0, group=sex, col=sex, linetype=sex)) +
   labs(y="RMS of country differences in e0", x="Year") + 
   theme(legend.justification = c(1,1), legend.position=c(1,1), legend.key.size=unit(0.3, "cm")) + 
-  scale_linetype_manual(values=c("solid", "dashed")) 
+  scale_linetype_manual(values=c("solid", "dashed")) +
+  ylim(c(0, 8))
 ggsave(filename = "figures/rms_e0_1950_present.png", 
        units = "cm", dpi = 300, width=8, height=8)
 
@@ -618,7 +619,8 @@ rms_e5 %>% filter(year <=2010) %>%
   geom_line(aes(x=year, y=rms_e0, group=sex, col=sex, linetype=sex)) +
   labs(y="RMS of country differences in e5", x="Year") + 
   theme(legend.justification = c(1,0), legend.position=c(1,0), legend.key.size=unit(0.3, "cm")) + 
-  scale_linetype_manual(values=c("solid", "dashed")) 
+  scale_linetype_manual(values=c("solid", "dashed")) +
+  ylim(c(0, 4))
 ggsave(filename = "figures/rms_e5_1950_present.png", 
        units = "cm", dpi = 300, width=8, height=8)
 
