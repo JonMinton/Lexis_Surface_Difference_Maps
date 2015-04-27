@@ -249,6 +249,9 @@ print(xtable(tab), type="html", file="tables/e5_var_1750_onwards.html")
 
 ###
 
+# Correlations ------------------------------------------------------------
+
+
 # correlations between means and variances for e0 and e5
 
 dlply(vardeath_all, .(sex), function(x) cor(x=x$mean_death, y= x$var_death))
@@ -278,6 +281,9 @@ ggsave(filename = "figures/mean_e0_1950_present.png",
        units = "cm", dpi = 300, width=8, height=8)
 
 
+# Tables - e0, 1950+ -------------------------------------------------
+
+
 tab <- vardeath_all %>%
   arrange(year) %>%
   filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010)) %>%
@@ -288,6 +294,10 @@ tab <- vardeath_all %>%
 class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/e0_mean_1950_onwards.html")
+
+
+# Fig - var(e5), 1950+ ----------------------------------------------------
+
 
 # e0, var, 1950+
 vardeath_all %>%
@@ -302,6 +312,10 @@ ggsave(filename = "figures/var_e0_1950_present.png",
        units = "cm", dpi = 300, width=8, height=8)
 
 
+# Table - var(e0), 1950 + -------------------------------------------------
+
+
+
 tab <- vardeath_all %>%
   arrange(year) %>%
   filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010)) %>%
@@ -312,6 +326,10 @@ tab <- vardeath_all %>%
 class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/e0_var_1950_onwards.html")
+
+
+
+# Figure - e5, 1950+ ------------------------------------------------------
 
 
 # e5, mean, 1950+
@@ -325,6 +343,10 @@ vardeath_e5_all  %>% filter(year >=1950) %>%
   geom_vline(x=1950, linetype="dashed")
 ggsave(filename = "figures/mean_e5_1950_present.png", 
        units = "cm", dpi = 300, width=8, height=8)
+
+
+# Table, e5 mean, 1950+ ---------------------------------------------------
+
 
 
 tab <- vardeath_e5_all %>%
