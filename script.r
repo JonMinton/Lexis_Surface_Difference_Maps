@@ -723,9 +723,11 @@ rms_meanvar %>%
 rms_meanvar %>%
   filter(year <= 2010) %>%
   ggplot(data = .) + 
-  geom_point(aes(colour=year, y=var_e5, x=rms_e5)) + facet_wrap(~sex)
+  geom_point(aes(colour=year, y=var_e5, x=rms_e5)) + facet_wrap(~sex) +
+  labs(x="Variance in Europe-wide e5", y="RMS of difference in e5 between nations")
+
 ggsave(filename="figures/e5_rms_var_relationship.png",
-       units= "cm", dpi=300, width=10, height=10
+       units= "cm", dpi=300, width=15, height=15
        )
 
 # So, it appears the relationship between rms_e5, a country difference, and 
@@ -734,9 +736,10 @@ ggsave(filename="figures/e5_rms_var_relationship.png",
 rms_meanvar %>%
   filter(year <= 2010) %>%
   ggplot(data = .) + 
-  geom_point(aes(colour=year, y=var_e0, x=rms_e0)) + facet_wrap(~sex)
+  geom_point(aes(colour=year, y=var_e0, x=rms_e0)) + facet_wrap(~sex) +
+  labs(x="Variance in Europe-wide e0", y="RMS of difference in e0 between nations")
 ggsave(filename="figures/e0_rms_var_relationship.png",
-       units= "cm", dpi=300, width=10, height=10
+       units= "cm", dpi=300, width=15, height=15
 )
 
 
