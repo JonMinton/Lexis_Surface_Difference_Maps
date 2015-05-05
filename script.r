@@ -1227,6 +1227,32 @@ contourplot(
 )
 dev.off()
 
+png(filename="figures/mort_all_europe_rdylbu.png", 
+    width=40, height=20, res=300, units="cm"
+)
+# Let's look at the mort rates only
+contourplot(
+  log(death_rate_overall) ~ year * age | sex, 
+  data=subset(mrate_aggregated, subset=sex!="total" & 
+                age <=90 & year >=1950 & year <=2010 ), 
+  region=T, 
+  par.strip.text=list(cex=1.4, fontface="bold"),
+  ylab=list(label="Age in years", cex=1.4),
+  xlab=list(label="Year", cex=1.4),
+  cex=1.4,
+  cuts=50,
+  col.regions=colorRampPalette(brewer.pal(6, "RdYlBu"))(200),
+  main=NULL,
+  labels=list(cex=1.2),
+  col="darkgreen",
+  scales=list(
+    x=list(cex=1.4), 
+    y=list(cex=1.4),
+    alternating=3
+  )
+)
+dev.off()
+
 # Calculate difference in mort rate for 
 # Scotland
 # England & Wales
