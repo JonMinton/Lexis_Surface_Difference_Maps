@@ -99,12 +99,22 @@ meandeath_e5 <- vitstat_all %>%
   group_by(sex, year) %>%
   summarise(mean_death = sum(age * death_count)/sum(death_count)) 
 
+meandeath_e65 <- vitstat_all %>%
+  filter(age >= 65) %>%
+  group_by(sex, year) %>%
+  summarise(mean_death = sum(age * death_count)/sum(death_count)) 
+
 varpar_e0 <- vitstat_all %>%
   group_by(sex, year) %>%
   summarise(var_par_death = sum(death_count * age^2)/sum(death_count))
 
 varpar_e5 <- vitstat_all %>%
   filter(age >= 5) %>%
+  group_by(sex, year) %>%
+  summarise(var_par_death = sum(death_count * age^2)/sum(death_count))
+
+varpar_e65 <- vitstat_all %>%
+  filter(age >= 65) %>%
   group_by(sex, year) %>%
   summarise(var_par_death = sum(death_count * age^2)/sum(death_count))
 
@@ -116,10 +126,17 @@ vardeath_e5 <- varpar_e5 %>%
   inner_join(meandeath_e5) %>%
   mutate(var_death = var_par_death - mean_death^2)
 
+vardeath_e65 <- varpar_e65 %>%
+  inner_join(meandeath_e65) %>%
+  mutate(var_death = var_par_death - mean_death^2)
+
 meandeath_all_e0 <- meandeath_e0 %>%
   mutate(country= "all")
 
 meandeath_all_e5 <- meandeath_e5 %>%
+  mutate(country= "all")
+
+meandeath_all_e65 <- meandeath_e65 %>%
   mutate(country= "all")
 
 
@@ -134,6 +151,10 @@ meandeath_each_e5 <- counts_eu %>%
   group_by(country, year, sex) %>%
   summarise(mean_death= sum(death_count *age) /sum(death_count))
 
+meandeath_each_e65 <- counts_eu %>%
+  filter(sex != "total" & age >= 65) %>%
+  group_by(country, year, sex) %>%
+  summarise(mean_death= sum(death_count *age) /sum(death_count))
 
 varpar_each_e0 <- counts_eu %>%
   filter(sex != "total") %>%
@@ -142,6 +163,11 @@ varpar_each_e0 <- counts_eu %>%
 
 varpar_each_e5 <- counts_eu %>%
   filter(sex != "total" & age >= 5) %>%
+  group_by(country, year, sex) %>%
+  summarise(varpar = sum(age^2*death_count) / sum(death_count))
+
+varpar_each_e65 <- counts_eu %>%
+  filter(sex != "total" & age >= 65) %>%
   group_by(country, year, sex) %>%
   summarise(varpar = sum(age^2*death_count) / sum(death_count))
 
@@ -155,6 +181,10 @@ var_each_e5 <- meandeath_each_e5 %>%
   mutate(var_death =varpar - mean_death^2) %>%
   select(country, year, sex, mean_death, var_death)
 
+var_each_e65 <- meandeath_each_e5 %>%
+  inner_join(varpar_each_e65) %>%
+  mutate(var_death =varpar - mean_death^2) %>%
+  select(country, year, sex, mean_death, var_death)
 
 # now to merge 
 mnvar_merged_e0 <- vardeath_e0 %>%
@@ -164,6 +194,10 @@ mnvar_merged_e0 <- vardeath_e0 %>%
 mnvar_merged_e5 <- vardeath_e5 %>%
   select(sex, year, mean_death_overall=mean_death, var_death_overall=var_death) %>%
   inner_join(var_each_e5)
+
+mnvar_merged_e65 <- vardeath_e65 %>%
+  select(sex, year, mean_death_overall=mean_death, var_death_overall=var_death) %>%
+  inner_join(var_each_e65)
 
 
 dif_mnvars_e0 <- mnvar_merged_e0 %>%
@@ -191,6 +225,20 @@ dif_mnvars_e5$country_code[dif_mnvars_e5$country_code=="GBR_NIR"] <- "GBR"
 dif_mnvars_e5$country_code[dif_mnvars_e5$country_code=="GBR_SCO"] <- "GBR"
 dif_mnvars_e5$country_code[dif_mnvars_e5$country_code=="DEUT"] <- "DEU"
 
+dif_mnvars_e65 <- mnvar_merged_e65 %>%
+  mutate(
+    dif_mean=mean_death-mean_death_overall, 
+    dif_var=var_death-var_death_overall,
+    country_code=as.character(country)
+  )
+
+dif_mnvars_e65$country_code[dif_mnvars_e65$country_code=="FRATNP"] <- "FRA"
+dif_mnvars_e65$country_code[dif_mnvars_e65$country_code=="GBRTENW"] <- "GBR"
+dif_mnvars_e65$country_code[dif_mnvars_e65$country_code=="GBR_NIR"] <- "GBR"
+dif_mnvars_e65$country_code[dif_mnvars_e65$country_code=="GBR_SCO"] <- "GBR"
+dif_mnvars_e65$country_code[dif_mnvars_e65$country_code=="DEUT"] <- "DEU"
+
+
 
 tmp <- gdp %>%
   group_by(country_code) %>%
@@ -202,6 +250,10 @@ dif_mnvars_e0 <- dif_mnvars_e0  %>%
 
 dif_mnvars_e5 <- dif_mnvars_e5  %>%
   left_join(tmp)
+
+dif_mnvars_e65 <- dif_mnvars_e65  %>%
+  left_join(tmp)
+
 
 rm(tmp)
 
@@ -231,6 +283,19 @@ levels(dif_mnvars_e5$country)[1:26] <- c(
   "Norway", "Luxembourg"
 )
 
+dif_mnvars_e65 <- dif_mnvars_e65 %>%
+  ungroup
+
+dif_mnvars_e65$country <- as.factor(dif_mnvars_e65$country)
+dif_mnvars_e65$country <-  reorder(x=dif_mnvars_e65$country, X=dif_mnvars_e65$gdp)
+levels(dif_mnvars_e65$country)[1:26] <- c(
+  "Bulgaria", "Latvia", "Hungary", "Poland", "Lithuania", "Estonia", "Slovakia", "Portugal",
+  "Slovenia", "Czech Republic",  "Spain", "Italy", "France", "England & Wales", 
+  "Northern Ireland", "Scotland",
+  "Finland", "Belgium", "Denmark", "Germany", "Sweden", "Austria", "Ireland", "Netherlands",
+  "Norway", "Luxembourg"
+)
+
 
 
 rms_e0 <- dif_mnvars_e0 %>%
@@ -246,6 +311,12 @@ rms_e5 <- dif_mnvars_e5 %>%
   group_by(sex, year) %>%
   summarise(rms_e5 = (mean(dif_mean^2, na.rm=T)^0.5))
 
+rms_e65 <- dif_mnvars_e65 %>%
+  filter(year >= 1950) %>%
+  select(country, sex, year, dif_mean) %>%
+  group_by(sex, year) %>%
+  summarise(rms_e65 = (mean(dif_mean^2, na.rm=T)^0.5))
+
 
 # Join rms_e0 and rms_e5 --------------------------------------------------
 
@@ -258,7 +329,11 @@ rms_meanvar <-   rms %>%
   rename(mean_e0 = mean_death, var_e0=var_death) %>%
   left_join(vardeath_e5) %>%
   select(-var_par_death) %>%
-  rename(mean_e5 = mean_death, var_e5 = var_death)
+  rename(mean_e5 = mean_death, var_e5 = var_death) %>%
+  left_join(vardeath_e65) %>%
+  select(-var_par_death) %>%
+  rename(mean_e65 = mean_death, var_e65 = var_death)
+
   
 # Figures and tables -----------------------------------------------------------------
 
@@ -292,7 +367,18 @@ meandeath_e5 %>%
 ggsave(filename = "figures/e5_1750_present.png", 
        units = "cm", dpi = 300, width=8, height=8)
 
+# figure: e65, long term -----------------------------------------------------------
 
+
+meandeath_e65 %>%
+  ggplot(data=.) + 
+  geom_line(aes(y=mean_death, x=year, col=sex, group=sex, linetype=sex)) +
+  labs(y="e65 in years", x="Year") + ylim(c(65,90)) + 
+  theme(legend.justification = c(0, 1), legend.position=c(0,1), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) + 
+  geom_vline(x=1950, linetype="dashed")
+ggsave(filename = "figures/e65_1750_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
 # table, e0, long-term ---------------------------------------------------------------
 
 
@@ -367,6 +453,34 @@ class(tab) <- "data.frame"
 print(xtable(tab), type="html", file="tables/e5_mean_1750_onwards.html")
 
 
+# figure: e65, long term -----------------------------------------------------------
+
+
+meandeath_e65 %>%
+  ggplot(data=.) + 
+  geom_line(aes(y=mean_death, x=year, group=sex, linetype=sex, col=sex)) + 
+  labs(y="e65 (years)", x="Year") +
+  theme(legend.justification = c(0, 1), legend.position=c(0,1), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) + 
+  geom_vline(x=1950, linetype="dashed")
+ggsave(filename = "figures/mean_e65_1750_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+# table: e65, long-term ----------------------------------------------------
+
+
+tab <- meandeath_e65 %>%
+  arrange(year) %>%
+  filter(year %in% c(1800, 1850, 1900, 1950, 2000)) %>%
+  select(sex, year, mean_death) %>% ungroup %>%
+  spread(key=sex, value=mean_death) %>%
+  round(1)
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/e65_mean_1750_onwards.html")
+
 
 # figure: var(e5), long term ------------------------------------------------------
 
@@ -396,6 +510,34 @@ class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/e5_var_1750_onwards.html")
 
+# figure: var(e65), long term ------------------------------------------------------
+
+
+vardeath_e65 %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_death, x=year, col=sex, group=sex, linetype=sex)) +
+  labs(y="Variance in e65 (Years squared)", x="Year") +
+  theme(legend.justification = c(1, 0), legend.position=c(1,0), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) + 
+  geom_vline(x=1950, linetype="dashed")
+ggsave(filename = "figures/var_e65_1750_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+# table: var(e5), long-term -----------------------------------------------
+
+
+tab <- vardeath_e65 %>%
+  arrange(year) %>%
+  filter(year %in% c(1800, 1850, 1900, 1950, 2000)) %>%
+  select(sex, year, var_death) %>% ungroup %>%
+  spread(key=sex, value=var_death) %>%
+  round(1)
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/e65_var_1750_onwards.html")
+
 ###
 
 # Correlations : mean and var, e0 and e5 ------------------------------------------------------------
@@ -404,6 +546,7 @@ print(xtable(tab), type="html", file="tables/e5_var_1750_onwards.html")
 
 ddply(vardeath_e0, .(sex), function(x) round(cor(x=x$mean_death, y= x$var_death), 2))
 ddply(vardeath_e5, .(sex), function(x) round(cor(x=x$mean_death, y= x$var_death), 2))
+ddply(vardeath_e65, .(sex), function(x) round(cor(x=x$mean_death, y= x$var_death), 2))
 
 # Now for 1950 onwards
 
@@ -414,7 +557,11 @@ vardeath_e0 %>%
 vardeath_e5 %>%
   filter(year >=1950) %>%
   ddply(., .(sex), function(x) round(cor(x=x$mean_death, y= x$var_death), 2)) 
-# Now to zoom in on 1950 onwards
+
+vardeath_e65 %>%
+  filter(year >=1950) %>%
+  ddply(., .(sex), function(x) round(cor(x=x$mean_death, y= x$var_death), 2)) 
+
 
 
 # figure: e0, short-term ----------------------------------------------------------
@@ -535,6 +682,65 @@ class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/e5_var_1950_onwards.html")
 
+# Figure: e65, short-term  ------------------------------------------------------
+
+
+vardeath_e65  %>% 
+  filter(year >=1950) %>%
+  ggplot(data=.) +
+  geom_line(aes(y=mean_death, x=year, col=sex, group=sex, linetype=sex)) +
+  labs(y="e65 in years", x="Year") +
+  theme(legend.justification = c(0, 1), legend.position=c(0,1), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) + 
+  geom_vline(x=1950, linetype="dashed")
+ggsave(filename = "figures/mean_e65_1950_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+# table, e5, short term ---------------------------------------------------
+
+
+
+tab <- vardeath_e65 %>%
+  arrange(year) %>%
+  filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010)) %>%
+  select(sex, year, mean_death) %>% ungroup %>%
+  spread(key=sex, value=mean_death) %>%
+  round(1)
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/e65_mean_1950_onwards.html")
+
+
+
+# Figure: var(e65), short term ---------------------------------------------
+
+vardeath_e65  %>% 
+  filter(year >=1950) %>%
+  ggplot(data=.) +
+  geom_line(aes(y=var_death, x=year, col=sex, group=sex, linetype=sex)) +
+  labs(y="Variance in e65 (Years squared)", x="Year") +
+  theme(legend.justification = c(1, 0), legend.position=c(1,0), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) + 
+  geom_vline(x=1950, linetype="dashed")
+ggsave(filename = "figures/var_e65_1950_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+
+# Table: var(e65), short term ---------------------------------------------
+
+tab <- vardeath_e65 %>%
+  arrange(year) %>%
+  filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010)) %>%
+  select(sex, year, var_death) %>% ungroup %>%
+  spread(key=sex, value=var_death) %>%
+  round(1)
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/e65_var_1950_onwards.html")
 
 
 # Figure: country differences in e0, males ------------------------------------------
@@ -635,8 +841,6 @@ ggsave(filename="figures/dif_males_1950_e5.png", width=20, height=20, dpi=300, u
 # Figure - RMS plot, e5 ------------------------------------------------------
 
 
-
-
 rms_e5 %>% filter(year <=2010) %>%
   ggplot(.) +
   geom_line(aes(x=year, y=rms_e5, group=sex, col=sex, linetype=sex)) +
@@ -667,6 +871,9 @@ print(xtable(tab), type="html", file="tables/dif_e5_males.html")
 
 
 
+# Figure: country differences in e5, short term, females ------------------
+
+
 dif_mnvars %>%
   filter(sex=="female" & year >=1950) %>%
   ggplot(data=.) +
@@ -677,6 +884,9 @@ dif_mnvars %>%
   facet_wrap(~country) + ylim(c(-10, 10)) +
   labs(title="Females", x="Year", y="Difference in e5 from European average")
 ggsave(filename="figures/dif_females_1950_e5.png", width=10, height=10, dpi=300)
+
+
+# Table: country differences in e5, short term, females -------------------
 
 tab <- dif_mnvars %>%
   select(country, sex, year, dif_mean) %>%
@@ -691,15 +901,16 @@ class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/dif_e5_females.html")
 
-rms_e0 <- dif_mnvars %>%
-  filter(year >= 1950) %>%
+
+# figure: rms e0 ----------------------------------------------------------
+
+dif_mnvars_e0 %>%
+  filter(year >= 1950 & year <= 2010) %>%
   select(country, sex, year, dif_mean) %>%
   group_by(sex, year) %>%
-  summarise(rms_e0 = (mean(dif_mean^2, na.rm=T)^0.5))
-
-rms_e0 %>% filter(year <=2010) %>%
-  ggplot(.) +
-  geom_line(aes(x=year, y=rms_e0, group=sex, col=sex, linetype=sex)) +
+  summarise(rms = (mean(dif_mean^2, na.rm=T)^0.5)) %>%
+  ggplot +
+  geom_line(aes(x=year, y=rms, group=sex, col=sex, linetype=sex)) +
   labs(y="RMS of country differences in e0", x="Year") + 
   theme(legend.justification = c(1,1), legend.position=c(1,1), legend.key.size=unit(0.3, "cm")) + 
   scale_linetype_manual(values=c("solid", "dashed")) 
@@ -707,6 +918,37 @@ ggsave(filename = "figures/rms_e0_1950_present.png",
        units = "cm", dpi = 300, width=8, height=8)
 
 
+# figure: rms e5 ----------------------------------------------------------
+
+dif_mnvars_e5 %>%
+  filter(year >= 1950 & year <= 2010) %>%
+  select(country, sex, year, dif_mean) %>%
+  group_by(sex, year) %>%
+  summarise(rms = (mean(dif_mean^2, na.rm=T)^0.5)) %>%
+  ggplot +
+  geom_line(aes(x=year, y=rms, group=sex, col=sex, linetype=sex)) +
+  labs(y="RMS of country differences in e5", x="Year") + 
+  theme(legend.justification = c(1,0), legend.position=c(1,0), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) 
+ggsave(filename = "figures/rms_e5_1950_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+# figure: rms e65 ----------------------------------------------------------
+
+dif_mnvars_e65 %>%
+  filter(year >= 1950 & year <= 2010) %>%
+  select(country, sex, year, dif_mean) %>%
+  group_by(sex, year) %>%
+  summarise(rms = (mean(dif_mean^2, na.rm=T)^0.5)) %>%
+  ggplot +
+  geom_line(aes(x=year, y=rms, group=sex, col=sex, linetype=sex)) +
+  labs(y="RMS of country differences in e65", x="Year") + 
+  ylim(c(0, 14)) +
+  theme(legend.justification = c(1,1), legend.position=c(1,1), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) 
+ggsave(filename = "figures/rms_e5_1950_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
 
 # relationship between var(e5) and rms(e5) --------------------------------
 
