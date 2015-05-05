@@ -1,5 +1,8 @@
 # Code for figs for EJE paper
 
+# To do:  -----------------------------------------------------------------
+
+# 1 ) Fix e65 variables for country differences 
 
 # Load packages -----------------------------------------------------------
 
@@ -811,7 +814,6 @@ print(xtable(tab), type="html", file="tables/dif_e0_females.html")
 # figure: rms of country differences in e0 -----------------------------------------------------
 
 
-
 rms_e0 %>% filter(year <=2010) %>%
   ggplot(.) +
   geom_line(aes(x=year, y=rms_e0, group=sex, col=sex, linetype=sex)) +
@@ -900,6 +902,85 @@ tab <- tab %>%
 class(tab) <- "data.frame"
 
 print(xtable(tab), type="html", file="tables/dif_e5_females.html")
+
+# Figure, differences in e65, males ----------------------------------------
+
+
+dif_mnvars_e65 %>%
+  filter(sex=="male" & year >=1950) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country) + ylim(c(-25, 25)) + 
+  labs(title="Males", x="Year", y="Difference in e65 from European average")
+ggsave(filename="figures/dif_males_1950_e5.png", width=20, height=20, dpi=300, unit="cm")
+
+
+# Figure - RMS plot, e5 ------------------------------------------------------
+
+
+rms_e5 %>% filter(year <=2010) %>%
+  ggplot(.) +
+  geom_line(aes(x=year, y=rms_e5, group=sex, col=sex, linetype=sex)) +
+  labs(y="RMS of country differences in e5", x="Year") + 
+  theme(legend.justification = c(1,0), legend.position=c(1,0), legend.key.size=unit(0.3, "cm")) + 
+  scale_linetype_manual(values=c("solid", "dashed")) +
+  ylim(c(0, 4))
+ggsave(filename = "figures/rms_e5_1950_present.png", 
+       units = "cm", dpi = 300, width=8, height=8)
+
+
+
+
+# Table: country differences in e5, short term, males ---------------------
+
+tab <- dif_mnvars_e5 %>%
+  select(country, sex, year, dif_mean) %>%
+  filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010), sex=="male") 
+
+tab$dif_mean <- round(tab$dif_mean, 1)
+
+tab <- tab %>%
+  spread(key=country, value=dif_mean) 
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/dif_e5_males.html")
+
+
+
+# Figure: country differences in e5, short term, females ------------------
+
+
+dif_mnvars %>%
+  filter(sex=="female" & year >=1950) %>%
+  ggplot(data=.) +
+  geom_ribbon(aes(x=year, 
+                  ymin=ifelse(dif_mean < 0, dif_mean, 0),
+                  ymax=ifelse(dif_mean > 0, dif_mean, 0)
+  )) + 
+  facet_wrap(~country) + ylim(c(-10, 10)) +
+  labs(title="Females", x="Year", y="Difference in e5 from European average")
+ggsave(filename="figures/dif_females_1950_e5.png", width=10, height=10, dpi=300)
+
+
+# Table: country differences in e5, short term, females -------------------
+
+tab <- dif_mnvars %>%
+  select(country, sex, year, dif_mean) %>%
+  filter(year %in% c(1950, 1960, 1970, 1980, 1990, 2000, 2010), sex=="female") 
+
+tab$dif_mean <- round(tab$dif_mean, 1)
+
+tab <- tab %>%
+  spread(key=country, value=dif_mean) 
+
+class(tab) <- "data.frame"
+
+print(xtable(tab), type="html", file="tables/dif_e5_females.html")
+
 
 
 # figure: rms e0 ----------------------------------------------------------
