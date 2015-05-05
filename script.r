@@ -1163,7 +1163,7 @@ contourplot(
   xlab=list(label="Year", cex=1.4),
   cex=1.4,
   cuts=50,
-  col.regions=rev(heat.colors(200)),
+  col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
   main=NULL,
   labels=list(cex=1.2),
   col="blue",
