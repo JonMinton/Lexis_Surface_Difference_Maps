@@ -8,8 +8,10 @@ shinyUI(fluidPage(
   titlePanel("Comparative Level Plot Explorer"),
 
   helpText(em("Dr Jon Minton, University of Glasgow"), align="right"),br(),
-  helpText(em("3 February 2015"), align="right"),br(),
+  helpText(em("10 May 2015"), align="right"),
+  br(),
   hr(),
+  
   h2("Information and instructions"),
   em("Once the data are loaded, please select a country."),
   em("Once a selection is made, the comparative level plot (CLP) will be generated."),br(),
@@ -18,6 +20,7 @@ shinyUI(fluidPage(
   br(),
   em("If the box is checked, then a shaded contour map showing mortality rates for Europe as a whole will be shown."),
   br(),
+  
   hr(),
   fluidRow(
     column(
@@ -48,7 +51,7 @@ shinyUI(fluidPage(
         label = "select range of years",
         min=1900, max=2011,
         value=c(1950, 2010), step=1,
-        format="####"
+        sep=""
       ),
       sliderInput(
         inputId = "age_range",
@@ -69,19 +72,30 @@ shinyUI(fluidPage(
         label="select the cohort to highlight",
         min=1900, max=2000,
         value=1970, step=1,
-        format="####"
+        sep=""
         )
-    )
+    ),
+    column(
+      3,
+      checkboxInput(
+        "apply_blurrer",
+        "Check to apply a blurrer to the CLP levels",
+        value=FALSE
+        ),
+      sliderInput(
+        inputId="blurrer_value",
+        label="Select the level of blur to apply",
+        min=0.5, max=3.5,
+        value=2.0, step=0.1
+        )
+      
+      )
   ),
   hr(),
-  h2(textOutput("text_clp_title")),
-  em("This image shows the comparative level plot (CLP). Reds indicate that health is worse than"),
-  em(" the European average, and blues indicate better health than the European average."),
-  em("Lighter shades indicate smaller differences from the average, and darker shades indicate "),
-  em("greater differences from the average."),br(),
-  em("The left panel shows the CLP for females, and the right panel shows the CLP for males"),
-  plotOutput("plot_clp", height="100%"),
-  br(),
+  
+  textOutput("show_blur_value"),
+  
+  # outputs: SCP ------------------------------------------------------------  
   h2("Shaded Contour Plot"),
   em("The shaded contour plot shows the European average mortality rate, and how it varies"),
   em(" over the years for which the data are available. Contour lines connect positions "),
@@ -90,20 +104,23 @@ shinyUI(fluidPage(
   br(), em("The shade of the cells behind the contour lines also indicates the underlying value, "),
   em("with darker shades indicating higher values."),br(),
   em("All mortality rates are shown on the log scale, to make trends in adulthood easier to identify"),
-  plotOutput("plot_overall", height="100%"),
+  plotOutput("plot_scp", height="auto"),
+  
+  # outputs: CLP ------------------------------------------------------------
+  
+  h2(textOutput("text_clp_title")),
+  em("This image shows the comparative level plot (CLP). Reds indicate that health is worse than"),
+  em(" the European average, and blues indicate better health than the European average."),
+  em("Lighter shades indicate smaller differences from the average, and darker shades indicate "),
+  em("greater differences from the average."),br(),
+  em("The left panel shows the CLP for females, and the right panel shows the CLP for males"),
+  plotOutput("plot_clp", height="auto"),
+  br(),
+  
+  # Outputs: Bathtub --------------------------------------------------------  
   h2("Bathtub Plot"),
   em("This shows the relationship between age and mortality risk for the cohort of interest, "),
   em("for the country of interest (solid line) compared with the average of all countries (dashed line"),
-  plotOutput("plot_bathtub"),
-  h2("Composite Plot"),
-  em("The composite plot combines the colours and shading from the CLP with the contour lines "),
-  em("from the Shaded Contour Plot. The contour lines therefore show the European average, "),
-  em("and the shade indicates how the particular country of interest deviates from that average"),
-  plotOutput("plot_composite", height="100%")
+  plotOutput("plot_bathtub")
   
-
-
-  
-
-
 ))
