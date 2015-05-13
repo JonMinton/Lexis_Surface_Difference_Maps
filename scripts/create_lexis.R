@@ -205,6 +205,8 @@ fn <- function(input, smooth_par=2){
   dta <- as.matrix(dta)
   rownames(dta) <- years
   colnames(dta) <- ages
+  dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
+  dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
   dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
   rownames(dta_blurred) <- rownames(dta)
   colnames(dta_blurred) <- colnames(dta)
@@ -225,9 +227,11 @@ fn <- function(input, smooth_par=2){
   return(output)
 }
 
-
-dif_logs_blurred <- ddply(dif_logs, .(sex, country), fn, smooth_par=1.5)
-
+dif_logs_blurred <- dif_logs %>%
+   select(-europe) %>%
+  gather(key=country, value=lmort, -year, -age, -sex) %>%  
+  ddply(.data = ., .(sex, country), fn, smooth_par=1.5) %>%
+  tbl_df 
 
 
 
@@ -267,7 +271,7 @@ all_lev <- dif_logs %>%
   )
 
 all_cont <- dif_logs_blurred %>%
-  filter(sex!="total" & country !="europe" & age <=80) %>%
+  filter(sex!="total" & country !="europe" & age <=90) %>%
   contourplot(
     lmort ~ year + age | country + sex, 
     data=.,
@@ -309,7 +313,7 @@ ident_all_lev <- dif_ident %>%
   )
 
 ident_all_cont <- dif_logs_blurred %>%
-  filter(sex!="total" & country !="europe" & age <=80) %>%
+  filter(sex!="total" & country !="europe" & age <=90) %>%
   contourplot(
     lmort ~ year + age | country + sex, 
     data=.,
