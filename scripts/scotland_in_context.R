@@ -222,7 +222,127 @@ print(shade_part + contour_part)
 
 dev.off()
 
+# Eng wales only
 
+
+png(filename="figures/scotland_in_context/england_wales_scp.png", 
+    width=40, height=20, res=300, units="cm"
+)
+# Let's look at the mort rates only
+
+shade_part <- dta_uk %>%
+  filter(
+    country == "GBRTENW" & 
+      year >= 1900 & year <= 2010 &
+      age <= 90 &
+      sex != "total"
+  ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr)
+  ) %>%
+  levelplot(
+    ln_cmr ~ year * age | sex, 
+    data=., 
+    region=T, 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+    main=NULL,
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    ),
+    par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+contour_part <- dta_uk_smoothed  %>%  
+  filter(
+    country ==  "GBRTENW" & 
+      year >= 1900 & year <= 2008 &
+      age <= 90 
+  ) %>%
+  contourplot(
+    ln_cmr ~ year + age | sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    cuts=25,
+    col="blue",
+    labels=list(
+      cex=1.2
+    ),
+    main=NULL
+  )
+
+print(shade_part + contour_part)
+
+dev.off()
+
+png(filename="figures/scotland_in_context/northern_ireland_scp.png", 
+    width=40, height=20, res=300, units="cm"
+)
+shade_part <- dta_uk %>%
+  filter(
+    country == "GBR_NIR" & 
+      year >= 1900 & year <= 2010 &
+      age <= 90 &
+      sex != "total"
+  ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr)
+  ) %>%
+  levelplot(
+    ln_cmr ~ year * age | sex, 
+    data=., 
+    region=T, 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+    main=NULL,
+    xlim=c(1900, 2010),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    ),
+    par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+contour_part <- dta_uk_smoothed  %>%  
+  filter(
+    country ==  "GBR_NIR" & 
+      year >= 1924 & year <= 2008 &
+      age <= 90 
+  ) %>%
+  contourplot(
+    ln_cmr ~ year + age | sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    cuts=25,
+    xlim=c(1900, 2010),
+
+    col="blue",
+    labels=list(
+      cex=1.2
+    ),
+    main=NULL
+  )
+
+print(shade_part + contour_part)
+
+dev.off()
 
 # SCP UK ------------------------------------------------------------------
 
