@@ -94,6 +94,40 @@ smooth_vals <- function(input, smooth_par=2){
   return(output)
 }
 
+smooth_grouped_vals <- function(input, smooth_par=2){
+  this_sex <- input$sex[1]
+  
+  dta <- input %>%
+    select(year, age, ln_cmr) %>%
+    spread(key=age, value=ln_cmr) 
+  
+  ages <- names(dta)[-1]
+  years <- dta$year
+  dta$year <- NULL
+  dta <- as.matrix(dta)
+  rownames(dta) <- years
+  colnames(dta) <- ages
+  dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
+  dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
+  dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
+  rownames(dta_blurred) <- rownames(dta)
+  colnames(dta_blurred) <- colnames(dta)
+  output <- data.frame(
+    year=years, 
+    sex=this_sex,
+    dta_blurred
+  )
+  output <- output %>%
+    gather(key=age, value=ln_cmr, -year, -sex)
+  
+  output$age <- output$age %>%
+    str_replace("X", "") %>%
+    as.character %>%
+    as.numeric
+  
+  return(output)
+}
+
 # base data  --------------------------------------------------------------
 
 
@@ -135,17 +169,38 @@ dta_uk_overall <- dta_uk %>%
   summarise(
     death_count = sum(death_count),
     population_count = sum(population_count)
-            )
+            ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr)     
+         )
 
+dta_uk_overall_smoothed <- ddply(
+  dta_uk_overall, 
+  .(sex), 
+  smooth_grouped_vals, 
+  smooth_par=1.30
+  ) %>%
+  tbl_df
 
 dta_we_overall <- dta_w_europe %>%
   group_by(age, sex, year) %>%
   summarise(
     death_count = sum(death_count),
     population_count = sum(population_count)
+    ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr)
     )
 
-
+dta_we_overall_smoothed <- ddply(
+  dta_we_overall, 
+  .(sex), 
+  smooth_grouped_vals, 
+  smooth_par=1.30
+) %>%
+  tbl_df
 
 # SCP - pop - Scot only -----------------------------------------------------------
 
@@ -161,7 +216,8 @@ dta_uk_smoothed <- dta_uk  %>%
   smooth_par=1.30
   ) %>%
   tbl_df
-  
+
+
 
 png(filename="figures/scotland_in_context/scotland_scp.png", 
     width=40, height=20, res=300, units="cm"
@@ -346,6 +402,61 @@ dev.off()
 
 # SCP UK ------------------------------------------------------------------
 
+png(filename="figures/scotland_in_context/uk_overall_scp.png", 
+    width=40, height=20, res=300, units="cm"
+)
+shade_part <- dta_uk_overall %>%
+  filter(
+      year >= 1900 & year <= 2010 &
+      age <= 90 &
+      sex != "total"
+  ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr)
+  ) %>%
+  levelplot(
+    ln_cmr ~ year * age | sex, 
+    data=., 
+    region=T, 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+    main=NULL,
+    xlim=c(1900, 2010),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    ),
+    par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+contour_part <- dta_uk_overall_smoothed  %>%  
+  filter(
+      year >= 1900 & year <= 2008 &
+      age <= 90 
+  ) %>%
+  contourplot(
+    ln_cmr ~ year + age | sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    cuts=25,
+    col="blue",
+    labels=list(
+      cex=1.2
+    ),
+    main=NULL
+  )
+
+print(shade_part + contour_part)
+
+dev.off()
 
  
 
@@ -353,7 +464,67 @@ dev.off()
 
 
 # SCP Countries in rUK ----------------------------------------------------
+png(filename="figures/scotland_in_context/uk_countries_scp.png", 
+    width=30, height=30, res=300, units="cm"
+)
 
+shade_part <- dta_uk %>%
+  filter(
+      year >= 1900 & year <= 2010 &
+      age <= 90 &
+      sex != "total"
+  ) %>%
+  mutate(
+    cmr = death_count / population_count,
+    ln_cmr = log(cmr),
+    country = mapvalues(
+      country,
+      from=c("GBR_NIR", "GBR_SCO", "GBRTENW"),
+      to=c("Northern Ireland", "Scotland", "England & Wales")
+      )
+  ) %>%
+  levelplot(
+    ln_cmr ~ year * age | country + sex, 
+    data=., 
+    region=T, 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+    main=NULL,
+    xlim=c(1900, 2010),
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    ),
+    par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+contour_part <- dta_uk_smoothed  %>%  
+  filter(
+      year >= 1900 & year <= 2008 &
+      age <= 90
+  ) %>%
+  contourplot(
+    ln_cmr ~ year + age | country + sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    cuts=25,    
+    col="blue",
+    labels=list(
+      cex=1.2
+    ),
+    main=NULL
+  )
+
+print(shade_part + contour_part)
+
+dev.off()
 
 # CLP Scot in UK ----------------------------------------------------------
 
