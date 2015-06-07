@@ -57,76 +57,10 @@ require(xtable)
 
 
 
+
 # functions ---------------------------------------------------------------
+source("scripts/smoother_function.R")
 
-smooth_vals <- function(input, smooth_par=2){
-  this_sex <- input$sex[1]
-  this_country <- input$country[1]
-  
-  dta <- input %>%
-    select(year, age, ln_cmr) %>%
-    spread(key=age, value=ln_cmr) 
-  ages <- names(dta)[-1]
-  years <- dta$year
-  dta$year <- NULL
-  dta <- as.matrix(dta)
-  rownames(dta) <- years
-  colnames(dta) <- ages
-  dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
-  dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
-  dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
-  rownames(dta_blurred) <- rownames(dta)
-  colnames(dta_blurred) <- colnames(dta)
-  output <- data.frame(
-    year=years, 
-    sex=this_sex,
-    country=this_country,
-    dta_blurred
-  )
-  output <- output %>%
-    gather(key=age, value=ln_cmr, -year, -sex, -country)
-  
-  output$age <- output$age %>%
-    str_replace("X", "") %>%
-    as.character %>%
-    as.numeric
-  
-  return(output)
-}
-
-smooth_grouped_vals <- function(input, smooth_par=2){
-  this_sex <- input$sex[1]
-  
-  dta <- input %>%
-    select(year, age, ln_cmr) %>%
-    spread(key=age, value=ln_cmr) 
-  
-  ages <- names(dta)[-1]
-  years <- dta$year
-  dta$year <- NULL
-  dta <- as.matrix(dta)
-  rownames(dta) <- years
-  colnames(dta) <- ages
-  dta[is.infinite(dta) & dta < 0] <- min(dta[is.finite(dta)]) # correct for infinities
-  dta[is.infinite(dta) & dta > 0] <- max(dta[is.finite(dta)])
-  dta_blurred <- as.matrix(blur(as.im(dta), sigma=smooth_par))  
-  rownames(dta_blurred) <- rownames(dta)
-  colnames(dta_blurred) <- colnames(dta)
-  output <- data.frame(
-    year=years, 
-    sex=this_sex,
-    dta_blurred
-  )
-  output <- output %>%
-    gather(key=age, value=ln_cmr, -year, -sex)
-  
-  output$age <- output$age %>%
-    str_replace("X", "") %>%
-    as.character %>%
-    as.numeric
-  
-  return(output)
-}
 
 # base data  --------------------------------------------------------------
 
@@ -172,16 +106,16 @@ dta_uk_overall <- dta_uk %>%
             ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr)     
+    lg_cmr = log(cmr, base=10)     
          )
 
-dta_uk_overall_smoothed <- ddply(
-  dta_uk_overall, 
-  .(sex), 
-  smooth_grouped_vals, 
-  smooth_par=1.30
-  ) %>%
-  tbl_df
+dta_uk_overall_smoothed <- smooth_var(
+  dta = dta_uk_overall,
+  group_vars= "sex",
+  smooth_var = "lg_cmr",
+  smooth_par = 1.3
+) %>% select(-dta_groups) 
+  
 
 dta_we_overall <- dta_w_europe %>%
   group_by(age, sex, year) %>%
@@ -191,16 +125,15 @@ dta_we_overall <- dta_w_europe %>%
     ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr)
+    ln_cmr = log(cmr, base=10)
     )
 
-dta_we_overall_smoothed <- ddply(
-  dta_we_overall, 
-  .(sex), 
-  smooth_grouped_vals, 
-  smooth_par=1.30
-) %>%
-  tbl_df
+dta_we_overall_smoothed <- smooth_var(
+  dta = dta_we_overall,
+  group_vars= "sex",
+  smooth_var = "lg_cmr",
+  smooth_par = 1.3
+) %>% select(-dta_groups) 
 
 # SCP - pop - Scot only -----------------------------------------------------------
 
