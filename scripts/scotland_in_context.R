@@ -91,9 +91,40 @@ w_europe_codes <- c(
 
 dta_uk <- dta %>%
   filter(country %in% uk_codes)
+# Cannot add Ireland as records only start in 1950...
 
-dta_w_europe <- dta %>%
+
+tmp <- dta %>% 
+  filter(
+    country == "IRL" &
+    year < 1922       
+           ) %>% 
+  mutate(country=="GBR_NIR")
+
+dta_uk_smoothed <- dta_uk %>%   
+  mutate(
+  cmr = death_count / population_count,
+  lg_cmr = log(cmr, base=10)     
+) %>% smooth_var(
+  dta =.,
+  group_vars= c("country", "sex"),
+  smooth_var = "lg_cmr",
+  smooth_par = 1.3
+) 
+  
+dta_we <- dta %>%
   filter(country %in% w_europe_codes)
+
+dta_we_smoothed <- dta_we %>%   
+  mutate(
+    cmr = death_count / population_count,
+    lg_cmr = log(cmr, base=10)     
+  ) %>% smooth_var(
+    dta =.,
+    group_vars= c("country", "sex"),
+    smooth_var = "lg_cmr",
+    smooth_par = 1.3
+  ) 
 
 
 # Derived data ------------------------------------------------------------
@@ -114,8 +145,8 @@ dta_uk_overall_smoothed <- smooth_var(
   group_vars= "sex",
   smooth_var = "lg_cmr",
   smooth_par = 1.3
-) %>% select(-dta_groups) 
-  
+) 
+
 
 dta_we_overall <- dta_w_europe %>%
   group_by(age, sex, year) %>%
@@ -125,7 +156,7 @@ dta_we_overall <- dta_w_europe %>%
     ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr, base=10)
+    lg_cmr = log(cmr, base=10)
     )
 
 dta_we_overall_smoothed <- smooth_var(
@@ -133,22 +164,26 @@ dta_we_overall_smoothed <- smooth_var(
   group_vars= "sex",
   smooth_var = "lg_cmr",
   smooth_par = 1.3
-) %>% select(-dta_groups) 
+)
 
 # SCP - pop - Scot only -----------------------------------------------------------
 
-dta_uk_smoothed <- dta_uk  %>% 
-  filter(sex!="total" & age <= 90) %>%
-  mutate(cmr=death_count/ population_count,
-         ln_cmr = log(cmr)
-  ) %>%  
-  ddply(
-  ., 
-  .(country, sex),
-  smooth_vals,
-  smooth_par=1.30
-  ) %>%
-  tbl_df
+dta_scot_only <- dta %>% 
+  filter(country=="GBR_SCO" & age <= 90) %>% 
+  mutate(
+    cmr = death_count / population_count,
+    lg_cmr = log(cmr, base=10)     
+  )
+
+dta_all_smoothed <- dta%>% 
+  filter(sex!="total") %>% 
+  mutate(
+    cmr = death_count / population_count,
+    lg_cmr = log(cmr, base=10)
+  ) %>% 
+  smooth_var(dta=., group_vars = c("sex", "country"),
+             smooth_var= "lg_cmr",
+             smooth_par=1.3)
 
 
 
@@ -193,7 +228,7 @@ contour_part <- dta_uk_smoothed  %>%
     age <= 90 
   ) %>%
   contourplot(
-    ln_cmr ~ year + age | sex, 
+    lg_cmr ~ year + age | sex, 
     data=.,
     region=F,
     ylab="",
@@ -285,10 +320,10 @@ shade_part <- dta_uk %>%
   ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr)
+    lg_cmr = log(cmr, base=10)
   ) %>%
   levelplot(
-    ln_cmr ~ year * age | sex, 
+    lg_cmr ~ year * age | sex, 
     data=., 
     region=T, 
     par.strip.text=list(cex=1.4, fontface="bold"),
@@ -313,7 +348,7 @@ contour_part <- dta_uk_smoothed  %>%
       age <= 90 
   ) %>%
   contourplot(
-    ln_cmr ~ year + age | sex, 
+    lg_cmr ~ year + age | sex, 
     data=.,
     region=F,
     ylab="",
@@ -346,10 +381,10 @@ shade_part <- dta_uk_overall %>%
   ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr)
+    lg_cmr = log(cmr, base=10)
   ) %>%
   levelplot(
-    ln_cmr ~ year * age | sex, 
+    lg_cmr ~ year * age | sex, 
     data=., 
     region=T, 
     par.strip.text=list(cex=1.4, fontface="bold"),
@@ -373,7 +408,7 @@ contour_part <- dta_uk_overall_smoothed  %>%
       age <= 90 
   ) %>%
   contourplot(
-    ln_cmr ~ year + age | sex, 
+    lg_cmr ~ year + age | sex, 
     data=.,
     region=F,
     ylab="",
@@ -409,7 +444,7 @@ shade_part <- dta_uk %>%
   ) %>%
   mutate(
     cmr = death_count / population_count,
-    ln_cmr = log(cmr),
+    lg_cmr = log(cmr, base=10),
     country = mapvalues(
       country,
       from=c("GBR_NIR", "GBR_SCO", "GBRTENW"),
@@ -417,7 +452,7 @@ shade_part <- dta_uk %>%
       )
   ) %>%
   levelplot(
-    ln_cmr ~ year * age | country + sex, 
+    lg_cmr ~ year * age | country + sex, 
     data=., 
     region=T, 
     par.strip.text=list(cex=1.4, fontface="bold"),
@@ -441,7 +476,7 @@ contour_part <- dta_uk_smoothed  %>%
       age <= 90
   ) %>%
   contourplot(
-    ln_cmr ~ year + age | country + sex, 
+    lg_cmr ~ year + age | country + sex, 
     data=.,
     region=F,
     ylab="",
@@ -461,6 +496,69 @@ dev.off()
 
 # CLP Scot in UK ----------------------------------------------------------
 
+tmp1 <- dta_uk  %>% 
+  filter(country=="GBR_SCO")  %>% 
+  mutate(cmr = death_count/ population_count)  %>% 
+  select(country, year, age, sex, cmr)
+
+tmp2 <- dta_uk_overall  %>% 
+  mutate(country="UK")  %>%  
+  select(country, year, age, sex, cmr)
+
+tmp3 <- bind_rows(tmp1, tmp2)
+rm(tmp1, tmp2)
+
+tmp3
+
+dif_scot_uk  <- tmp3 %>% 
+  mutate(lg_cmr = log(cmr, base=10))  %>% 
+  select(-cmr)  %>% 
+  spread(key=country, value=lg_cmr)  %>% 
+  filter(!is.na(GBR_SCO))  %>% 
+  mutate(dif = GBR_SCO - UK)  %>% 
+  select(year, age, sex, dif)
+
+lev_part <- dif_scot_uk %>% filter(
+  sex!="total"
+  & age <=90 &
+    year >=1900
+  ) %>% 
+  levelplot(
+    dif ~ year * age | sex,
+      data=., 
+      region=T,
+      ylab="Age in years",
+      xlab="Year",
+      at = seq(from= -1.2, to = 1.2, by=0.2),
+      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+      scales=list(alternating=3),
+      main=NULL,
+      par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+dif_blurred <- dif_scot_uk %>% smooth_var(
+  dta=.,
+  group_vars= "sex",
+  smooth_var="dif",
+  smooth_par=1.5
+)
+
+
+ident_part <- dif_blurred %>%
+  filter(sex!="total" & age <=90) %>%
+  contourplot(
+    dif ~ year + age | sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    at=0,
+    labels=F,
+    main=NULL
+  )
+
+print(lev_part + ident_part)
 
 
 # SCP Western Europe overall------------------------------------------------------
@@ -470,4 +568,65 @@ dev.off()
 
 # CLP Scot in Western Europe ----------------------------------------------
 
+tmp1 <- dta_we_overall  %>% 
+  mutate(country="Western_Europe")  %>% 
+  select(country, sex, age, year, lg_cmr)
+
+tmp2 <- dta_we  %>% 
+  filter(country=="GBR_SCO")  %>% 
+  mutate(lg_cmr = log(death_count/population_count, base=10))  %>% 
+  select(country, sex, age, year, lg_cmr)
+
+tmp3 <- bind_rows(tmp1, tmp2) 
+rm(tmp1, tmp2)
+
+scot_in_we <- tmp3  %>% 
+  spread(key=country, value=lg_cmr)  %>% 
+  filter(!is.na(GBR_SCO))  %>% 
+  mutate(dif = GBR_SCO - Western_Europe)  %>% 
+  select(sex, age, year, dif)
+
+rm(tmp3)
+
+lev_part <- scot_in_we %>% filter(
+    sex!="total"
+    & age <=90 &
+      year >=1900
+  ) %>% 
+  levelplot(
+    dif ~ year * age | sex,
+    data=., 
+    region=T,
+    ylab="Age in years",
+    xlab="Year",
+    at = seq(from= -1.2, to = 1.2, by=0.2),
+    col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+    scales=list(alternating=3),
+    main=NULL,
+    par.settings=list(strip.background=list(col="lightgrey"))
+  )
+
+dif_blurred <- scot_in_we %>% smooth_var(
+  dta=.,
+  group_vars= "sex",
+  smooth_var="dif",
+  smooth_par=1.4
+)
+
+
+ident_part <- dif_blurred %>%
+  filter(sex!="total" & age <=90) %>%
+  contourplot(
+    dif ~ year + age | sex, 
+    data=.,
+    region=F,
+    ylab="",
+    xlab="",
+    scales=list(NULL),
+    at=0,
+    labels=F,
+    main=NULL
+  )
+
+print(lev_part + ident_part)
 
