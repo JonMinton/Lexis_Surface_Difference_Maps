@@ -1,4 +1,3 @@
-
 # Information -------------------------------------------------------------
 
 
@@ -70,23 +69,23 @@ dta <- read.csv("data/tidy/counts_germany_combined.csv") %>%
 
 
 uk_codes <- c(
-  "GBRTENW",
-  "GBR_NIR",
-  "GBR_SCO"
+  `England & Wales`= "GBRTENW",
+  `Northern Ireland` = "GBR_NIR",
+  `Scotland`= "GBR_SCO"
   )
 
 w_europe_codes <- c(
-  "AUS",
-  "BEL",
-  "CHE",
-  "DEUT",
-  "FRATNP",
-  "GBR_NIR",
-  "GBR_SCO",
-  "GBRTENW",
-  "IRL",
-  "LUX",
-  "NLD"  
+  Austria = "AUS",
+  Belgium = "BEL",
+  Switzerland = "CHE",
+  Germany = "DEUT",
+  France = "FRATNP",
+  `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
+  `England & Wales` = "GBRTENW",
+  Ireland = "IRL",
+  Luxembourg = "LUX",
+  Netherlands = "NLD"  
   )
 
 dta_uk <- dta %>%
@@ -94,12 +93,6 @@ dta_uk <- dta %>%
 # Cannot add Ireland as records only start in 1950...
 
 
-tmp <- dta %>% 
-  filter(
-    country == "IRL" &
-    year < 1922       
-           ) %>% 
-  mutate(country=="GBR_NIR")
 
 dta_uk_smoothed <- dta_uk %>%   
   mutate(
@@ -113,13 +106,11 @@ dta_uk_smoothed <- dta_uk %>%
 ) 
   
 dta_we <- dta %>%
-  filter(country %in% w_europe_codes)
+  filter(country %in% w_europe_codes) %>% 
+  mutate(lg_cmr = log(death_count /population_count, base=10))
 
 dta_we_smoothed <- dta_we %>%   
-  mutate(
-    cmr = death_count / population_count,
-    lg_cmr = log(cmr, base=10)     
-  ) %>% smooth_var(
+  smooth_var(
     dta =.,
     group_vars= c("country", "sex"),
     smooth_var = "lg_cmr",
@@ -629,4 +620,83 @@ ident_part <- dif_blurred %>%
   )
 
 print(lev_part + ident_part)
+
+
+
+# SCPs of each country, individually --------------------------------------
+
+
+fn <- function(this_country){
+  
+  this_country_name = names(w_europe_codes[w_europe_codes==this_country])
+  
+  this_unsmoothed <- dta_we %>% 
+    filter(
+      country==this_country &
+        sex !="total" &
+     year >=1900 &
+       age <=90
+    ) %>% 
+  levelplot(
+    lg_cmr ~ year * age | sex,
+    data = . ,
+    region = T , 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    par.settings=list(strip.background=list(col="lightgrey")),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    xlim=c(1900, 2010), 
+    cex=1.4,
+    cuts=25,
+    col.regions=colorRampPalette(brewer.pal(6, "RdYlBu"))(200),
+    main=this_country_name,
+    scales=list(
+      x=list(cex=1.4), 
+      y=list(cex=1.4),
+      alternating=3
+    )
+  )
+  
+  this_smoothed <- dta_we_smoothed %>% 
+    filter(
+      country == this_country &
+        sex !="total" &
+        year >=1900 &
+        age <=90
+    ) %>% 
+    contourplot(
+      lg_cmr ~ year * age | sex,
+      data = . ,
+      region = F ,
+      cex=1.4,
+      cuts=25,
+      col.regions=colorRampPalette(brewer.pal(6, "RdYlBu"))(200),
+      scales=list(
+        x=NULL, y=NULL
+      ),
+      xlim=c(1900, 2010), 
+      xlab=NULL, ylab=NULL, 
+      main=NULL,
+      labels=list(cex=1.2),
+      col="darkgreen"
+    )
+  
+  
+  png(
+    filename=paste0(
+    "figures/scotland_in_context/all_countries/cmr_",
+    this_country, ".png"
+    ),
+      width=30, height=15, res=300, units="cm"
+  )
+  print(this_unsmoothed + this_smoothed)
+  
+  dev.off()  
+    
+  return(NULL)
+  
+}
+
+l_ply(w_europe_codes, fn)
+
 
