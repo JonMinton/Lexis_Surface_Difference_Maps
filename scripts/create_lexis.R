@@ -250,8 +250,8 @@ dif_ident$country <- dif_ident$country %>%
 
 # clp - composite plot, log -----------------------------------------------
 
-tiff(
-  "figures/clp_all.tiff",  
+png(
+  "figures/clp_all.png",  
   height=20, width=40,
   units="cm", res=300
 )
@@ -292,8 +292,8 @@ dev.off()
 # clp - composite plot, identity ------------------------------------------
 
 
-tiff(
-  "figures/clp_all_ident.tiff",  
+png(
+  "figures/clp_all_ident.png",  
   height=20, width=40,
   units="cm", res=300
 )
