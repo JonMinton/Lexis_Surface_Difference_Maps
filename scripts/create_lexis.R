@@ -78,6 +78,7 @@ dev.off()
 png(filename="figures/mort_all_europe_spectral.png", 
     width=40, height=20, res=300, units="cm"
 )
+
 # Let's look at the mort rates only
 contourplot(
   log(death_rate_overall) ~ year * age | sex, 
