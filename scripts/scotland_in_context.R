@@ -75,85 +75,88 @@ dta_uk <- dta %>% filter(country %in% uk_codes)
 dta_we <- dta %>% filter(country %in% w_europe_codes)
 dta_europe <- dta %>% filter(country %in% europe_codes)
 dta_all <- dta %>% filter(country %in% all_codes)
-
+dta_ne <- dta %>% filter(country %in% europe_northern)
+dta_se <- dta %>% filter(country %in% europe_southern)
+dta_ee <- dta %>% filter(country %in% europe_eastern)
 
 # country group selections - smoothed -------------------------------------
 
-
-dta_uk_smoothed <- dta_uk %>%   
-  mutate(
-  cmr = death_count / population_count,
-  lg_cmr = log(cmr, base=10)     
-) %>% smooth_var(
-  dta =.,
-  group_vars= c("country", "sex"),
-  smooth_var = "lg_cmr",
-  smooth_par = 1.3
-) 
-  
-dta_we_smoothed <- dta_we %>% 
-  mutate(
-    cmr = death_count / population_count,
-    lg_cmr = log(cmr, base=10)     
-  ) %>% smooth_var(
-    dta =.,
-    group_vars= c("country", "sex"),
-    smooth_var = "lg_cmr",
-    smooth_par = 1.3
-  ) 
-
-dta_europe_smoothed <- dta_europe %>% 
-  mutate(
-    cmr = death_count / population_count,
-    lg_cmr = log(cmr, base=10)     
-  ) %>% smooth_var(
-    dta =.,
-    group_vars= c("country", "sex"),
-    smooth_var = "lg_cmr",
-    smooth_par = 1.3
-  ) 
-
-dta_all_smoothed <- dta_all %>% 
-  mutate(
-    cmr = death_count / population_count,
-    lg_cmr = log(cmr, base=10)     
-  ) %>% smooth_var(
-    dta =.,
-    group_vars= c("country", "sex"),
-    smooth_var = "lg_cmr",
-    smooth_par = 1.3
-  ) 
+fn <- function(DTA) {
+  out <- DTA %>%   
+    mutate(
+      cmr = death_count / population_count,
+      lg_cmr = log(cmr, base=10)     
+    ) %>% smooth_var(
+      dta =.,
+      group_vars= c("country", "sex"),
+      smooth_var = "lg_cmr",
+      smooth_par = 1.3
+    ) 
+  return(out)
+}
 
 
+dta_uk_smoothed <- fn(dta_uk)
+dta_we_smoothed <- fn(dta_we)
+dta_europe_smoothed <- fn(dta_europe)
+dta_all_smoothed <- fn(dta_all)
+dta_ne_smoothed <- fn(dta_ne)
+dta_se_smoothed <- fn(dta_se)
+dta_ee_smoothed <- fn(dta_ee)
 
+rm(fn)
 # country group selections - combined  ---------------------------------------
-
 
 
 dta_uk_overall <- grouper(dta_uk)
 dta_we_overall <- grouper(dta_we)
 dta_europe_overall <- grouper(dta_europe)
 dta_all_overall <- grouper(dta_all)
+dta_ne_overall <- grouper(dta_ne)
+dta_se_overall <- grouper(dta_se)
+dta_ee_overall <- grouper(dta_ee)
+
+# Data allowing comparison of broad European regions against European average
+
+tmp1 <- dta_we_overall %>% mutate(country="Western Europe")
+tmp2 <- dta_ee_overall %>% mutate(country="Eastern Europe")
+tmp3 <- dta_ne_overall %>% mutate(country="Northern Europe")
+tmp4 <- dta_se_overall %>% mutate(country="Southern Europe")
+tmp5 <- dta_europe_overall %>% mutate(country = "Europe Overall")
+
+dta_euro_regions <- tmp1 %>% bind_rows(tmp2) %>% bind_rows(tmp3) %>% bind_rows(tmp4) %>% bind_rows(tmp5)
+  
+dta_euro_regions_smoothed <- dta_euro_regions %>% smooth_var(dta=., group_vars = c("sex", "country"), smooth_var="lg_cmr", smooth_par=1.3)
+
+rm(tmp1, tmp2, tmp3, tmp4, tmp5)
+
+fn <- function(DTA) {
+  out <- DTA %>%   
+    mutate(
+      cmr = death_count / population_count,
+      lg_cmr = log(cmr, base=10)     
+    ) %>% smooth_var(
+      dta =.,
+      group_vars= c("sex"),
+      smooth_var = "lg_cmr",
+      smooth_par = 1.3
+    ) 
+  return(out)
+}
+
+dta_uk_overall_smoothed <- fn(dta_uk_overall)
+dta_we_overall_smoothed <- fn(dta_we_overall)
+dta_europe_overall_smoothed <- fn(dta_europe_overall)
+dta_all_overall_smoothed <- fn(dta_all_overall)
+dta_ne_overall_smoothed <- fn(dta_ne_overall)
+dta_se_overall_smoothed <- fn(dta_se_overall)
+dta_ee_overall_smoothed <- fn(dta_ee_overall)
+
+rm(fn)
 
 
 # country group selections - combined and smoothed -------------------------------
 
-
-dta_uk_overall_smoothed <- smooth_var(
-  dta_uk_overall,   
-  group_vars= "sex", smooth_var = "lg_cmr", smooth_par = 1.3)
-
-dta_we_overall_smoothed <- smooth_var(
-  dta_we_overall,   
-  group_vars= "sex", smooth_var = "lg_cmr", smooth_par = 1.3)
-
-dta_europe_overall_smoothed <- smooth_var(
-  dta_europe_overall,   
-  group_vars= "sex", smooth_var = "lg_cmr", smooth_par = 1.3)
-
-dta_all_overall_smoothed <- smooth_var(
-  dta_all_overall,   
-  group_vars= "sex", smooth_var = "lg_cmr", smooth_par = 1.3)
 
 
 
@@ -162,24 +165,24 @@ dta_all_overall_smoothed <- smooth_var(
 
 # SCP of Scotland ---------------------------------------------------------
 
-png(filename="figures/scotland_in_context/scotland_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/scotland_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp(dta_uk, dta_uk_smoothed, "GBR_SCO"))
 dev.off()
 
 # SCP of England & Wales --------------------------------------------------
 
-png(filename="figures/scotland_in_context/england_wales_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/england_wales_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp(dta_uk, dta_uk_smoothed, "GBRTENW"))
 dev.off()
 
 # SCP of Northern Ireland
 
-png(filename="figures/scotland_in_context/northern_ireland_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/northern_ireland_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp(dta_uk, dta_uk_smoothed, "GBR_NIR"))
 dev.off()
@@ -188,31 +191,55 @@ dev.off()
 
 # SCP of UK Overall -------------------------------------------------------
 
-png(filename="figures/scotland_in_context/uk_overall_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/uk_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp_overall(dta_uk_overall, dta_uk_overall_smoothed))
 dev.off()
 
 # SCP of Western Europe Overall
 
-png(filename="figures/scotland_in_context/we_overall_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/we_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp_overall(dta_we_overall, dta_we_overall_smoothed))
 dev.off()
 
 # SCP of Europe Overall
-png(filename="figures/scotland_in_context/europe_overall_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/europe_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp_overall(dta_europe_overall, dta_europe_overall_smoothed))
 dev.off()
 
+# SCP of Northern Europe
+png(filename="figures/scotland_in_context/northern_europe_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
+)
+print(make_scp_overall(dta_ne_overall, dta_ne_overall_smoothed))
+dev.off()
+
+# SCP of Eastern Europe
+png(filename="figures/scotland_in_context/southern_europe_overall_scp_iso.png", 
+    width=25, height=25, res=300, units="cm"
+)
+print(make_scp_overall(dta_ee_overall, dta_ee_overall_smoothed, YEAR_RANGE=c(1950, 2010)))
+dev.off()
+
+
+# SCP of Southern Europe
+png(filename="figures/scotland_in_context/southern_europe_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
+)
+print(make_scp_overall(dta_se_overall, dta_se_overall_smoothed, YEAR_RANGE=c(1900, 2010)))
+dev.off()
+
+
+
 # SCP of all data Overall
 
-png(filename="figures/scotland_in_context/allcountries_overall_scp.png", 
-    width=40, height=20, res=300, units="cm"
+png(filename="figures/scotland_in_context/allcountries_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
 )
 print(make_scp_overall(dta_all_overall, dta_all_overall_smoothed))
 dev.off()
@@ -252,9 +279,30 @@ print(make_scp_lattice(dta_europe, dta_europe_smoothed, europe_codes))
 dev.off()
 
 
+
+# Region level SCP latticeplot  -------------------------------------------
+
+tmp1 <- c(
+  `Western Europe`="Western Europe",
+  `Eastern Europe` = "Eastern Europe",
+  `Northern Europe` = "Northern Europe",
+  `Southern Europe` = "Southern Europe"
+)
+
+tmp2 <- dta_euro_regions %>% filter(country !="Europe Overall")
+tmp3 <- dta_euro_regions_smoothed %>% filter(country !="Europe Overall")
+
+png(filename="figures/scotland_in_context/euro_regions_scp_lattice_spectral.png", 
+    width=70, height=40, res=300, units="cm"
+)
+make_scp_lattice(tmp2, tmp3, tmp1, 
+                 COL.REGIONS=colorRampPalette(brewer.pal(6, "Spectral"))(200)
+                 )
+dev.off()
+
 #CLPs of single countries 
 
-
+#Lattice plot of 
 
 # CLP Scot scot_against_uk ----------------------------------------------------------
 
@@ -320,9 +368,25 @@ print(make_two_country_clp(DTA=dta, "IRL", "GBR_SCO",
 dev.off()
 
 
+# Scotland against USA only, isometric
+png(filename="figures/scotland_in_context/clp_scotland_minus_usa_iso.png",
+    height=25, width=25, res=300, units="cm"
+)
 
+print(make_two_country_clp(DTA=dta, "USA", "GBR_SCO",
+                           YEAR_RANGE = c(1933, 2010)))
 
+dev.off()
 
+# Scotland against Russia only, isometric
+png(filename="figures/scotland_in_context/clp_scotland_minus_russia_iso.png",
+    height=25, width=25, res=300, units="cm"
+)
+
+print(make_two_country_clp(DTA=dta, "RUS", "GBR_SCO",
+                           YEAR_RANGE = c(1959, 2010)))
+
+dev.off()
 
 # latticeplot of SCPs of each Western European Country --------------------
 
@@ -438,111 +502,6 @@ l_ply(w_europe_codes, fn)
 
 # Scotland vs England & Wales, 45 degree line, Longest available p --------
 
-
-
-
-make_single_clp <- function(DTA, DTA_overall, SELECTION){
-  
-  tmp1 <- DTA  %>% 
-    filter(country == SELECTION)  %>% 
-    mutate(cmr = death_count/ population_count)  %>% 
-    mutate(country = "specific") %>% 
-    select(country, year, age, sex, cmr)
-  
-  tmp2 <- DTA_overall  %>% 
-    mutate(country = "overall" )  %>%  
-    select(country, year, age, sex, cmr)
-  
-  tmp3 <- bind_rows(tmp1, tmp2)
-  rm(tmp1, tmp2)
-  
-  dif_to_overall  <- tmp3 %>% 
-    mutate(lg_cmr = log(cmr, base=10))  %>% 
-    select(-cmr)  %>% 
-    spread(key=country, value=lg_cmr)  %>% 
-    filter(!is.na(specific))  %>% 
-    mutate(dif = specific  - overall) %>% 
-    select(year, age, sex, dif)
-  
-  lev_part <- dif_to_overall %>% filter(
-    sex!="total"
-    & age <=90 &
-      year >=1900
-  ) %>% 
-    levelplot(
-      dif ~ year * age | sex,
-      data=., 
-      region=T,
-      xlim=c(1900, 2010),
-      ylab="Age in years",
-      xlab="Year",
-      at = seq(from= -1.2, to = 1.2, by=0.2),
-      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-      scales=list(alternating=3),
-      main=NULL,
-      par.settings=list(strip.background=list(col="lightgrey"))
-    )
-  
-  dif_blurred <- dif_to_overall %>% smooth_var(
-    dta=.,
-    group_vars= "sex",
-    smooth_var="dif",
-    smooth_par=1.4
-  )
-  
-  
-  zero_part <- dif_blurred %>%
-    filter(sex!="total" & age <=90) %>%
-    contourplot(
-      dif ~ year + age | sex, 
-      data=.,
-      region=F,
-      ylab="",
-      xlab="",
-      scales=list(NULL),
-      at=0,
-      lwd=1,
-      labels=F,
-      xlim=c(1900, 2010),
-      main=NULL
-    )
-  
-  quarter_part <- dif_blurred %>% 
-    filter(sex != "total" & age <=90) %>% 
-    contourplot(
-      dif ~ year + age | sex, 
-      data = . , 
-      region = F,
-      ylab = "", 
-      xlab = "", 
-      scales = list (NULL),
-      at = c(-0.25, 0.25),
-      lwd=1.5, 
-      labels = F,
-      xlim=c(1900, 2010),
-      main = NULL
-    )
-  
-  half_part <- dif_blurred %>% 
-    filter(sex!="total" & age <=90) %>% 
-    contourplot(
-      dif ~ year + age | sex,
-      data = . ,
-      region = F,
-      ylab="", 
-      xlab="",
-      scales = list (NULL),
-      at =c(-0.5, 0.5),
-      lwd=2.0,
-      labels =F,
-      xlim=c(1900, 2010),
-      main=NULL
-    )
-  
-  output <- lev_part + zero_part + quarter_part + half_part
-  
-  return(output)
-}
 
 
 

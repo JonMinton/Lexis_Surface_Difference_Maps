@@ -5,6 +5,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
                              ASPECT = "iso",
                              YEAR_RANGE = c(1900, 2010), 
                              AGE_RANGE = c(0, 90),
+                             
                              ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
@@ -215,7 +216,8 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
 make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
                              ASPECT="iso",
                              AGE_RANGE = c(0, 90), 
-                             YEAR_RANGE = c(1900, 2010)
+                             YEAR_RANGE = c(1900, 2010),
+                             COL.REGIONS=colorRampPalette(brewer.pal(6, "Reds"))(200)
                              ){
   
   shade_part <- DTA %>%
@@ -240,7 +242,7 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
       ylab=list(label="Age in years", cex=1.4),
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
-      col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+      col.regions=COL.REGIONS,
       main=NULL,
       xlim=YEAR_RANGE,
       aspect=ASPECT,
@@ -314,7 +316,7 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
       aspect=ASPECT,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       scales=list(
         x=list(cex=1.4), 
         y=list(cex=1.4),
@@ -335,7 +337,7 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
       ylab="",
       xlab="",
       aspect=ASPECT,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       scales=list(NULL),
       cuts=25,
       col="black",
