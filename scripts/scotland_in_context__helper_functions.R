@@ -1,8 +1,9 @@
 # Scotland in Context Helper functions
 
 
-make_clp_lattice <- function(DTA, DTA_overall, CODES){
-  
+make_clp_lattice <- function(DTA, DTA_overall, CODES,
+                             ASPECT = "iso"
+                             ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
     select(country, year, age, sex, cmr)
@@ -46,6 +47,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES){
       col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
       scales=list(alternating=3),
       main=NULL,
+      aspect= ASPECT,
       xlim=c(1900, 2010),
       par.settings=list(strip.background=list(col="lightgrey"))
     )
@@ -70,6 +72,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES){
       at=0,
       lwd=1,
       labels=F,
+      aspect = ASPECT,
       xlim=c(1900, 2010),
       main=NULL
     )
@@ -82,7 +85,9 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES){
 
 
 
-make_single_clp <- function(DTA, DTA_overall, SELECTION){
+make_single_clp <- function(DTA, DTA_overall, SELECTION,
+                            ASPECT = "iso"
+                            ){
   
   tmp1 <- DTA  %>% 
     filter(country == SELECTION)  %>% 
@@ -117,6 +122,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION){
       xlim=c(1900, 2010),
       ylab="Age in years",
       xlab="Year",
+      aspect = ASPECT,
       at = seq(from= -1.2, to = 1.2, by=0.2),
       col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
       scales=list(alternating=3),
@@ -144,6 +150,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION){
       at=0,
       lwd=1,
       labels=F,
+      aspect = ASPECT,
       xlim=c(1900, 2010),
       main=NULL
     )
@@ -160,6 +167,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION){
       at = c(-0.25, 0.25),
       lwd=1.5, 
       labels = F,
+      aspect = ASPECT,
       xlim=c(1900, 2010),
       main = NULL
     )
@@ -176,6 +184,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION){
       at =c(-0.5, 0.5),
       lwd=2.0,
       labels =F,
+      aspect = ASPECT,
       xlim=c(1900, 2010),
       main=NULL
     )
@@ -187,7 +196,9 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION){
 
 
 
-make_scp_lattice <- function(DTA, DTA_smoothed, CODES){
+make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
+                             ASPECT="iso"
+                             ){
   
   shade_part <- DTA %>%
     filter(
@@ -215,6 +226,7 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES){
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
       xlim=c(1900, 2010),
+      aspect=ASPECT,
       scales=list(
         x=list(cex=1.4), 
         y=list(cex=1.4),
@@ -242,7 +254,8 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES){
       ylab="",
       xlab="",
       scales=list(NULL),
-      cuts=25,    
+      cuts=25,
+      aspect=ASPECT,
       col="black",
       labels=list(
         cex=1.2
@@ -257,7 +270,9 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES){
 
 
 
-make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed){
+make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
+                             ASPECT="iso"
+                             ){
   shade_part <- DTA_unsmoothed %>%
     filter(
       year >= 1900 & year <= 2010 &
@@ -278,6 +293,7 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed){
       cex=1.4,
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
+      aspect=ASPECT,
       xlim=c(1900, 2010),
       scales=list(
         x=list(cex=1.4), 
@@ -298,6 +314,7 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed){
       region=F,
       ylab="",
       xlab="",
+      aspect=ASPECT,
       xlim=c(1900, 2010),
       scales=list(NULL),
       cuts=25,
@@ -313,7 +330,9 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed){
 
 
 
-make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY){
+make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
+                     ASPECT= "iso"
+  ){
   shade_part <- DTA_unsmoothed %>%
     filter(
       country == COUNTRY & 
@@ -333,6 +352,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY){
       ylab=list(label="Age in years", cex=1.4),
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
+      aspect=ASPECT,
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
       xlim=c(1900, 2010),
@@ -359,6 +379,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY){
       xlim=c(1900, 2010),
       scales=list(NULL),
       cuts=25,
+      aspect=ASPECT,
       col="black",
       labels=list(
         cex=1.2
