@@ -121,11 +121,8 @@ europe_southern <- c(
   Spain="ESP", 
   Portugal="PRT",     
   Luxembourg="LUX",
-  Italy="ITA",
-  Hungary="HUN",
-  Ukraine="UKR",
-  Belarus="BLR", 
-  Finland="FIN"
+  Italy="ITA"
+
 )
 
 europe_eastern <- c(

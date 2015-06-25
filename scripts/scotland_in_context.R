@@ -523,25 +523,63 @@ l_ply(w_europe_codes, fn)
 
 
 
-# Suggestions from Gerry's manuscript -------------------------------------
+# Similarity scores -------------------------------------------------------
 
 
-# Scotland vs England & Wales, 45 degree line, Longest available p --------
+# The idea of this section is to try to rank countries in terms of how similar they are
+# in different years, compared with Scotland.
+# Similarity is defined as closeness to Scotland's age-and-sex-specific mortality rates 
+# in each year. 
 
+# We will need dta_all and all_codes
 
+fn <- function(CODE){
+  dta_other <- dta_all %>% 
+    filter(country == CODE) %>% 
+    mutate(cmr_other = death_count / population_count) %>% 
+    select(year, age, sex, cmr_other)
+  
+  dta_scot <- dta_all %>% 
+    filter(country == "GBR_SCO") %>% 
+    mutate(cmr_scot = death_count/population_count) %>% 
+    select(year, age, sex, cmr_scot)
+  
+  dta_joined <- inner_join(dta_other, dta_scot)
+  
+  output <- dta_joined %>% 
+    filter(age <= 90) %>% 
+    mutate(cmr_dif = cmr_scot - cmr_other) %>% 
+    select(year, age, sex, cmr_dif) %>% 
+    group_by(year) %>% 
+    summarise(avg_cmr_dif = mean(cmr_dif)) %>% 
+    mutate(country = CODE) %>% 
+    select(country, year, avg_cmr_dif)
+  
+  return(output)
+}
 
+codes_minus_scot <-  all_codes[all_codes!="GBR_SCO"]
+all_difs <- ldply(codes_minus_scot, fn, .id="country_name") %>% tbl_df
 
-# •	Contour plots comparing Scotland 
-# ( for the longest time period available, all-cause mortality, 
-#     using the same scale for period and age so that birth cohort effects are 45 degree lines if possible) 
-# with: 
-#   o	England & Wales
-# o	Northern Ireland
-# o	Republic of Ireland (all above because of the similarities in history/culture/politics)
-# o	USA (there is a strong suggestion from other work that there are similarities between the USA and Scotland in terms of the mortality phenomena – something we have started to explore but which has been delayed for a long time now). 
-# 
-# o	Western/central European average (to highlight the divergence and where this occurs) – 
-# would include as many countries as possible in this – I presume we weight the countries by population size or have a numerator for each death and denominator for each individual alive for each age/time point to avoid smaller countries have too many influence?] 
-# o	Eastern European average (to see if the divergence has similarities to that in this region) 
-# – would be interesting to split former USSR with non-USSR Eastern Bloc countries as I imagine Scotland will be closer to the latter 
-# 
+all_difs$region <- NA
+all_difs$region[all_difs$country %in% europe_eastern] <- "Eastern Europe"
+all_difs$region[all_difs$country %in% europe_northern] <- "Northern Europe"
+all_difs$region[all_difs$country %in% europe_southern] <- "Southern Europe"
+all_difs$region[all_difs$country %in% europe_western] <- "Western Europe"
+all_difs$region[all_difs$country %in% uk_codes] <- "Rest of UK"
+
+tmp <- all_difs %>% group_by(country) %>% filter(year == max(year) & !is.na(region))
+tmp2 <- all_difs %>% group_by(country) %>% filter(year == max(1950, min(year)) & !is.na(region))
+all_difs %>% filter(year >= 1950 & !is.na(region)) %>% ggplot() +
+  geom_line(aes(x=year, y= avg_cmr_dif, group=country)) +
+  facet_wrap( ~ region) + geom_hline(aes(yintercept = 0)) + 
+  labs(x="Year", y="Average difference in age and\nsex specific mortality rate") +
+  geom_text(aes(x=year + 3.5, y=avg_cmr_dif, group=country, label=country), size = 3, 
+            data = tmp) + 
+  geom_text(aes(x=year - 3.5 , y=avg_cmr_dif, group=country, label=country), size = 3, 
+            data = tmp2)
+
+ggsave(filename = "figures/scotland_in_context/differences_over_time.png",
+       dpi=300, height=20, width=30, units = "cm"
+       )
+
