@@ -5,7 +5,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
                              ASPECT = "iso",
                              YEAR_RANGE = c(1900, 2010), 
                              AGE_RANGE = c(0, 90),
-                             
+                             COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64)
                              ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
@@ -17,6 +17,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
   tmp3 <- tmp1 %>% left_join(tmp2)
   
   dif_dta <- tmp3 %>% 
+    filter(!is.na(cmr) &!is.na(overall_cmr)) %>% 
     mutate(dif_lg_cmr = log(cmr, base = 10) - log(overall_cmr, base = 10))
   rm(tmp1, tmp2, tmp3)
   
@@ -31,7 +32,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
   lev_part <- dif_dta %>% filter(
     sex!="total" & 
     age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
-    year >= YEAR_RANGE[2] & year <= YEAR_RANGE[2]
+    year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
   ) %>% 
     mutate(
       country = mapvalues(
@@ -47,7 +48,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
       ylab="Age in years",
       xlab="Year",
       at = seq(from= -1.2, to = 1.2, by=0.2),
-      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+      col.regions = COL.REGIONS,
       scales=list(alternating=3),
       main=NULL,
       aspect= ASPECT,
@@ -59,7 +60,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
   zero_part <- dif_dta_blurred %>%
     filter(sex!="total" & 
              age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
-             year >= YEAR_RANGE[2] & year <= YEAR_RANGE[2]
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
              ) %>%
     mutate(
       country = mapvalues(

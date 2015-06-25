@@ -296,8 +296,31 @@ png(filename="figures/scotland_in_context/euro_regions_scp_lattice_spectral.png"
     width=70, height=40, res=300, units="cm"
 )
 make_scp_lattice(tmp2, tmp3, tmp1, 
-                 COL.REGIONS=colorRampPalette(brewer.pal(6, "Spectral"))(200)
+                 COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
                  )
+dev.off()
+
+
+# Create CLP comparing Scotland against each of the main European regions
+
+
+tmp3 <- dta %>% filter(country == "GBR_SCO") %>% select(-country) %>% 
+  mutate(cmr = death_count/population_count, lg_cmr = log(cmr, base = 10))
+
+png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1900_2010.png",
+    width=60, height=30, res=300, units="cm"
+)
+print(make_clp_lattice(tmp2, tmp3, tmp1, 
+                       COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64))
+)
+dev.off()
+
+png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1950_2010.png",
+    width=30, height=30, res=300, units="cm"
+)
+print(make_clp_lattice(tmp2, tmp3, tmp1, YEAR_RANGE=c(1950, 2010),
+                       COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64))
+)
 dev.off()
 
 #CLPs of single countries 
@@ -417,6 +440,9 @@ png(filename="figures/scotland_in_context/clp_lattice_all_europe.png",
 )
 print(make_clp_lattice(dta_europe, dta_europe_overall, europe_codes))
 dev.off()
+
+
+
 
 
 # SCPs of each country, individually --------------------------------------
