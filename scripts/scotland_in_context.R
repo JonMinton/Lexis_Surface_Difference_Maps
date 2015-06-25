@@ -378,72 +378,44 @@ png(filename="figures/scotland_in_context/clp_scotland_against_affluent_world.pn
 print(make_single_clp(dta_all, dta_all_overall, "GBR_SCO"))
 dev.off()
 
-# latticeplot of SCPs of each Western European Country --------------------
+
+# Additional from Gerry ---------------------------------------------------
+
+# Scotland against England & Wales Only, isometric ------------------------
+
+png(filename="figures/scotland_in_context/clp_scotland_minus_england_iso.png",
+    height=30,width=30, res=300, units="cm"
+)
+print(make_two_country_clp(DTA=dta, "GBRTENW", "GBR_SCO",
+                            YEAR_RANGE = c(1855, 2011)))
+dev.off()
 
 
+# Scotland against Northern Ireland only, isometric -----------------------
+png(filename="figures/scotland_in_context/clp_scotland_minus_northern_ireland_iso.png",
+    height=20,width=30, res=300, units="cm"
+)
 
-
-
-shade_part <- dta_we %>%
-  filter(
-    year >= 1900 & year <= 2010 &
-      age <= 90 &
-      sex != "total"
-  ) %>%
-  mutate(
-    cmr = death_count / population_count,
-    lg_cmr = log(cmr, base=10),
-    country = mapvalues(
-      country,
-      from=c("AUS", "BEL", "CHE", "DEUT", "FRATNP", "GBR_NIR", "GBR_SCO", "GBRTENW", "IRL", "LUX", "NLD"),
-      to=c("Austria", "Belgium", "Switzerland", "Germany", "France", "Northern Ireland", "Scotland", "England & Wales", "Ireland", "Luxemboug", "Holland")
-    )
-  ) %>%
-  levelplot(
-    lg_cmr ~ year * age | country + sex, 
-    data=., 
-    region=T, 
-    par.strip.text=list(cex=1.4, fontface="bold"),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    cex=1.4,
-    col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
-    main=NULL,
-    xlim=c(1900, 2010),
-    scales=list(
-      x=list(cex=1.4), 
-      y=list(cex=1.4),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey"))
-  )
-
-contour_part <- dta_we_smoothed  %>%  
-  filter(
-    year >= 1900 & year <= 2008 &
-      age <= 90
-  ) %>%
-  contourplot(
-    lg_cmr ~ year + age | country + sex, 
-    data=.,
-    region=F,
-    ylab="",
-    xlab="",
-    scales=list(NULL),
-    cuts=25,    
-    col="black",
-    labels=list(
-      cex=1.2
-    ),
-    xlim=c(1900, 2010),
-    main=NULL
-  )
-
-print(shade_part + contour_part)
+print(make_two_country_clp(DTA=dta, "GBR_NIR", "GBR_SCO",
+                           YEAR_RANGE = c(1922, 2011)))
 
 dev.off()
 
 
+# Scotland against Republic of Ireland Only, isometric --------------------
+png(filename="figures/scotland_in_context/clp_scotland_minus_ireland_iso.png",
+    height=25, width=25, res=300, units="cm"
+    )
+print(make_two_country_clp(DTA=dta, "IRL", "GBR_SCO",
+                           YEAR_RANGE = c(1950, 2009)))
+dev.off()
+
+
+
+
+
+
+# latticeplot of SCPs of each Western European Country --------------------
 
 # Lattice CLPs  ----------------------------------
 

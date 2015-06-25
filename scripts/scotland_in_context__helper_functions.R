@@ -384,3 +384,90 @@ grouper <- function(DTA){
   
   return(output)  
 }
+
+
+
+make_two_country_clp <- function(DTA, GROUP_A, GROUP_B, 
+                                 YEAR_RANGE = c(1900, 2010), 
+                                 AGE_RANGE = c(0, 90),
+                                 ASPECT = "iso",
+                                 SMOOTH_PAR= 1.4
+                                 ){
+  
+  tmp1 <- DTA  %>% 
+    filter(country == GROUP_A)  %>% 
+    mutate(cmr = death_count/ population_count)  %>% 
+    mutate(country = "group_a") %>% 
+    select(country, year, age, sex, cmr)
+  
+  tmp2 <- DTA  %>% 
+    filter(country == GROUP_B)  %>% 
+    mutate(cmr = death_count/ population_count)  %>% 
+    mutate(country = "group_b") %>% 
+    select(country, year, age, sex, cmr)
+  
+  tmp3 <- bind_rows(tmp1, tmp2)
+  rm(tmp1, tmp2)
+  
+  dif_b_to_a  <- tmp3 %>% 
+    mutate(lg_cmr = log(cmr, base=10))  %>% 
+    select(-cmr)  %>% 
+    spread(key=country, value=lg_cmr)  %>% 
+    filter(!is.na(group_a) & !is.na(group_b))  %>% 
+    mutate(dif = group_b  - group_a) %>% 
+    select(year, age, sex, dif)
+  
+  lev_part <- dif_b_to_a %>% filter(
+    sex!="total"
+    & age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+      year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+  ) %>% 
+    levelplot(
+      dif ~ year * age | sex,
+      data=., 
+      region=T,
+      xlim=YEAR_RANGE,
+      ylab="Age in years",
+      xlab="Year",
+      aspect=ASPECT,
+      at = seq(from= -1.2, to = 1.2, by=0.2),
+      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+      scales=list(alternating=3),
+      main=NULL,
+      par.settings=list(strip.background=list(col="lightgrey"))
+    )
+  
+  dif_blurred <- dif_b_to_a %>% smooth_var(
+    dta=.,
+    group_vars= "sex",
+    smooth_var="dif",
+    smooth_par=SMOOTH_PAR
+  )
+  
+  
+  zero_part <- dif_blurred %>%
+    filter(sex!="total" 
+           & age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+           ) %>%
+    contourplot(
+      dif ~ year + age | sex, 
+      data=.,
+      region=F,
+      ylab="",
+      xlab="",
+      scales=list(NULL),
+      at=0,
+      lwd=1,
+      labels=F,
+      xlim=YEAR_RANGE,
+      aspect=ASPECT,
+      main=NULL
+    )
+  
+
+  output <- lev_part + zero_part 
+  
+  return(output)
+}
+
