@@ -2,7 +2,9 @@
 
 
 make_clp_lattice <- function(DTA, DTA_overall, CODES,
-                             ASPECT = "iso"
+                             ASPECT = "iso",
+                             YEAR_RANGE = c(1900, 2010), 
+                             AGE_RANGE = c(0, 90),
                              ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
@@ -26,9 +28,9 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
   
   
   lev_part <- dif_dta %>% filter(
-    sex!="total"
-    & age <=90 &
-      year >=1900
+    sex!="total" & 
+    age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+    year >= YEAR_RANGE[2] & year <= YEAR_RANGE[2]
   ) %>% 
     mutate(
       country = mapvalues(
@@ -48,13 +50,16 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
       scales=list(alternating=3),
       main=NULL,
       aspect= ASPECT,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       par.settings=list(strip.background=list(col="lightgrey"))
     )
   
   
   zero_part <- dif_dta_blurred %>%
-    filter(sex!="total" & age <=90) %>%
+    filter(sex!="total" & 
+             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[2] & year <= YEAR_RANGE[2]
+             ) %>%
     mutate(
       country = mapvalues(
         country,
@@ -71,10 +76,10 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
       scales=list(NULL),
       at=0,
       lwd=1,
-      labels=F,
+      labels = F,
       aspect = ASPECT,
-      xlim=c(1900, 2010),
-      main=NULL
+      xlim = YEAR_RANGE,
+      main = NULL
     )
   
   output <- lev_part + zero_part
@@ -86,7 +91,9 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
 
 
 make_single_clp <- function(DTA, DTA_overall, SELECTION,
-                            ASPECT = "iso"
+                            ASPECT = "iso",
+                            AGE_RANGE = c(0, 90), 
+                            YEAR_RANGE = c(1900, 2010)
                             ){
   
   tmp1 <- DTA  %>% 
@@ -111,15 +118,15 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
     select(year, age, sex, dif)
   
   lev_part <- dif_to_overall %>% filter(
-    sex!="total"
-    & age <=90 &
-      year >=1900
+    sex!="total" & 
+    age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+      year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
   ) %>% 
     levelplot(
       dif ~ year * age | sex,
       data=., 
       region=T,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       ylab="Age in years",
       xlab="Year",
       aspect = ASPECT,
@@ -139,7 +146,10 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
   
   
   zero_part <- dif_blurred %>%
-    filter(sex!="total" & age <=90) %>%
+    filter(sex!="total" & 
+           age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+           ) %>%
     contourplot(
       dif ~ year + age | sex, 
       data=.,
@@ -151,12 +161,15 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
       lwd=1,
       labels=F,
       aspect = ASPECT,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       main=NULL
     )
   
   quarter_part <- dif_blurred %>% 
-    filter(sex != "total" & age <=90) %>% 
+    filter(sex!="total" & 
+             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+    )  %>% 
     contourplot(
       dif ~ year + age | sex, 
       data = . , 
@@ -165,15 +178,18 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
       xlab = "", 
       scales = list (NULL),
       at = c(-0.25, 0.25),
-      lwd=1.5, 
+      lwd = 1.5, 
       labels = F,
       aspect = ASPECT,
-      xlim=c(1900, 2010),
+      xlim = YEAR_RANGE,
       main = NULL
     )
   
   half_part <- dif_blurred %>% 
-    filter(sex!="total" & age <=90) %>% 
+    filter(sex!="total" & 
+             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+    ) %>% 
     contourplot(
       dif ~ year + age | sex,
       data = . ,
@@ -185,7 +201,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
       lwd=2.0,
       labels =F,
       aspect = ASPECT,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       main=NULL
     )
   
@@ -197,14 +213,15 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
 
 
 make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
-                             ASPECT="iso"
+                             ASPECT="iso",
+                             AGE_RANGE = c(0, 90), 
+                             YEAR_RANGE = c(1900, 2010)
                              ){
   
   shade_part <- DTA %>%
-    filter(
-      year >= 1900 & year <= 2010 &
-        age <= 90 &
-        sex != "total"
+    filter(sex!="total" & 
+             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
     ) %>%
     mutate(
       cmr = death_count / population_count,
@@ -225,7 +242,7 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
       cex=1.4,
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       aspect=ASPECT,
       scales=list(
         x=list(cex=1.4), 
@@ -236,9 +253,9 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
     )
   
   contour_part <- DTA_smoothed  %>%  
-    filter(
-      year >= 1900 & year <= 2008 &
-        age <= 90
+    filter(sex!="total" & 
+             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
     ) %>%
     mutate(
       country = mapvalues(
@@ -255,6 +272,7 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
       xlab="",
       scales=list(NULL),
       cuts=25,
+      xlim=YEAR_RANGE,
       aspect=ASPECT,
       col="black",
       labels=list(
@@ -271,7 +289,9 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
 
 
 make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
-                             ASPECT="iso"
+                             ASPECT="iso",
+                             AGE_RANGE = c(0, 90), 
+                             YEAR_RANGE = c(1900, 2010)
                              ){
   shade_part <- DTA_unsmoothed %>%
     filter(
@@ -331,13 +351,15 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
 
 
 make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
-                     ASPECT= "iso"
+                     ASPECT= "iso",
+                     AGE_RANGE = c(0, 90), 
+                     YEAR_RANGE = c(1900, 2010)
   ){
   shade_part <- DTA_unsmoothed %>%
     filter(
       country == COUNTRY & 
-        year >= 1900 & year <= 2010 &
-        age <= 90 &
+        year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2] &
+        age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
         sex != "total"
     ) %>%
     mutate(
@@ -355,7 +377,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
       aspect=ASPECT,
       col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
       main=NULL,
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       scales=list(
         x=list(cex=1.4), 
         y=list(cex=1.4),
@@ -367,8 +389,9 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
   contour_part <- DTA_smoothed  %>%  
     filter(
       country == COUNTRY & 
-        year >= 1900 & year <= 2008 &
-        age <= 90 
+        year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2] &
+        age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+        sex != "total"
     ) %>%
     contourplot(
       lg_cmr ~ year + age | sex, 
@@ -376,7 +399,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
       region=F,
       ylab="",
       xlab="",
-      xlim=c(1900, 2010),
+      xlim=YEAR_RANGE,
       scales=list(NULL),
       cuts=25,
       aspect=ASPECT,
