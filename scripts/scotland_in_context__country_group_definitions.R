@@ -2,8 +2,6 @@
 # Country group definitions -----------------------------------------------
 
 
-
-
 uk_codes <- c(
   `England & Wales`= "GBRTENW",
   `Northern Ireland` = "GBR_NIR",
@@ -61,6 +59,7 @@ all_codes <- c(
   Austria = "AUT",
   Belgium = "BEL",
   Switzerland = "CHE",
+  Canada = "CAN",
   Germany = "DEUT",
   France = "FRATNP",
   `Northern Ireland` = "GBR_NIR",
@@ -88,12 +87,13 @@ all_codes <- c(
   Sweden = "SWE",
   Ukraine = "UKR",
   Australia = "AUS",
-  Isreal = "ISR", 
+  Israel = "ISR", 
   Japan = "JPN",
   `New Zealand` = "NZL_NP",
   Russia = "RUS",
   Taiwan = "TWN",
-  USA = "USA"
+  USA = "USA",
+  Iceland = "ISL"
 )
 
 
@@ -114,15 +114,14 @@ europe_northern <- c(
   Denmark="DNK", 
   Sweden="SWE",
   Finland="FIN",
-  Norway="NOR"
+  Norway="NOR",
+  Iceland = "ISL"
 )
 
 europe_southern <- c(
   Spain="ESP", 
   Portugal="PRT",     
-  Luxembourg="LUX",
   Italy="ITA"
-
 )
 
 europe_eastern <- c(
@@ -134,4 +133,20 @@ europe_eastern <- c(
   Poland="POL",
   Ukraine="UKR",
   Belarus="BLR"
+)
+
+
+north_america <- c(
+  USA = "USA", 
+  Canada = "CAN"
+)
+
+anglophone <- c(
+  USA = "USA", 
+  Canada = "CAN",
+  Scotland = "GBR_SCO",
+  Australia = "AUS", 
+  Ireland = "IRL",
+  `Northern Ireland` = "GBR_NIR",
+  `England & Wales` = "GBRTENW"
 )
