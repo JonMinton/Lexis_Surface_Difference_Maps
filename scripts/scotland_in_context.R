@@ -79,6 +79,10 @@ dta_ne <- dta %>% filter(country %in% europe_northern)
 dta_se <- dta %>% filter(country %in% europe_southern)
 dta_ee <- dta %>% filter(country %in% europe_eastern)
 
+dta_na <- dta %>% filter(country %in% north_america)
+
+dta_anglo <- dta %>% filter(country %in% anglophone)
+
 # country group selections - smoothed -------------------------------------
 
 fn <- function(DTA) {
@@ -103,6 +107,9 @@ dta_all_smoothed <- fn(dta_all)
 dta_ne_smoothed <- fn(dta_ne)
 dta_se_smoothed <- fn(dta_se)
 dta_ee_smoothed <- fn(dta_ee)
+dta_na_smoothed <- fn(dta_na)
+dta_anglo_smoothed <- fn(dta_anglo)
+
 
 rm(fn)
 # country group selections - combined  ---------------------------------------
@@ -115,6 +122,10 @@ dta_all_overall <- grouper(dta_all)
 dta_ne_overall <- grouper(dta_ne)
 dta_se_overall <- grouper(dta_se)
 dta_ee_overall <- grouper(dta_ee)
+dta_na_overall <- grouper(dta_na)
+dta_anglo_overall <- grouper(dta_anglo)
+
+
 
 # Data allowing comparison of broad European regions against European average
 
@@ -151,7 +162,8 @@ dta_all_overall_smoothed <- fn(dta_all_overall)
 dta_ne_overall_smoothed <- fn(dta_ne_overall)
 dta_se_overall_smoothed <- fn(dta_se_overall)
 dta_ee_overall_smoothed <- fn(dta_ee_overall)
-
+dta_na_overall_smoothed <- fn(dta_na_overall)
+dta_anglo_overall_smoothed <- fn(dta_anglo_overall)
 rm(fn)
 
 
@@ -168,7 +180,9 @@ rm(fn)
 png(filename="figures/scotland_in_context/scotland_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp(dta_uk, dta_uk_smoothed, "GBR_SCO"))
+print(make_scp(dta_uk, dta_uk_smoothed, "GBR_SCO", 
+               COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+               ))
 dev.off()
 
 # SCP of England & Wales --------------------------------------------------
@@ -176,7 +190,9 @@ dev.off()
 png(filename="figures/scotland_in_context/england_wales_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp(dta_uk, dta_uk_smoothed, "GBRTENW"))
+print(make_scp(dta_uk, dta_uk_smoothed, "GBRTENW",
+               COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+               ))
 dev.off()
 
 # SCP of Northern Ireland
@@ -184,7 +200,9 @@ dev.off()
 png(filename="figures/scotland_in_context/northern_ireland_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp(dta_uk, dta_uk_smoothed, "GBR_NIR"))
+print(make_scp(dta_uk, dta_uk_smoothed, "GBR_NIR",
+               COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+               ))
 dev.off()
 
 # SCPs of aggregated groups of countries 
@@ -194,7 +212,9 @@ dev.off()
 png(filename="figures/scotland_in_context/uk_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_uk_overall, dta_uk_overall_smoothed))
+print(make_scp_overall(dta_uk_overall, dta_uk_overall_smoothed,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 # SCP of Western Europe Overall
@@ -202,28 +222,36 @@ dev.off()
 png(filename="figures/scotland_in_context/we_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_we_overall, dta_we_overall_smoothed))
+print(make_scp_overall(dta_we_overall, dta_we_overall_smoothed,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 # SCP of Europe Overall
 png(filename="figures/scotland_in_context/europe_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_europe_overall, dta_europe_overall_smoothed))
+print(make_scp_overall(dta_europe_overall, dta_europe_overall_smoothed,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 # SCP of Northern Europe
 png(filename="figures/scotland_in_context/northern_europe_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_ne_overall, dta_ne_overall_smoothed))
+print(make_scp_overall(dta_ne_overall, dta_ne_overall_smoothed,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 # SCP of Eastern Europe
 png(filename="figures/scotland_in_context/southern_europe_overall_scp_iso.png", 
     width=25, height=25, res=300, units="cm"
 )
-print(make_scp_overall(dta_ee_overall, dta_ee_overall_smoothed, YEAR_RANGE=c(1950, 2010)))
+print(make_scp_overall(dta_ee_overall, dta_ee_overall_smoothed, YEAR_RANGE=c(1950, 2010)),
+      COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+      )
 dev.off()
 
 
@@ -231,8 +259,30 @@ dev.off()
 png(filename="figures/scotland_in_context/southern_europe_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_se_overall, dta_se_overall_smoothed, YEAR_RANGE=c(1900, 2010)))
+print(make_scp_overall(dta_se_overall, dta_se_overall_smoothed, YEAR_RANGE=c(1900, 2010),
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+    ))
 dev.off()
+
+# SCP of North  America
+png(filename="figures/scotland_in_context/north_america_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
+)
+print(make_scp_overall(dta_na_overall, dta_na_overall_smoothed, YEAR_RANGE=c(1921, 2010),
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+))
+dev.off()
+
+# SCP of North  America
+png(filename="figures/scotland_in_context/anglophone_overall_scp_iso.png", 
+    width=20, height=40, res=300, units="cm"
+)
+print(make_scp_overall(dta_anglo_overall, dta_anglo_overall_smoothed, YEAR_RANGE=c(1900, 2010),
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+))
+dev.off()
+
+
 
 
 
@@ -241,7 +291,9 @@ dev.off()
 png(filename="figures/scotland_in_context/allcountries_overall_scp_iso.png", 
     width=20, height=40, res=300, units="cm"
 )
-print(make_scp_overall(dta_all_overall, dta_all_overall_smoothed))
+print(make_scp_overall(dta_all_overall, dta_all_overall_smoothed,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 
@@ -358,6 +410,15 @@ png(filename="figures/scotland_in_context/clp_scotland_against_affluent_world.pn
 print(make_single_clp(dta_all, dta_all_overall, "GBR_SCO"))
 dev.off()
 
+# CLP Scotland against Anglophone nations -------------------------------------
+png(filename="figures/scotland_in_context/clp_scotland_against_anglophone_nations.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(dta_anglo, dta_anglo_overall, "GBR_SCO"))
+dev.off()
+
+
+
 
 # Additional from Gerry ---------------------------------------------------
 
@@ -444,85 +505,6 @@ dev.off()
 
 
 
-
-# SCPs of each country, individually --------------------------------------
-
-
-fn <- function(this_country){
-  
-  this_country_name = names(w_europe_codes[w_europe_codes==this_country])
-  
-  this_unsmoothed <- dta_we %>% 
-    filter(
-      country==this_country &
-        sex !="total" &
-     year >=1900 &
-       age <=90
-    ) %>% 
-  levelplot(
-    lg_cmr ~ year * age | sex,
-    data = . ,
-    region = T , 
-    par.strip.text=list(cex=1.4, fontface="bold"),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    ylab=list(label="Age in years", cex=1.4),
-    xlab=list(label="Year", cex=1.4),
-    xlim=c(1900, 2010), 
-    cex=1.4,
-    cuts=25,
-    col.regions=colorRampPalette(brewer.pal(6, "RdYlBu"))(200),
-    main=this_country_name,
-    scales=list(
-      x=list(cex=1.4), 
-      y=list(cex=1.4),
-      alternating=3
-    )
-  )
-  
-  this_smoothed <- dta_we_smoothed %>% 
-    filter(
-      country == this_country &
-        sex !="total" &
-        year >=1900 &
-        age <=90
-    ) %>% 
-    contourplot(
-      lg_cmr ~ year * age | sex,
-      data = . ,
-      region = F ,
-      cex=1.4,
-      cuts=25,
-      col.regions=colorRampPalette(brewer.pal(6, "RdYlBu"))(200),
-      scales=list(
-        x=NULL, y=NULL
-      ),
-      xlim=c(1900, 2010), 
-      xlab=NULL, ylab=NULL, 
-      main=NULL,
-      labels=list(cex=1.2),
-      col="darkgreen"
-    )
-  
-  
-  png(
-    filename=paste0(
-    "figures/scotland_in_context/all_countries/cmr_",
-    this_country, ".png"
-    ),
-      width=30, height=15, res=300, units="cm"
-  )
-  print(this_unsmoothed + this_smoothed)
-  
-  dev.off()  
-    
-  return(NULL)
-  
-}
-
-l_ply(w_europe_codes, fn)
-
-
-
 # Similarity scores -------------------------------------------------------
 
 
@@ -566,6 +548,7 @@ all_difs$region[all_difs$country %in% europe_eastern] <- "Eastern Europe"
 all_difs$region[all_difs$country %in% europe_northern] <- "Northern Europe"
 all_difs$region[all_difs$country %in% europe_southern] <- "Southern Europe"
 all_difs$region[all_difs$country %in% europe_western] <- "Western Europe"
+all_difs$region[all_difs$country %in% anglophone] <- "Other Anglophone"
 all_difs$region[all_difs$country %in% uk_codes] <- "Rest of UK"
 
 tmp <- all_difs %>% group_by(country) %>% filter(year == max(year) & !is.na(region))
@@ -626,6 +609,7 @@ all_difs$region[all_difs$country %in% europe_eastern] <- "Eastern Europe"
 all_difs$region[all_difs$country %in% europe_northern] <- "Northern Europe"
 all_difs$region[all_difs$country %in% europe_southern] <- "Southern Europe"
 all_difs$region[all_difs$country %in% europe_western] <- "Western Europe"
+all_difs$region[all_difs$country %in% anglophone] <- "Other Anglophone"
 all_difs$region[all_difs$country %in% uk_codes] <- "Rest of UK"
 
 tmp <- all_difs %>% group_by(country) %>% filter(year == max(year) & !is.na(region))
