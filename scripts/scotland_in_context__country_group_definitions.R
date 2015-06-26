@@ -148,5 +148,6 @@ anglophone <- c(
   Australia = "AUS", 
   Ireland = "IRL",
   `Northern Ireland` = "GBR_NIR",
-  `England & Wales` = "GBRTENW"
+  `England & Wales` = "GBRTENW",
+  `New Zealand (Non-Maori)` = "NZL_NM"
 )
