@@ -294,7 +294,8 @@ make_scp_lattice <- function(DTA, DTA_smoothed, CODES,
 make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
                              ASPECT="iso",
                              AGE_RANGE = c(0, 90), 
-                             YEAR_RANGE = c(1900, 2010)
+                             YEAR_RANGE = c(1900, 2010),
+                             COL.REGIONS = colorRampPalette(brewer.pal(6, "Reds"))(200)
                              ){
   shade_part <- DTA_unsmoothed %>%
     filter(
@@ -314,7 +315,7 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
       ylab=list(label="Age in years", cex=1.4),
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
-      col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+      col.regions=COL.REGIONS,
       main=NULL,
       aspect=ASPECT,
       xlim=YEAR_RANGE,
@@ -356,7 +357,8 @@ make_scp_overall <- function(DTA_unsmoothed, DTA_smoothed,
 make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
                      ASPECT= "iso",
                      AGE_RANGE = c(0, 90), 
-                     YEAR_RANGE = c(1900, 2010)
+                     YEAR_RANGE = c(1900, 2010),
+                     COL.REGIONS = colorRampPalette(brewer.pal(6, "Reds"))(200)
   ){
   shade_part <- DTA_unsmoothed %>%
     filter(
@@ -378,7 +380,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
       aspect=ASPECT,
-      col.regions=colorRampPalette(brewer.pal(6, "Reds"))(200),
+      col.regions=COL.REGIONS,
       main=NULL,
       xlim=YEAR_RANGE,
       scales=list(
@@ -438,7 +440,8 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
                                  YEAR_RANGE = c(1900, 2010), 
                                  AGE_RANGE = c(0, 90),
                                  ASPECT = "iso",
-                                 SMOOTH_PAR= 1.4
+                                 SMOOTH_PAR= 1.4,
+                                 COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64)
                                  ){
   
   tmp1 <- DTA  %>% 
@@ -478,7 +481,7 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
       xlab="Year",
       aspect=ASPECT,
       at = seq(from= -1.2, to = 1.2, by=0.2),
-      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+      col.regions = COL.REGIONS,
       scales=list(alternating=3),
       main=NULL,
       par.settings=list(strip.background=list(col="lightgrey"))
