@@ -535,12 +535,12 @@ l_ply(w_europe_codes, fn)
 
 fn <- function(CODE){
   dta_other <- dta_all %>% 
-    filter(country == CODE) %>% 
+    filter(country == CODE & sex !="total") %>% 
     mutate(cmr_other = death_count / population_count) %>% 
     select(year, age, sex, cmr_other)
   
   dta_scot <- dta_all %>% 
-    filter(country == "GBR_SCO") %>% 
+    filter(country == "GBR_SCO" & sex !="total") %>% 
     mutate(cmr_scot = death_count/population_count) %>% 
     select(year, age, sex, cmr_scot)
   
@@ -582,4 +582,67 @@ all_difs %>% filter(year >= 1950 & !is.na(region)) %>% ggplot() +
 ggsave(filename = "figures/scotland_in_context/differences_over_time.png",
        dpi=300, height=20, width=30, units = "cm"
        )
+
+
+
+# As above but differences in logs ----------------------------------------
+
+# We will need dta_all and all_codes
+
+fn <- function(CODE){
+  dta_other <- dta_all %>% 
+    filter(country == CODE & sex !="total") %>% 
+    mutate(cmr_other = (death_count + 0.5) / (population_count + 0.5),
+           lg_cmr_other = log(cmr_other, base = 10)
+           ) %>% 
+    select(year, age, sex, lg_cmr_other)
+  
+  dta_scot <- dta_all %>% 
+    filter(country == "GBR_SCO" & sex !="total") %>% 
+    mutate(cmr_scot = (death_count+ 0.5)/(population_count + 0.5),
+           lg_cmr_scot = log(cmr_scot, base = 10)
+           ) %>% 
+    select(year, age, sex, lg_cmr_scot)
+  
+  dta_joined <- inner_join(dta_other, dta_scot)
+  
+  output <- dta_joined %>% 
+    filter(age <= 90) %>% 
+    mutate(lg_cmr_dif = lg_cmr_scot - lg_cmr_other) %>% 
+    select(year, age, sex, lg_cmr_dif) %>% 
+    group_by(year) %>% 
+    summarise(avg_lg_cmr_dif = mean(lg_cmr_dif)) %>% 
+    mutate(country = CODE) %>% 
+    select(country, year, avg_lg_cmr_dif)
+  
+  return(output)
+}
+
+codes_minus_scot <-  all_codes[all_codes!="GBR_SCO"]
+all_difs <- ldply(codes_minus_scot, fn, .id="country_name") %>% tbl_df
+
+all_difs$region <- NA
+all_difs$region[all_difs$country %in% europe_eastern] <- "Eastern Europe"
+all_difs$region[all_difs$country %in% europe_northern] <- "Northern Europe"
+all_difs$region[all_difs$country %in% europe_southern] <- "Southern Europe"
+all_difs$region[all_difs$country %in% europe_western] <- "Western Europe"
+all_difs$region[all_difs$country %in% uk_codes] <- "Rest of UK"
+
+tmp <- all_difs %>% group_by(country) %>% filter(year == max(year) & !is.na(region))
+tmp2 <- all_difs %>% group_by(country) %>% filter(year == max(1950, min(year)) & !is.na(region))
+all_difs %>% filter(year >= 1950 & !is.na(region)) %>% ggplot() +
+  geom_line(aes(x=year, y= avg_lg_cmr_dif, group=country)) +
+  facet_wrap( ~ region) + geom_hline(aes(yintercept = 0)) + 
+  labs(x="Year", y="Average difference in logs of \nage and sex specific mortality rate") +
+  geom_text(aes(x=year + 3.5, y=avg_lg_cmr_dif, group=country, label=country), size = 3, 
+            data = tmp) + 
+  geom_text(aes(x=year - 3.5 , y=avg_lg_cmr_dif, group=country, label=country), size = 3, 
+            data = tmp2)
+
+ggsave(filename = "figures/scotland_in_context/log_differences_over_time.png",
+       dpi=300, height=20, width=30, units = "cm"
+)
+
+
+
 
