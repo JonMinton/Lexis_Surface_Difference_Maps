@@ -6,7 +6,8 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
                              YEAR_RANGE = c(1900, 2010), 
                              AGE_RANGE = c(0, 90),
                              COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-                             ADD_CONTOURS = F
+                             ADD_CONTOURS = F,
+                             AT = seq(from= -1.2, to = 1.2, by=0.2)
                              ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
@@ -48,7 +49,7 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
       region=T,
       ylab="Age in years",
       xlab="Year",
-      at = seq(from= -1.2, to = 1.2, by=0.2),
+      at = AT,
       col.regions = COL.REGIONS,
       scales=list(alternating=3),
       main=NULL,
@@ -99,7 +100,8 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
                             ASPECT = "iso",
                             AGE_RANGE = c(0, 90), 
                             YEAR_RANGE = c(1900, 2010),
-                            ADD_CONTOURS = F
+                            ADD_CONTOURS = F,
+                            AT = seq(from= -1.2, to = 1.2, by=0.2)
                             ){
   
   tmp1 <- DTA  %>% 
@@ -136,7 +138,7 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
       ylab="Age in years",
       xlab="Year",
       aspect = ASPECT,
-      at = seq(from= -1.2, to = 1.2, by=0.2),
+      at = AT,
       col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
       scales=list(alternating=3),
       main=NULL,
@@ -450,7 +452,8 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
                                  ASPECT = "iso",
                                  SMOOTH_PAR= 1.4,
                                  COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-                                 ADD_CONTOURS = F
+                                 ADD_CONTOURS = F,
+                                 AT = seq(from= -1.2, to = 1.2, by=0.2)
                                  ){
   
   tmp1 <- DTA  %>% 
@@ -489,7 +492,7 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
       ylab="Age in years",
       xlab="Year",
       aspect=ASPECT,
-      at = seq(from= -1.2, to = 1.2, by=0.2),
+      at = AT,
       col.regions = COL.REGIONS,
       scales=list(alternating=3),
       main=NULL,

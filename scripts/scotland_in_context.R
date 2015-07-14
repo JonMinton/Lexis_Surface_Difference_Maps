@@ -312,7 +312,9 @@ png(filename="figures/scotland_in_context/uk_countries_scp.png",
     width=30, height=30, res=300, units="cm"
 )
 
-print(make_scp_lattice(dta_uk, dta_uk_smoothed, uk_codes))
+print(make_scp_lattice(dta_uk, dta_uk_smoothed, uk_codes,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 
 dev.off()
 
@@ -320,14 +322,18 @@ dev.off()
 png(filename="figures/scotland_in_context/we_countries_scp.png", 
     width=110, height=30, res=300, units="cm"
 )
-print(make_scp_lattice(dta_we, dta_we_smoothed, w_europe_codes))
+print(make_scp_lattice(dta_we, dta_we_smoothed, w_europe_codes,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 # All Europe SCP latticeplot
 png(filename="figures/scotland_in_context/european_countries_scp.png", 
     width=300, height=30, res=300, units="cm"
 )
-print(make_scp_lattice(dta_europe, dta_europe_smoothed, europe_codes))
+print(make_scp_lattice(dta_europe, dta_europe_smoothed, europe_codes,
+                       COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
+                       ))
 dev.off()
 
 
@@ -384,7 +390,12 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_scotland_against_UK.png", 
     width=40, height=20, res=300, units="cm"
 )
-print(make_single_clp(dta_uk, dta_uk_overall, "GBR_SCO"))
+print(make_single_clp(
+  dta_uk, 
+  dta_uk_overall, 
+  "GBR_SCO",
+  AT = seq(from= -1.2, to = 1.2, by=0.1)                    
+                      ))
 dev.off()
 
 
@@ -393,7 +404,12 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_scotland_against_western_europe.png", 
     width=40, height=20, res=300, units="cm"
 )
-print(make_single_clp(dta_we, dta_we_overall, "GBR_SCO"))
+print(make_single_clp(
+  dta_we, 
+  dta_we_overall, 
+  "GBR_SCO",
+  AT = seq(from= -1.2, to = 1.2, by=0.1)                    
+                      ))
 dev.off()
 
 # CLP Scotland against Europe -------------------------------------
