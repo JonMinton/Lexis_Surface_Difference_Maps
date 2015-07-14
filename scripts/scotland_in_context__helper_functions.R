@@ -5,7 +5,8 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
                              ASPECT = "iso",
                              YEAR_RANGE = c(1900, 2010), 
                              AGE_RANGE = c(0, 90),
-                             COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64)
+                             COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+                             ADD_CONTOURS = F
                              ){
   tmp1 <- DTA  %>% 
     mutate(cmr = death_count/ population_count)  %>% 
@@ -56,35 +57,37 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
       par.settings=list(strip.background=list(col="lightgrey"))
     )
   
-  
-  zero_part <- dif_dta_blurred %>%
-    filter(sex!="total" & 
-             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
-             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
-             ) %>%
-    mutate(
-      country = mapvalues(
-        country,
-        from=CODES,
-        to=names(CODES)
+  if (ADD_CONTOURS){
+    zero_part <- dif_dta_blurred %>%
+      filter(sex!="total" & 
+               age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+               year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+      ) %>%
+      mutate(
+        country = mapvalues(
+          country,
+          from=CODES,
+          to=names(CODES)
+        )
+      ) %>% 
+      contourplot(
+        dif_lg_cmr ~ year + age | country + sex, 
+        data=.,
+        region=F,
+        ylab="",
+        xlab="",
+        scales=list(NULL),
+        at=0,
+        lwd=1,
+        labels = F,
+        aspect = ASPECT,
+        xlim = YEAR_RANGE,
+        main = NULL
       )
-    ) %>% 
-    contourplot(
-      dif_lg_cmr ~ year + age | country + sex, 
-      data=.,
-      region=F,
-      ylab="",
-      xlab="",
-      scales=list(NULL),
-      at=0,
-      lwd=1,
-      labels = F,
-      aspect = ASPECT,
-      xlim = YEAR_RANGE,
-      main = NULL
-    )
-  
-  output <- lev_part + zero_part
+    
+    output <- lev_part + zero_part
+    
+  } else {output <- lev_part}
   
   return(output)
   
@@ -95,7 +98,8 @@ make_clp_lattice <- function(DTA, DTA_overall, CODES,
 make_single_clp <- function(DTA, DTA_overall, SELECTION,
                             ASPECT = "iso",
                             AGE_RANGE = c(0, 90), 
-                            YEAR_RANGE = c(1900, 2010)
+                            YEAR_RANGE = c(1900, 2010),
+                            ADD_CONTOURS = F
                             ){
   
   tmp1 <- DTA  %>% 
@@ -139,75 +143,79 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
       par.settings=list(strip.background=list(col="lightgrey"))
     )
   
-  dif_blurred <- dif_to_overall %>% smooth_var(
-    dta=.,
-    group_vars= "sex",
-    smooth_var="dif",
-    smooth_par=1.4
-  )
   
-  
-  zero_part <- dif_blurred %>%
-    filter(sex!="total" & 
-           age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
-             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
-           ) %>%
-    contourplot(
-      dif ~ year + age | sex, 
-      data=.,
-      region=F,
-      ylab="",
-      xlab="",
-      scales=list(NULL),
-      at=0,
-      lwd=1,
-      labels=F,
-      aspect = ASPECT,
-      xlim=YEAR_RANGE,
-      main=NULL
+  if (ADD_CONTOURS){
+    dif_blurred <- dif_to_overall %>% smooth_var(
+      dta=.,
+      group_vars= "sex",
+      smooth_var="dif",
+      smooth_par=1.4
     )
-  
-  quarter_part <- dif_blurred %>% 
-    filter(sex!="total" & 
-             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
-             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
-    )  %>% 
-    contourplot(
-      dif ~ year + age | sex, 
-      data = . , 
-      region = F,
-      ylab = "", 
-      xlab = "", 
-      scales = list (NULL),
-      at = c(-0.25, 0.25),
-      lwd = 1.5, 
-      labels = F,
-      aspect = ASPECT,
-      xlim = YEAR_RANGE,
-      main = NULL
-    )
-  
-  half_part <- dif_blurred %>% 
-    filter(sex!="total" & 
-             age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
-             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
-    ) %>% 
-    contourplot(
-      dif ~ year + age | sex,
-      data = . ,
-      region = F,
-      ylab="", 
-      xlab="",
-      scales = list (NULL),
-      at =c(-0.5, 0.5),
-      lwd=2.0,
-      labels =F,
-      aspect = ASPECT,
-      xlim=YEAR_RANGE,
-      main=NULL
-    )
-  
-  output <- lev_part + zero_part + quarter_part + half_part
+    
+    
+    zero_part <- dif_blurred %>%
+      filter(sex!="total" & 
+               age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+               year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+      ) %>%
+      contourplot(
+        dif ~ year + age | sex, 
+        data=.,
+        region=F,
+        ylab="",
+        xlab="",
+        scales=list(NULL),
+        at=0,
+        lwd=1,
+        labels=F,
+        aspect = ASPECT,
+        xlim=YEAR_RANGE,
+        main=NULL
+      )
+    
+    quarter_part <- dif_blurred %>% 
+      filter(sex!="total" & 
+               age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+               year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+      )  %>% 
+      contourplot(
+        dif ~ year + age | sex, 
+        data = . , 
+        region = F,
+        ylab = "", 
+        xlab = "", 
+        scales = list (NULL),
+        at = c(-0.25, 0.25),
+        lwd = 1.5, 
+        labels = F,
+        aspect = ASPECT,
+        xlim = YEAR_RANGE,
+        main = NULL
+      )
+    
+    half_part <- dif_blurred %>% 
+      filter(sex!="total" & 
+               age >= AGE_RANGE[1] & age <= AGE_RANGE[2] & 
+               year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+      ) %>% 
+      contourplot(
+        dif ~ year + age | sex,
+        data = . ,
+        region = F,
+        ylab="", 
+        xlab="",
+        scales = list (NULL),
+        at =c(-0.5, 0.5),
+        lwd=2.0,
+        labels =F,
+        aspect = ASPECT,
+        xlim=YEAR_RANGE,
+        main=NULL
+      )
+    
+    output <- lev_part + zero_part + quarter_part + half_part
+    
+  } else {output <- lev_part}
   
   return(output)
 }
@@ -441,7 +449,8 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
                                  AGE_RANGE = c(0, 90),
                                  ASPECT = "iso",
                                  SMOOTH_PAR= 1.4,
-                                 COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64)
+                                 COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
+                                 ADD_CONTOURS = F
                                  ){
   
   tmp1 <- DTA  %>% 
@@ -487,36 +496,39 @@ make_two_country_clp <- function(DTA, GROUP_A, GROUP_B,
       par.settings=list(strip.background=list(col="lightgrey"))
     )
   
-  dif_blurred <- dif_b_to_a %>% smooth_var(
-    dta=.,
-    group_vars= "sex",
-    smooth_var="dif",
-    smooth_par=SMOOTH_PAR
-  )
-  
-  
-  zero_part <- dif_blurred %>%
-    filter(sex!="total" 
-           & age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
-             year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
-           ) %>%
-    contourplot(
-      dif ~ year + age | sex, 
-      data=.,
-      region=F,
-      ylab="",
-      xlab="",
-      scales=list(NULL),
-      at=0,
-      lwd=1,
-      labels=F,
-      xlim=YEAR_RANGE,
-      aspect=ASPECT,
-      main=NULL
+  if(ADD_CONTOURS){
+    dif_blurred <- dif_b_to_a %>% smooth_var(
+      dta=.,
+      group_vars= "sex",
+      smooth_var="dif",
+      smooth_par=SMOOTH_PAR
     )
-  
-
-  output <- lev_part + zero_part 
+    
+    
+    zero_part <- dif_blurred %>%
+      filter(sex!="total" 
+             & age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+               year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2]
+      ) %>%
+      contourplot(
+        dif ~ year + age | sex, 
+        data=.,
+        region=F,
+        ylab="",
+        xlab="",
+        scales=list(NULL),
+        at=0,
+        lwd=1,
+        labels=F,
+        xlim=YEAR_RANGE,
+        aspect=ASPECT,
+        main=NULL
+      )
+    
+    
+    output <- lev_part + zero_part 
+    
+  } else {output <- lev_part}
   
   return(output)
 }
