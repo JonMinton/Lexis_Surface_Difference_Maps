@@ -368,16 +368,21 @@ tmp3 <- dta %>% filter(country == "GBR_SCO") %>% select(-country) %>%
 png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1900_2010.png",
     width=60, height=30, res=300, units="cm"
 )
-print(make_clp_lattice(tmp2, tmp3, tmp1, 
-                       COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64))
+print(make_clp_lattice(
+  tmp2, tmp3, tmp1, 
+  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64)),
+  ADD_CONTOURS = T    
 )
 dev.off()
 
 png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1950_2010.png",
     width=30, height=30, res=300, units="cm"
 )
-print(make_clp_lattice(tmp2, tmp3, tmp1, YEAR_RANGE=c(1950, 2010),
-                       COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64))
+print(make_clp_lattice(
+  tmp2, tmp3, tmp1, 
+  YEAR_RANGE=c(1950, 2010),
+  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64)),
+  ADD_CONTOURS = T    
 )
 dev.off()
 
@@ -394,7 +399,8 @@ print(make_single_clp(
   dta_uk, 
   dta_uk_overall, 
   "GBR_SCO",
-  AT = seq(from= -1.2, to = 1.2, by=0.1)                    
+  AT = seq(from= -1.2, to = 1.2, by=0.1),
+  ADD_CONTOURS = T    
                       ))
 dev.off()
 
@@ -408,7 +414,8 @@ print(make_single_clp(
   dta_we, 
   dta_we_overall, 
   "GBR_SCO",
-  AT = seq(from= -1.2, to = 1.2, by=0.1)                    
+  AT = seq(from= -1.2, to = 1.2, by=0.1),
+  ADD_CONTOURS = T    
                       ))
 dev.off()
 
@@ -416,21 +423,36 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_scotland_against_europe.png", 
     width=40, height=20, res=300, units="cm"
 )
-print(make_single_clp(dta_europe, dta_europe_overall, "GBR_SCO"))
+print(make_single_clp(
+  dta_europe, 
+  dta_europe_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+                      ))
 dev.off()
 
 # CLP Scotland against Affluent World -------------------------------------
 png(filename="figures/scotland_in_context/clp_scotland_against_affluent_world.png", 
     width=40, height=20, res=300, units="cm"
 )
-print(make_single_clp(dta_all, dta_all_overall, "GBR_SCO"))
+print(make_single_clp(
+  dta_all, 
+  dta_all_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+                      ))
 dev.off()
 
 # CLP Scotland against Anglophone nations -------------------------------------
 png(filename="figures/scotland_in_context/clp_scotland_against_anglophone_nations.png", 
     width=40, height=20, res=300, units="cm"
 )
-print(make_single_clp(dta_anglo, dta_anglo_overall, "GBR_SCO"))
+print(make_single_clp(
+  dta_anglo, 
+  dta_anglo_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+                      ))
 dev.off()
 
 
@@ -443,8 +465,13 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_scotland_minus_england_iso.png",
     height=30,width=30, res=300, units="cm"
 )
-print(make_two_country_clp(DTA=dta, "GBRTENW", "GBR_SCO",
-                            YEAR_RANGE = c(1855, 2011)))
+print(make_two_country_clp(
+  DTA=dta, 
+  "GBRTENW", 
+  "GBR_SCO",
+  YEAR_RANGE = c(1855, 2011),
+  ADD_CONTOURS = T    
+  ))
 dev.off()
 
 
@@ -453,8 +480,11 @@ png(filename="figures/scotland_in_context/clp_scotland_minus_northern_ireland_is
     height=20,width=30, res=300, units="cm"
 )
 
-print(make_two_country_clp(DTA=dta, "GBR_NIR", "GBR_SCO",
-                           YEAR_RANGE = c(1922, 2011)))
+print(make_two_country_clp(
+  DTA=dta, "GBR_NIR", "GBR_SCO",
+  YEAR_RANGE = c(1922, 2011),
+  ADD_CONTOURS = T    
+                           ))
 
 dev.off()
 
@@ -463,8 +493,11 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_scotland_minus_ireland_iso.png",
     height=25, width=25, res=300, units="cm"
     )
-print(make_two_country_clp(DTA=dta, "IRL", "GBR_SCO",
-                           YEAR_RANGE = c(1950, 2009)))
+print(make_two_country_clp(
+  DTA=dta, "IRL", "GBR_SCO",
+  YEAR_RANGE = c(1950, 2009),
+  ADD_CONTOURS = T    
+  ))
 dev.off()
 
 
@@ -473,8 +506,11 @@ png(filename="figures/scotland_in_context/clp_scotland_minus_usa_iso.png",
     height=25, width=25, res=300, units="cm"
 )
 
-print(make_two_country_clp(DTA=dta, "USA", "GBR_SCO",
-                           YEAR_RANGE = c(1933, 2010)))
+print(make_two_country_clp(
+  DTA=dta, "USA", "GBR_SCO",
+  YEAR_RANGE = c(1933, 2010),
+  ADD_CONTOURS = T    
+  ))
 
 dev.off()
 
@@ -483,8 +519,11 @@ png(filename="figures/scotland_in_context/clp_scotland_minus_russia_iso.png",
     height=25, width=25, res=300, units="cm"
 )
 
-print(make_two_country_clp(DTA=dta, "RUS", "GBR_SCO",
-                           YEAR_RANGE = c(1959, 2010)))
+print(make_two_country_clp(
+  DTA=dta, "RUS", "GBR_SCO",
+  YEAR_RANGE = c(1959, 2010),
+  ADD_CONTOURS = T    
+  ))
 
 dev.off()
 
@@ -498,7 +537,12 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_lattice_uk.png",
     width=50, height=30, res=300, units="cm"
 )
-print(make_clp_lattice(dta_uk, dta_uk_overall, uk_codes))
+print(make_clp_lattice(
+  dta_uk, 
+  dta_uk_overall, 
+  uk_codes,
+  ADD_CONTOURS = T    
+  ))
 dev.off()
 
 
@@ -507,7 +551,12 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_lattice_western_europe.png",
     width=120, height=30, res=300, units="cm"
 )
-  print(make_clp_lattice(dta_we, dta_we_overall, w_europe_codes))
+  print(make_clp_lattice(
+    dta_we, 
+    dta_we_overall, 
+    w_europe_codes,
+    ADD_CONTOURS = T    
+    ))
 dev.off()
 
 # Lattice CLP - Whole of Europe Level 
@@ -515,7 +564,11 @@ dev.off()
 png(filename="figures/scotland_in_context/clp_lattice_all_europe.png",
     width=300, height=30, res=300, units="cm"
 )
-print(make_clp_lattice(dta_europe, dta_europe_overall, europe_codes))
+print(make_clp_lattice(
+  dta_europe, 
+  dta_europe_overall, 
+  europe_codes,
+  ADD_CONTOURS = T    ))
 dev.off()
 
 
