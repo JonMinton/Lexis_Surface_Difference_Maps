@@ -98,16 +98,17 @@ all_codes <- c(
 
 
 europe_western <- c(
-  Austria="AUT",
-  Belgium="BEL", 
-  Switzerland="CHE", 
-  Germany="DEUT",
-  France="FRATNP", 
-  `Northern Ireland`="GBR_NIR", 
-  Scotland="GBR_SCO", 
-  `England and Wales`="GBRTENW",
-  Ireland="IRL",
-  Luxembourg="LUX"
+  Austria = "AUT",
+  Belgium = "BEL",
+  Switzerland = "CHE",
+  Germany = "DEUT",
+  France = "FRATNP",
+  `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
+  `England & Wales` = "GBRTENW",
+  Ireland = "IRL",
+  Luxembourg = "LUX",
+  Netherlands = "NLD"  
 )
 
 europe_northern <- c(
