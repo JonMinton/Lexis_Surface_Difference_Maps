@@ -370,9 +370,9 @@ png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_cl
 )
 print(make_clp_lattice(
   tmp2, tmp3, tmp1, 
-  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64)),
+  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64),
   ADD_CONTOURS = T    
-)
+))
 dev.off()
 
 png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1950_2010.png",
@@ -381,9 +381,9 @@ png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_cl
 print(make_clp_lattice(
   tmp2, tmp3, tmp1, 
   YEAR_RANGE=c(1950, 2010),
-  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64)),
+  COL.REGIONS= colorRampPalette(brewer.pal(6, "RdBu"))(64),
   ADD_CONTOURS = T    
-)
+))
 dev.off()
 
 #CLPs of single countries 
