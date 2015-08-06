@@ -16,7 +16,7 @@ w_europe_codes <- c(
   France = "FRATNP",
   `Northern Ireland` = "GBR_NIR",
   Scotland = "GBR_SCO",
-  `England & Wales` = "GBRTENW",
+  `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
   Netherlands = "NLD"  
@@ -30,7 +30,7 @@ europe_codes <- c(
   France = "FRATNP",
   `Northern Ireland` = "GBR_NIR",
   Scotland = "GBR_SCO",
-  `England & Wales` = "GBRTENW",
+  `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
   Netherlands = "NLD",  
@@ -64,7 +64,7 @@ all_codes <- c(
   France = "FRATNP",
   `Northern Ireland` = "GBR_NIR",
   Scotland = "GBR_SCO",
-  `England & Wales` = "GBRTENW",
+  `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
   Netherlands = "NLD",  
@@ -105,7 +105,7 @@ europe_western <- c(
   France = "FRATNP",
   `Northern Ireland` = "GBR_NIR",
   Scotland = "GBR_SCO",
-  `England & Wales` = "GBRTENW",
+  `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
   Netherlands = "NLD"  
@@ -149,6 +149,6 @@ anglophone <- c(
   Australia = "AUS", 
   Ireland = "IRL",
   `Northern Ireland` = "GBR_NIR",
-  `England & Wales` = "GBRTENW",
+  `England & Wales` = "GBRCENW",
   `New Zealand (Non-Maori)` = "NZL_NM"
 )
