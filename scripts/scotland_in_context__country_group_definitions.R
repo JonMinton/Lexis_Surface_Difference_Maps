@@ -3,7 +3,7 @@
 
 
 uk_codes <- c(
-  `England & Wales`= "GBRTENW",
+  `England & Wales`= "GBRCENW",
   `Northern Ireland` = "GBR_NIR",
   `Scotland`= "GBR_SCO"
 )
