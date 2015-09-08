@@ -4,7 +4,8 @@
 
 uk_codes <- c(
   `England & Wales`= "GBRCENW",
-  `Northern Ireland` = "GBR_NIR"
+  `Northern Ireland` = "GBR_NIR",
+  `Scotland`= "GBR_SCO"
 )
 
 w_europe_codes <- c(
@@ -14,6 +15,7 @@ w_europe_codes <- c(
   Germany = "DEUT",
   France = "FRACNP",
   `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
   `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
@@ -27,6 +29,7 @@ europe_codes <- c(
   Germany = "DEUT",
   France = "FRACNP",
   `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
   `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
@@ -60,6 +63,7 @@ all_codes <- c(
   Germany = "DEUT",
   France = "FRACNP",
   `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
   `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
@@ -100,6 +104,7 @@ europe_western <- c(
   Germany = "DEUT",
   France = "FRACNP",
   `Northern Ireland` = "GBR_NIR",
+  Scotland = "GBR_SCO",
   `England & Wales` = "GBRCENW",
   Ireland = "IRL",
   Luxembourg = "LUX",
@@ -140,6 +145,7 @@ north_america <- c(
 anglophone <- c(
   USA = "USA", 
   Canada = "CAN",
+  Scotland = "GBR_SCO",
   Australia = "AUS", 
   Ireland = "IRL",
   `Northern Ireland` = "GBR_NIR",

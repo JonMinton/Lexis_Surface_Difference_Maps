@@ -641,17 +641,6 @@ ggsave(filename = "figures/scotland_in_context/differences_over_time.png",
 
 # We will need dta_all and all_codes
 
-
-
-uk_codes <- c(uk_codes, `Scotland` = "GBR_SCO")
-w_europe_codes <- c(w_europe_codes, `Scotland` = "GBR_SCO")
-europe_codes <- c(europe_codes, `Scotland` = "GBR_SCO")
-all_codes <- c(all_codes, `Scotland` = "GBR_SCO") 
-europe_western <- c(europe_western, `Scotland` = "GBR_SCO") 
-anglophone <- c(anglophone, `Scotland` = "GBR_SCO") 
-
-
-
 fn <- function(CODE){
   dta_other <- dta_all %>% 
     filter(country == CODE & sex !="total") %>% 
