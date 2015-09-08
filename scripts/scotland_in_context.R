@@ -83,6 +83,13 @@ dta_na <- dta %>% filter(country %in% north_america)
 
 dta_anglo <- dta %>% filter(country %in% anglophone)
 
+dta_uk_noscot <- dta_uk %>% filter(country !="GBR_SCO")
+dta_we_noscot <- dta_we %>% filter(country !="GBR_SCO")
+dta_europe_noscot <- dta_europe %>% filter(country !="GBR_SCO")
+dta_all_noscot <- dta_all %>% filter(country !="GBR_SCO")
+dta_anglo_noscot <- dta_anglo %>% filter(country !="GBR_SCO")
+
+
 # country group selections - smoothed -------------------------------------
 
 fn <- function(DTA) {
@@ -353,6 +360,7 @@ tmp3 <- dta_euro_regions_smoothed %>% filter(country !="Europe Overall")
 png(filename="figures/scotland_in_context/euro_regions_scp_lattice_spectral.png", 
     width=70, height=40, res=300, units="cm"
 )
+
 make_scp_lattice(tmp2, tmp3, tmp1, 
                  COL.REGIONS=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200))
                  )
@@ -378,6 +386,7 @@ dev.off()
 png(filename="figures/scotland_in_context/scotland_compared_with_euro_regions_clp_lattice_1950_2010.png",
     width=30, height=30, res=300, units="cm"
 )
+
 print(make_clp_lattice(
   tmp2, tmp3, tmp1, 
   YEAR_RANGE=c(1950, 2010),
