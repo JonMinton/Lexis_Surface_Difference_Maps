@@ -397,7 +397,6 @@ dev.off()
 
 #CLPs of single countries 
 
-#Lattice plot of 
 
 # CLP Scot scot_against_uk ----------------------------------------------------------
 

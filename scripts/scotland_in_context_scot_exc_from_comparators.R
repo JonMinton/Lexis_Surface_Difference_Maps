@@ -338,3 +338,74 @@ print(make_clp_lattice(
 ))
 dev.off()
 
+
+
+
+# CLP single  -------------------------------------------------------------
+
+
+png(filename="figures/scotland_in_context/clp_scotland_against_rest_UK.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(
+  dta_uk, 
+  dta_uk_noscot_overall, 
+  "GBR_SCO",
+  AT = seq(from= -1.2, to = 1.2, by=0.1),
+  ADD_CONTOURS = T
+))
+dev.off()
+
+
+# CLP Scotland against Western Europe -------------------------------------
+
+png(filename="figures/scotland_in_context/clp_scotland_against_rest_western_europe.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(
+  dta_we, 
+  dta_we_noscot_overall, 
+  "GBR_SCO",
+  AT = seq(from= -1.2, to = 1.2, by=0.1),
+  ADD_CONTOURS = T    
+))
+dev.off()
+
+# CLP Scotland against Europe -------------------------------------
+png(filename="figures/scotland_in_context/clp_scotland_against_rest_europe.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(
+  dta_europe, 
+  dta_europe_noscot_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+))
+dev.off()
+
+# CLP Scotland against Affluent World -------------------------------------
+png(filename="figures/scotland_in_context/clp_scotland_against_rest_affluent_world.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(
+  dta_all, 
+  dta_all_noscot_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+))
+dev.off()
+
+# CLP Scotland against Anglophone nations -------------------------------------
+png(filename="figures/scotland_in_context/clp_scotland_against_rest_anglophone_nations.png", 
+    width=40, height=20, res=300, units="cm"
+)
+print(make_single_clp(
+  dta_anglo, 
+  dta_anglo_noscot_overall, 
+  "GBR_SCO",
+  ADD_CONTOURS = T    
+))
+dev.off()
+
+
+

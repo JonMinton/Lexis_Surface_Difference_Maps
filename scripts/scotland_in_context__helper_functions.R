@@ -110,10 +110,11 @@ make_single_clp <- function(DTA, DTA_overall, SELECTION,
     mutate(country = "specific") %>% 
     select(country, year, age, sex, cmr)
   
+
   tmp2 <- DTA_overall  %>% 
     mutate(country = "overall" )  %>%  
-    select(country, year, age, sex, cmr)
-  
+    select(country, year, age, sex, cmr) 
+
   tmp3 <- bind_rows(tmp1, tmp2)
   rm(tmp1, tmp2)
   
