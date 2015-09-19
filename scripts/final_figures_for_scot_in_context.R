@@ -93,10 +93,8 @@ smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
   return(out)
 }
 
-dta_smoothed_0_1 <- smooth_fn(dta, 0.1)
 dta_smoothed_0_5 <- smooth_fn(dta, 0.5) 
-dta_smoothed_1_0 <- smooth_fn(dta, 1.0)
-dta_smoothed_1_5 <- smooth_fn(dta, 1.5)
+
 
 #
 
@@ -119,7 +117,7 @@ dev.off()
 
 
 
-# Figure2 : composite: CLP Scot - rUK, Scot - rWE, UK - rWE ---------------
+# Figure 2 : composite: CLP Scot - rUK, Scot - rWE, UK - rWE ---------------
 
 dta_scot <- dta %>% 
   filter(
@@ -303,50 +301,196 @@ comparisons <- dif_scot_rest_UK %>%
 
 
 
-make_clp_lattice <- function(DTA, DTA_overall, CODES,
-                             ASPECT = "iso",
-                             YEAR_RANGE = , 
-                             AGE_RANGE = ,
-                             COL.REGIONS = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-                             ADD_CONTOURS = F,
-                             AT = 
-){
-  tmp1 <- DTA  %>% 
-    mutate(cmr = death_count/ population_count)  %>% 
-    select(country, year, age, sex, cmr)
-  
-  tmp2 <- DTA_overall %>%  
-    select(year, age, sex, overall_cmr = cmr)
-  
-  tmp3 <- tmp1 %>% left_join(tmp2)
-  
-  dif_dta <- tmp3 %>% 
-    filter(!is.na(cmr) &!is.na(overall_cmr)) %>% 
-    mutate(dif_lg_cmr = log(cmr, base = 10) - log(overall_cmr, base = 10))
-  rm(tmp1, tmp2, tmp3)
-  
-  dif_dta_blurred <- dif_dta %>% smooth_var(
-    dta=.,
-    group_vars= c("country", "sex"),
-    smooth_var="dif_lg_cmr",
-    smooth_par=1.4
+png(filename="figures/scotland_in_context/final_figures/clp_scot_uk_we.png", 
+    width=30, height=30, res=300, units="cm"
+)
+
+comparisons %>% 
+  mutate(
+    dif_logs = ifelse(dif_logs < -0.30, -0.30, dif_logs),
+    dif_logs = ifelse(dif_logs > 0.30, 0.30, dif_logs)
+  ) %>%   
+  smooth_var(., 
+             group_vars = c("sex", "comparison"), 
+             smooth_var = "dif_logs", 
+             smooth_par = 0.7
+  ) %>% 
+
+  levelplot(
+    dif_logs ~ year * age | comparison + sex,
+    data=., 
+    region=T,
+    ylab="Age in years",
+    xlab="Year",
+    at = seq(from= -0.30, to = 0.30, by=0.01),
+    col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+    scales=list(alternating=3),
+    main=NULL,
+    aspect= "iso",
+    ylim=c(0, 90),
+    xlim=c(1950, 2010),
+    par.settings=list(strip.background=list(col="lightgrey")), 
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      panel.abline(a = -1920, b = 1, col = "black")
+      panel.abline(a = -1950, b = 1, col = "black")
+      panel.abline(a = -1960, b = 1, col ="black")
+      panel.abline(v = c(1970, 1990, 2000), col = "black")
+      panel.abline(h = 18, col = "black")
+    }
   )
+
+  dev.off()
   
   
-  comparisons %>% 
-    levelplot(
-      dif_logs ~ year * age | comparison + sex,
-      data=., 
-      region=T,
-      ylab="Age in years",
-      xlab="Year",
-      at = seq(from= -1.2, to = 1.2, by=0.2),
-      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(64),
-      scales=list(alternating=3),
-      main=NULL,
-      aspect= "iso",
-      ylim=c(0, 90),
-      xlim=c(1950, 2010),
-      par.settings=list(strip.background=list(col="lightgrey"))
+  
+  
+# Scotland compared with different European regions -----------------------
+
+rgn_we <- dta %>% 
+    filter(
+      country  %in% europe_western,
+      age <= 90, 
+      sex != "total",
+      year >= 1950 & year <= 2010
+    ) %>% 
+    filter(
+      country != "GBR_SCO"
+    ) %>% 
+    group_by(sex, year, age) %>% 
+    summarise(
+      death_count = sum(death_count, na.rm = T),
+      population_count = sum(population_count, na.rm = T)
+    ) %>% 
+    ungroup %>% 
+    mutate(
+      death_rate = death_count / population_count,
+      lg_death_rate = log(death_rate, base = 10)
+    ) %>% 
+    select(
+      sex, year, age, `Western Europe` = lg_death_rate
     )
+  
+  
+rgn_ne <- dta %>% 
+    filter(
+      country  %in% europe_northern,
+      age <= 90, 
+      sex != "total",
+      year >= 1950 & year <= 2010
+    ) %>% 
+    group_by(sex, year, age) %>% 
+    summarise(
+      death_count = sum(death_count, na.rm = T),
+      population_count = sum(population_count, na.rm = T)
+    ) %>% 
+    ungroup %>% 
+    mutate(
+      death_rate = death_count / population_count,
+      lg_death_rate = log(death_rate, base = 10)
+    ) %>% 
+    select(
+      sex, year, age, `Northern Europe` = lg_death_rate
+    )
+  
+rgn_ee <- dta %>% 
+  filter(
+    country  %in% europe_eastern,
+    age <= 90, 
+    sex != "total",
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(sex, year, age) %>% 
+  summarise(
+    death_count = sum(death_count, na.rm = T),
+    population_count = sum(population_count, na.rm = T)
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    death_rate = death_count / population_count,
+    lg_death_rate = log(death_rate, base = 10)
+  ) %>% 
+  select(
+    sex, year, age, `Eastern Europe` = lg_death_rate
+  )
+
+rgn_se <- dta %>% 
+  filter(
+    country  %in% europe_southern,
+    age <= 90, 
+    sex != "total",
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(sex, year, age) %>% 
+  summarise(
+    death_count = sum(death_count, na.rm = T),
+    population_count = sum(population_count, na.rm = T)
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    death_rate = death_count / population_count,
+    lg_death_rate = log(death_rate, base = 10)
+  ) %>% 
+  select(
+    sex, year, age, `Southern Europe` = lg_death_rate
+  )
+
+
+rgn <- rgn_se %>% 
+  left_join(rgn_ee) %>% 
+  left_join(rgn_ne) %>% 
+  left_join(rgn_we) %>% 
+  gather(key = "comparison", value = "lg_death_rate", -sex, -year, -age)
+
+region_scot_difs <- dta_scot %>% 
+  select(sex, age, year, Scotland = lg_death_rate) %>% 
+  left_join(rgn) %>% 
+  mutate(dif_logs = Scotland - lg_death_rate) %>% 
+  select(-Scotland, -lg_death_rate)
+
+
+
+
+
+png(filename="figures/scotland_in_context/final_figures/clp_scot_uk_we.png", 
+    width=30, height=30, res=300, units="cm"
+)
+
+region_scot_difs %>% 
+  smooth_var(., 
+             group_vars = c("comparison", "sex"), 
+             smooth_var = "dif_logs", 
+             smooth_par = 1.0
+  ) %>% 
+  mutate(
+    dif_logs = ifelse(dif_logs < -0.40, -0.40, dif_logs),
+    dif_logs = ifelse(dif_logs > 0.40, 0.40, dif_logs)
+  ) %>%   
+  levelplot(
+    dif_logs ~ year * age | region + sex,
+    data=., 
+    region=T,
+    ylab="Age in years",
+    xlab="Year",
+    at = seq(from= -0.40, to = 0.40, by=0.01),
+    col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+    scales=list(alternating=3),
+    main=NULL,
+    aspect= "iso",
+    ylim=c(0, 90),
+    xlim=c(1950, 2010),
+    par.settings=list(strip.background=list(col="lightgrey")), 
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      panel.abline(a = -1920, b = 1, col = "black")
+      panel.abline(a = -1950, b = 1, col = "black")
+      panel.abline(a = -1960, b = 1, col ="black")
+      panel.abline(v = c(1970, 1990, 2000), col = "black")
+      panel.abline(h = 18, col = "black")
+    }
+  )
+
+dev.off()
+
+
   
