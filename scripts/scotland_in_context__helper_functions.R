@@ -369,7 +369,8 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
                      ASPECT= "iso",
                      AGE_RANGE = c(0, 90), 
                      YEAR_RANGE = c(1900, 2010),
-                     COL.REGIONS = colorRampPalette(brewer.pal(6, "Reds"))(200)
+                     COL.REGIONS = colorRampPalette(brewer.pal(6, "Reds"))(200),
+                     CUTS = 25
   ){
   shade_part <- DTA_unsmoothed %>%
     filter(
@@ -390,6 +391,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
       ylab=list(label="Age in years", cex=1.4),
       xlab=list(label="Year", cex=1.4),
       cex=1.4,
+      cuts =CUTS,
       aspect=ASPECT,
       col.regions=COL.REGIONS,
       main=NULL,
@@ -417,7 +419,7 @@ make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
       xlab="",
       xlim=YEAR_RANGE,
       scales=list(NULL),
-      cuts=25,
+      cuts=CUTS,
       aspect=ASPECT,
       col="black",
       labels=list(
