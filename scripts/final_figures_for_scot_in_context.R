@@ -93,8 +93,6 @@ smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
   return(out)
 }
 
-dta_smoothed_0_5 <- smooth_fn(dta, 0.5) 
-
 
 #
 
@@ -106,7 +104,7 @@ png(filename="figures/scotland_in_context/final_figures/rest_uk_overall_scp_iso.
 
 make_scp(
   DTA_unsmoothed = dta, 
-  DTA_smoothed = dta_smoothed_0_5,
+  DTA_smoothed = smooth_fn(dta, 0.5),
   COUNTRY = "GBR_SCO",
   ASPECT = "iso",
   COL.REGIONS = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
@@ -445,14 +443,17 @@ rgn <- rgn_se %>%
 region_scot_difs <- dta_scot %>% 
   select(sex, age, year, Scotland = lg_death_rate) %>% 
   left_join(rgn) %>% 
-  mutate(dif_logs = Scotland - lg_death_rate) %>% 
+  mutate(
+    dif_logs = Scotland - lg_death_rate,
+    dif_logs = ifelse(is.na(dif_logs), 0, dif_logs)
+    ) %>% 
   select(-Scotland, -lg_death_rate)
 
 
 
 
 
-png(filename="figures/scotland_in_context/final_figures/clp_scot_uk_we.png", 
+png(filename="figures/scotland_in_context/final_figures/clp_scot_against_euro_regions.png", 
     width=30, height=30, res=300, units="cm"
 )
 
@@ -460,14 +461,14 @@ region_scot_difs %>%
   smooth_var(., 
              group_vars = c("comparison", "sex"), 
              smooth_var = "dif_logs", 
-             smooth_par = 1.0
+             smooth_par = 0.7
   ) %>% 
   mutate(
     dif_logs = ifelse(dif_logs < -0.40, -0.40, dif_logs),
     dif_logs = ifelse(dif_logs > 0.40, 0.40, dif_logs)
   ) %>%   
   levelplot(
-    dif_logs ~ year * age | region + sex,
+    dif_logs ~ year * age | comparison + sex,
     data=., 
     region=T,
     ylab="Age in years",
