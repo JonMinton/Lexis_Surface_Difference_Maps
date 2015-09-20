@@ -97,7 +97,7 @@ smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
 #
 
 # Figure 1: SCP of Scotland, 1900-2010, less smoothing --------------------
-png(filename="figures/scotland_in_context/final_figures/rest_uk_overall_scp_iso.png", 
+png(filename="figures/scotland_in_context/final_figures/figure_01_scp_ scotland_1900_2010_iso.png", 
     width=40, height=25, res=300, units="cm"
 )
 
@@ -299,7 +299,7 @@ comparisons <- dif_scot_rest_UK %>%
 
 
 
-png(filename="figures/scotland_in_context/final_figures/clp_scot_uk_we.png", 
+png(filename="figures/scotland_in_context/final_figures/figure_02_clp_scot_uk_we.png", 
     width=30, height=30, res=300, units="cm"
 )
 
@@ -453,7 +453,7 @@ region_scot_difs <- dta_scot %>%
 
 
 
-png(filename="figures/scotland_in_context/final_figures/clp_scot_against_euro_regions.png", 
+png(filename="figures/scotland_in_context/final_figures/figure_03_clp_scot_against_euro_regions.png", 
     width=30, height=30, res=300, units="cm"
 )
 
