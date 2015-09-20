@@ -102,6 +102,79 @@ png(filename="figures/scotland_in_context/final_figures/figure_01_scp_ scotland_
 )
 
 
+
+
+make_scp <- function(DTA_unsmoothed, DTA_smoothed, COUNTRY,
+                     ASPECT= "iso",
+                     AGE_RANGE = c(0, 90), 
+                     YEAR_RANGE = c(1900, 2010),
+                     COL.REGIONS = colorRampPalette(brewer.pal(6, "Reds"))(200),
+                     CUTS = 25
+){
+  shade_part <- DTA_unsmoothed %>%
+    filter(
+      country == COUNTRY & 
+        year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2] &
+        age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+        sex != "total"
+    ) %>%
+    mutate(
+      cmr = death_count / population_count,
+      lg_cmr = log(cmr, base=10)
+    ) %>%
+    levelplot(
+      lg_cmr ~ year * age | sex, 
+      data=., 
+      region=T, 
+      par.strip.text=list(cex=1.4, fontface="bold"),
+      ylab=list(label="Age in years", cex=1.4),
+      xlab=list(label="Year", cex=1.4),
+      cex=1.4,
+      cuts =CUTS,
+      aspect=ASPECT,
+      col.regions=COL.REGIONS,
+      main=NULL,
+      xlim=YEAR_RANGE,
+      scales=list(
+        x=list(cex=1.4), 
+        y=list(cex=1.4),
+        alternating=3
+      ),
+      par.settings=list(strip.background=list(col="lightgrey")),
+      panel = function(x, y, z, ...){
+        panel.levelplot(x, y, z, ...)
+        panel.abline(a = -1920, b = 1, lty="dashed")
+        panel.abline(v = 1920, lty="dashed")
+      }
+    )
+  
+  contour_part <- DTA_smoothed  %>%  
+    filter(
+      country == COUNTRY & 
+        year >= YEAR_RANGE[1] & year <= YEAR_RANGE[2] &
+        age >= AGE_RANGE[1] & age <= AGE_RANGE[2] &
+        sex != "total"
+    ) %>%
+    contourplot(
+      lg_cmr ~ year + age | sex, 
+      data=.,
+      region=F,
+      ylab="",
+      xlab="",
+      xlim=YEAR_RANGE,
+      scales=list(NULL),
+      cuts=CUTS,
+      aspect=ASPECT,
+      col="black",
+      labels=list(
+        cex=1.2
+      ),
+      main=NULL
+    )
+  
+  output <- shade_part + contour_part
+}
+
 make_scp(
   DTA_unsmoothed = dta, 
   DTA_smoothed = smooth_fn(dta, 0.5),
@@ -109,7 +182,8 @@ make_scp(
   ASPECT = "iso",
   COL.REGIONS = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
   CUTS = 18
-  ) %>% print
+) %>% print
+
 
 dev.off()
 
