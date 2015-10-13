@@ -387,7 +387,6 @@ comparisons %>%
              smooth_var = "dif_logs", 
              smooth_par = 0.7
   ) %>% 
-
   levelplot(
     dif_logs ~ year * age | comparison + sex,
     data=., 
@@ -725,6 +724,263 @@ comparisons %>%
   )
 
 dev.off()
+
+
+
+# Difference between England and 1) Scotland; 2) rest of Western Europe
+# 3) Rest of Western Europe except rest of UK
+
+
+
+# Figure 2 : composite: CLP EnW - rUK, EnW - rWE, UK - rWE ---------------
+
+dta_enw <- dta %>% 
+filter(
+  country == "GBRCENW",
+  year >= 1950 & year <= 2010, 
+  sex != "total"
+) %>% 
+mutate(
+  death_rate = death_count / population_count,
+  lg_death_rate = log(death_rate, base = 10)
+)
+
+dta_rUK <- dta %>% 
+filter(
+  country %in% c("GBR_SCO", "GBR_NIR"),
+  year >= 1950 & year <= 2010,
+  sex !="total"
+) %>% 
+group_by(
+  sex, year, age
+) %>% 
+summarise(
+  death_count = sum(death_count, na.rm = T), 
+  population_count = sum(population_count, na.rm=T)
+) %>% 
+ungroup() %>% 
+mutate(
+  death_rate = death_count / population_count,
+  lg_death_rate = log(death_rate, base = 10)
+)
+
+
+dta_uk <- dta %>% 
+filter(
+  country %in% c("GBR_SCO", "GBRCENW", "GBR_NIR"),
+  year >= 1950 & year <= 2010,
+  sex != "total"
+) %>% 
+group_by(
+  sex, year, age
+) %>% 
+summarise(
+  death_count = sum(death_count, na.rm= T), 
+  population_count = sum(population_count, na.rm = T)
+) %>% 
+ungroup() %>% 
+mutate(
+  death_rate = death_count / population_count,
+  lg_death_rate = log(death_rate, base = 10)
+)
+
+
+dta_we_less_enw <- dta %>% 
+filter(
+  country %in% c(
+    Austria = "AUT",
+    Belgium = "BEL",
+    Switzerland = "CHE",
+    Germany = "DEUT",
+    France = "FRACNP",
+    `Northern Ireland` = "GBR_NIR",
+    Scotland = "GBR_SCO",
+    Ireland = "IRL",
+    Luxembourg = "LUX",
+    Netherlands = "NLD"  
+  ),
+  year >= 1950 & year <= 2010, 
+  sex != "total"
+) %>% 
+group_by(
+  sex, year, age
+) %>% 
+summarise(
+  death_count = sum(death_count, na.rm = T), 
+  population_count = sum(population_count, na.rm = T)
+) %>% 
+ungroup() %>% 
+mutate(
+  death_rate = death_count / population_count,
+  lg_death_rate = log(death_rate, base = 10)
+)
+
+
+
+
+
+dta_we_less_uk <- dta %>% 
+filter(
+  country %in% c(
+    Austria = "AUT",
+    Belgium = "BEL",
+    Switzerland = "CHE",
+    Germany = "DEUT",
+    France = "FRACNP",
+    Ireland = "IRL",
+    Luxembourg = "LUX",
+    Netherlands = "NLD"  
+  ),
+  year >= 1950 & year <= 2010, 
+  sex != "total"
+) %>% 
+group_by(
+  sex, year, age
+) %>% 
+summarise(
+  death_count = sum(death_count, na.rm = T), 
+  population_count = sum(population_count, na.rm = T)
+) %>%   
+ungroup() %>% 
+mutate(
+  death_rate = death_count / population_count,
+  lg_death_rate = log(death_rate, base = 10)
+)
+
+
+# Difference between scotland and ruk
+tmp1 <- dta_enw %>% 
+  select(year, age, sex, lg_death_rate) %>% 
+  rename(`England & Wales` = lg_death_rate )
+
+tmp2 <- dta_rUK  %>% 
+  select(year, age, sex, lg_death_rate) %>% 
+  rename(`Rest of UK` = lg_death_rate)
+
+dif_enw_rest_UK <- tmp1 %>% 
+left_join(tmp2) %>% 
+mutate(
+  `England & Wales less Rest of UK` = `England & Wales` - `Rest of UK`
+) %>% 
+select(
+  year, age, sex, `England & Wales less Rest of UK`
+)
+
+rm(tmp1, tmp2)
+
+
+# Difference between England & Wales and rest of WE
+
+tmp1 <- dta_enw %>% 
+  select(year, age, sex, lg_death_rate) %>% 
+  rename(`England & Wales` = lg_death_rate )
+
+tmp2 <- dta_we_less_enw  %>% 
+  select(year, age, sex, lg_death_rate) %>% 
+  rename(`Rest of WE` = lg_death_rate)
+
+dif_enw_rest_WE <- tmp1 %>% 
+left_join(tmp2) %>% 
+mutate(
+  `England & Wales less Rest of WE` = `England & Wales` - `Rest of WE`
+) %>% 
+select(
+  year, age, sex, `England & Wales less Rest of WE`
+)
+
+rm(tmp1, tmp2)
+
+
+# Difference between UK and rest of WE
+
+tmp1 <- dta_uk %>% 
+select(year, age, sex, lg_death_rate) %>% 
+rename(UK = lg_death_rate)
+
+tmp2 <- dta_we_less_uk %>% 
+select(year, age, sex, lg_death_rate) %>% 
+rename(`Rest of WE` = lg_death_rate)
+
+dif_UK_rest_WE <- tmp1 %>% 
+left_join(tmp2) %>% 
+mutate(`UK less Rest of WE` = UK - `Rest of WE`) %>% 
+select(year, age, sex, `UK less Rest of WE`)
+
+rm(tmp1, tmp2)
+
+
+
+# Difference between England & Wales and rest of non-UK WE
+
+tmp1 <- dta_enw %>% 
+select(year, age, sex, lg_death_rate) %>% 
+rename(`England & Wales` = lg_death_rate )
+
+tmp2 <- dta_we_less_uk  %>% 
+select(year, age, sex, lg_death_rate) %>% 
+rename(`Rest of WE` = lg_death_rate)
+
+dif_enw_rest_nonUK_WE <- tmp1 %>% 
+left_join(tmp2) %>% 
+mutate(
+  `England & Wales less Rest of Non-UK WE` = `England & Wales` - `Rest of WE`
+) %>% 
+select(
+  year, age, sex, `England & Wales less Rest of Non-UK WE`
+)
+
+rm(tmp1, tmp2)
+# Join the above together
+
+comparisons <- dif_enw_rest_UK %>% 
+left_join(dif_enw_rest_WE) %>% 
+left_join(dif_UK_rest_WE) %>% 
+left_join(dif_enw_rest_nonUK_WE) %>% 
+gather(key = "comparison", value = "dif_logs", -year, -age, -sex)
+
+
+
+
+png(filename="figures/scotland_in_context/final_figures/figure_A02_clp_enw_uk_we.png", 
+    width=30, height=30, res=300, units="cm"
+)
+
+comparisons %>% 
+mutate(
+  dif_logs = ifelse(dif_logs < -0.30, -0.30, dif_logs),
+  dif_logs = ifelse(dif_logs > 0.30, 0.30, dif_logs)
+) %>%   
+smooth_var(., 
+           group_vars = c("sex", "comparison"), 
+           smooth_var = "dif_logs", 
+           smooth_par = 0.7
+) %>% 
+levelplot(
+  dif_logs ~ year * age | comparison + sex,
+  data=., 
+  region=T,
+  ylab="Age in years",
+  xlab="Year",
+  at = seq(from= -0.30, to = 0.30, by=0.01),
+  col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+  scales=list(alternating=3),
+  main=NULL,
+  aspect= "iso",
+  ylim=c(0, 90),
+  xlim=c(1950, 2010),
+  par.settings=list(strip.background=list(col="lightgrey")), 
+  panel = function(x, y, z, ...){
+    panel.levelplot(x, y, z, ...)
+    panel.abline(a = -1920, b = 1, col = "black")
+    panel.abline(a = -1950, b = 1, col = "black")
+    panel.abline(a = -1960, b = 1, col ="black")
+    panel.abline(v = c(1970, 1990, 2000), col = "black")
+    panel.abline(h = 18, col = "black")
+  }
+)
+
+dev.off()
+
 
 
 
