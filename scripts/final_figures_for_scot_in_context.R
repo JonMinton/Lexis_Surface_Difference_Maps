@@ -942,7 +942,7 @@ gather(key = "comparison", value = "dif_logs", -year, -age, -sex)
 
 
 png(filename="figures/scotland_in_context/final_figures/figure_A02_clp_enw_uk_we.png", 
-    width=30, height=30, res=300, units="cm"
+    width=45, height=30, res=300, units="cm"
 )
 
 comparisons %>% 
