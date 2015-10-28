@@ -1,0 +1,68 @@
+# Quick script which shows how mortality contour hurdles have changed
+# by cohort year. 
+
+# England & Wales?
+
+rm(list = ls())
+
+
+require(readr)
+
+require(plyr)
+require(tidyr)
+require(stringr)
+require(dplyr)
+
+
+#graphics
+require(lattice)
+require(latticeExtra)
+
+require(ggplot2) 
+require(RColorBrewer)
+require(grid)
+
+# for smoothing
+require(fields) 
+require(spatstat)
+
+
+dta <- read_csv("data/tidy/counts.csv")
+
+
+this_dta <- dta %>% 
+  filter(country == "GBRTENW" & sex !="total") %>% 
+  mutate(birth_year = year - age) %>% 
+  filter(birth_year >= 1850 & age >= 50 & age <=90) %>% 
+  arrange(sex, birth_year, age) %>%
+  mutate(
+    cmr  = death_count / population_count, 
+    lg_cmr = log(cmr, base = 10)
+    ) %>% 
+  select(sex, birth_year, age, lg_cmr)
+
+
+png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png", 
+    width=30, height=20, res=300, units="cm"
+)
+
+
+  contourplot(
+    lg_cmr ~ age * birth_year | sex, 
+    data=this_dta, 
+    region=T, 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Birth year", cex=1.4),
+    xlab=list(label="Age in years", cex=1.4),
+    par.settings=list(strip.background=list(col="lightgrey")),
+    scales=list(
+      x=list(cex=1.2, at = seq(50, 90, by = 5)), 
+      y=list(cex=1.2, at = seq(1850, 1960, by = 10)),
+      alternating=T
+    ),
+    col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    cuts = 10
+  )
+  
+dev.off()
+  
