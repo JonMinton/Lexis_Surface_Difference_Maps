@@ -656,7 +656,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/cdc_poisonings_per_100000__portrait.png", 
-    width=40, height=25, res=300, units="cm"
+    width=25, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -693,7 +693,7 @@ dev.off()
 # Smoothed levelplot
 
 png(filename="figures/case_deaton/cdc_poisonings_per_100000__portrait_smoothed.png", 
-    width=40, height=25, res=300, units="cm"
+    width=25, height=40, res=300, units="cm"
 )
 
 dta %>% 
