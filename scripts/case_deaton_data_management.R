@@ -40,6 +40,7 @@ vehicle_transport <- read_csv(
   "data/usa_multiple_cause/vehicle_transport_1999_2013.csv",
   col_types = "iicccii"
   )
+
 names(vehicle_transport) <- 
   c(
       "year", "age", "sex", "race", "hispanic", 
@@ -136,3 +137,59 @@ merged <- merged %>%
 # now to save
 
 write_csv(x = merged, path = "data/usa_multiple_cause/tidied_and_simplified.csv")
+
+
+
+# Exploration of raw data  ------------------------------------------------
+
+
+# Data by single age from CDC wonder database itself 
+
+dta <- read_delim("data/usa_multiple_cause/external causes of death.txt", delim = "\t")
+
+dta %>% 
+  select(-Notes) %>% 
+  rename(
+    age = `Single-Year Ages Code`,
+    sex = Gender,
+    race = Race,
+    hispanic = `Hispanic Origin`
+    ) %>% 
+  select(
+    sex, 
+    race, 
+    hispanic, 
+    year = Year, 
+    age, 
+    deaths = Deaths, population = Population
+    ) %>% 
+  group_by(race, hispanic) %>% 
+  tally
+
+
+
+simple_dta <- dta %>% 
+  select(-Notes) %>% 
+  rename(
+    age = `Single-Year Ages Code`,
+    sex = Gender,
+    race = Race,
+    hispanic = `Hispanic Origin`
+  ) %>% 
+  select(
+    sex, 
+    race, 
+    hispanic, 
+    year = Year, 
+    age, 
+    deaths = Deaths, population = Population
+  ) 
+
+
+simple_dta %>% 
+  mutate(
+    group = ifelse(race == "White" & hispanic == "Not Hispanic or Latino", "white", NA),
+    group = ifelse(race == "Black or African American" & hispanic == "Not Hispanic or Latino", "black", group), 
+    group = ifelse(hispanic =="Hispanic or Latino", "hispanic", group)
+  ) 
+
