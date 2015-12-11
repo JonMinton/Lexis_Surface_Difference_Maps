@@ -838,6 +838,206 @@ dta %>%
   )
 dev.off()
 
+# Motor accidents
+
+
+png(filename="figures/case_deaton/motor_accidents_per_100000_portrait_smoothed_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(motor_accidents_rate = 100000 * motor_accidents / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "motor_accidents_rate", smooth_par = 1.0) %>% 
+  levelplot(
+    motor_accidents_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Year", cex=1.1),
+    xlab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main="Motor accidents per 100 000 (Smoothed data)",
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(10, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+
+# Alcohol induced
+
+png(filename="figures/case_deaton/alcohol_induced_per_100000_portrait_smoothed_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(alcohol_induced_rate = 100000 * alcohol_induced / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "alcohol_induced_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    alcohol_induced_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Year", cex=1.1),
+    xlab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main="Alcohol induced deaths per 100 000 (Smoothed data)",
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(10, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+# drug induced
+
+png(filename="figures/case_deaton/drug_induced_per_100000_portrait_smoothed_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(drug_induced_rate = 100000 * drug_induced / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "drug_induced_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    drug_induced_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Year", cex=1.1),
+    xlab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main="Drug induced deaths per 100 000 (Smoothed data)",
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(10, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+
+# legal intervention
+
+png(filename="figures/case_deaton/legal_intervention_per_100000_portrait_smoothed_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(legal_intervention_rate = 100000 * legal_intervention / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "legal_intervention_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    legal_intervention_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Year", cex=1.1),
+    xlab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main="Deaths due to legal interventions per 100 000 (Smoothed data)",
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(10, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+
+# assault or homicide
+
+
+png(filename="figures/case_deaton/assault_homicide_per_100000_portrait_smoothed_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(assault_homicide_rate = 100000 * assault_homicide / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "assault_homicide_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    assault_homicide_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Year", cex=1.1),
+    xlab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main="Deaths due to asssaults or homicides\n per 100 000 (Smoothed data)",
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(10, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
 
 # liver
 
