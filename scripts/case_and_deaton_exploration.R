@@ -813,8 +813,8 @@ dta %>%
     cardeath_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -853,8 +853,8 @@ dta %>%
     motor_accidents_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -893,8 +893,8 @@ dta %>%
     alcohol_induced_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -932,8 +932,8 @@ dta %>%
     drug_induced_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -972,8 +972,8 @@ dta %>%
     legal_intervention_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -1013,8 +1013,8 @@ dta %>%
     assault_homicide_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     cuts =15,
     aspect="iso",
@@ -1120,6 +1120,44 @@ dev.off()
 
 
 
+# liver, portrait, level, identity scale
+
+
+png(filename="figures/case_deaton/liver_deaths_per_100000_level.png", 
+    width=25, height=40, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(liverdeath_rate = 100000 * (chronic_liver_disease)/ (population) ) %>% 
+  smooth_var(., group_vars = c("group", "sex"), smooth_var = "liverdeath_rate", 0.7) %>% 
+  levelplot(
+    liverdeath_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    xlab=list(label="Year", cex=1.1),
+    ylab=list(label="Age in Years", cex=1.1),
+    cex=1.1,
+    cuts =15,
+    aspect="iso",
+    main = "Liver deaths per 100 000, smoothed",
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    xlim=c(1999, 2013),
+    ylim=c(30, 80), 
+    scales=list(
+      y=list(cex=1.1, at = seq(30, 70, by =10)), 
+      x=list(cex=1.1, rot = 90),
+      alternating=3
+    ),
+    strip.left = T,
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
 
 
 png(filename="figures/case_deaton/suicides_per_100000(smoothed).png", 
@@ -1171,8 +1209,8 @@ dta %>%
     suicide_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age", cex=1.1),
-    xlab=list(label="Years", cex=1.1),
+    ylab=list(label="Age in years", cex=1.1),
+    xlab=list(label="Year", cex=1.1),
     cex=1.1,
     layout = c(2,3),
     at = seq(0, 50, by = 2),
