@@ -530,52 +530,11 @@ comparisons %>%
 dta <- read_csv("data/usa_multiple_cause/tidied_and_simplified.csv")
   
   
-# All cause - all groups
-  
-  
-png(filename="figures/case_deaton/cdc_all_cause.png", 
-    width=35, height=20, res=300, units="cm"
-)
-  
-dta %>% 
-#  filter(group == "White Non-Hispanic") %>% 
-  mutate(all_cause_rate = all_cause / population,
-         lmr = log(all_cause_rate, 10)
-         ) %>% 
-  contourplot(
-    lmr ~ age * year | group + sex,
-    data = . ,
-    region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in years", cex=1.1),
-    cex=1.4,
-    cuts =20,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="CDC Data, all cause log mortality (base 10)",
-    ylim=c(1999, 2013),
-    xlim=c(0, 80), 
-    scales=list(
-      x=list(cex=1.1, at = seq(10, 70, by =10)), 
-      y=list(cex=1.1),
-      alternating=3
-    ),
-    horizontal= F,
-#    strip.left = T,
-    par.settings=list(
-      strip.background=list(col="lightgrey")
-      ),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
 
 # All cause, portrait
 
 png(filename="figures/case_deaton/cdc_all_cause__portrait.png", 
-    width=25, height=35, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -592,16 +551,18 @@ dta %>%
     cex=1.4,
     cuts =20,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="CDC Data, all cause log mortality (base 10)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label = "All cause (log base 10)", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3), 
     ylim=c(0, 80), 
     scales=list(
-      x=list(cex=1.1, rot =90 ), 
-      y=list(cex=1.1, at = seq(10, 70, by = 10)),
-      alternating=3
+      x=list(cex=1.4, rot =90 ), 
+      y=list(cex=1.4, at = seq(10, 70, by = 10)),
+      alternating=1
     ),
+    colorkey = list(labels = list(cex = 1.4)),
     horizontal= T,
     strip.left = T,
     strip = F,
@@ -616,84 +577,10 @@ dta %>%
 dev.off()
 
 
-# Now poisonings 
-
-# All cause - all groups
-
-
-png(filename="figures/case_deaton/cdc_poisonings_per_100000.png", 
-    width=40, height=25, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(poisonings_rate = 100000 * poisonings / population
-  ) %>% 
-  contourplot(
-    poisonings_rate ~ age * year | group + sex,
-    data = . ,
-    region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Poisonings per 100 000",
-    ylim=c(1999, 2013),
-    xlim=c(0, 80), 
-    scales=list(
-      x=list(cex=1.1, at = seq(10, 70, by =10)), 
-      y=list(cex=1.1),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
-
-
-png(filename="figures/case_deaton/cdc_poisonings_per_100000__portrait.png", 
-    width=25, height=40, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(poisonings_rate = 100000 * poisonings / population
-  ) %>% 
-  contourplot(
-    poisonings_rate ~ year * age | sex + group,
-    data = . ,
-    region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Poisonings per 100 000",
-    xlim=c(1999, 2013),
-    ylim=c(0, 80), 
-    scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1,  rot =90),
-      alternating=3
-    ),
-    strip.left = T,
-    strip = F,
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
-
 # Smoothed levelplot
 
 png(filename="figures/case_deaton/cdc_poisonings_per_100000__portrait_smoothed.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -704,20 +591,21 @@ dta %>%
     poisonings_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Poisonings per 100 000 (Smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+    main=list(label="Poisonings", cex = 1.4),
     xlim=c(1999, 2013),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1,  rot =90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4,  rot =90),
+      alternating=1
     ),
+    colorkey = list(label = list(cex = 1.4)),
     strip.left = T,
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
@@ -732,77 +620,11 @@ dev.off()
 # vehicle
 
 
-png(filename="figures/case_deaton/car_deaths_per_100000.png", 
-    width=40, height=25, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(cardeath_rate = 100000 * vehicle_transport / population
-  ) %>% 
-  contourplot(
-    cardeath_rate ~ age * year | group + sex,
-    data = . ,
-    region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Car deaths per 100 000",
-    ylim=c(1999, 2013),
-    xlim=c(0, 80), 
-    scales=list(
-      x=list(cex=1.1, at = seq(10, 70, by =10)), 
-      y=list(cex=1.1),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
-
-png(filename="figures/case_deaton/car_deaths_per_100000_portrait.png", 
-    width=25, height=40, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(cardeath_rate = 100000 * vehicle_transport / population
-  ) %>% 
-  contourplot(
-    cardeath_rate ~ year * age | sex + group,
-    data = . ,
-    region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Car deaths per 100 000",
-    xlim=c(1999, 2013),
-    layout = c(2, 3),
-    ylim=c(0, 80), 
-    scales=list(
-      y=list(cex=0.9, at = seq(10, 70, by =10)), 
-      x=list(cex=0.9, rot = 90),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
 
 # Smoothed car accident plot, level
 
 png(filename="figures/case_deaton/car_deaths_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -826,7 +648,7 @@ dta %>%
     scales=list(
       y=list(cex=1.1, at = seq(10, 70, by =10)), 
       x=list(cex=1.1, rot = 90),
-      alternating=3
+      alternating=1
     ),
     strip.left = T,
     strip = F,
@@ -838,51 +660,14 @@ dta %>%
   )
 dev.off()
 
-# Motor accidents
 
-
-png(filename="figures/case_deaton/motor_accidents_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(motor_accidents_rate = 100000 * motor_accidents / population
-  ) %>% 
-  smooth_var(., group_vars = c("sex", "group"), smooth_var = "motor_accidents_rate", smooth_par = 1.0) %>% 
-  levelplot(
-    motor_accidents_rate ~ year * age | sex + group,
-    data = . ,
-    region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Motor accidents per 100 000 (Smoothed data)",
-    xlim=c(1999, 2013),
-    layout = c(2, 3),
-    ylim=c(0, 80), 
-    scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
-    ),
-    strip.left = T,
-    strip = F,
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
+# Vehicle transport is the main category, motor accidents is the sub-category
 
 
 # Alcohol induced
 
 png(filename="figures/case_deaton/alcohol_induced_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -893,21 +678,22 @@ dta %>%
     alcohol_induced_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Alcohol induced deaths per 100 000 (Smoothed data)",
+    col.regions = rev(grey(1:100/100)),
+    main=list(label="Alcohol", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
+    colorkey = list(label = list(cex = 1.4)),
     strip.left = T,
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
@@ -921,7 +707,7 @@ dev.off()
 # drug induced
 
 png(filename="figures/case_deaton/drug_induced_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -932,23 +718,25 @@ dta %>%
     drug_induced_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Drug induced deaths per 100 000 (Smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label="Drugs", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
     strip.left = T,
     strip = F,
+    colorkey = list(label = list(cex = 1.4)),
     par.settings=list(strip.background=list(col="lightgrey")),
     panel = function(x, y, z, ...){
       panel.levelplot(x, y, z, ...)
@@ -961,7 +749,7 @@ dev.off()
 # legal intervention
 
 png(filename="figures/case_deaton/legal_intervention_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -974,18 +762,19 @@ dta %>%
     region=T, 
     ylab=list(label="Age in years", cex=1.1),
     xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Deaths due to legal interventions per 100 000 (Smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label="Legal intervention", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
     strip.left = T,
     strip = F,
@@ -1002,7 +791,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/assault_homicide_per_100000_portrait_smoothed_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -1013,21 +802,23 @@ dta %>%
     assault_homicide_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Deaths due to asssaults or homicides\n per 100 000 (Smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label="Assault/Homicide", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
+    colorkey = list(label = list(cex = 1.4)),
     strip.left = T,
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
@@ -1038,85 +829,6 @@ dta %>%
   )
 dev.off()
 
-
-# liver
-
-
-png(filename="figures/case_deaton/log_liver_deaths_slightsmoothed.png", 
-    width=40, height=25, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(liverdeath_rate = (chronic_liver_disease)/ (population),
-         lmr = log(liverdeath_rate, 10) ) %>% 
-  smooth_var(., group_vars = c("group", "sex"), smooth_var = "lmr", 0.4) %>% 
-  filter(age >=30) %>%
-  contourplot(
-    lmr ~ age * year | group + sex,
-    data = . ,
-    region=T, 
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    main = "Liver deaths, log mortality, slightly smoothed",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    ylim=c(1999, 2013),
-    xlim=c(30, 80), 
-    scales=list(
-      x=list(cex=1.1, at = seq(30, 70, by =10)), 
-      y=list(cex=1.1),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
-
-
-# liver, portrait
-
-
-png(filename="figures/case_deaton/log_liver_deaths_slightsmoothed_portrait.png", 
-    width=25, height=40, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(liverdeath_rate = (chronic_liver_disease)/ (population),
-         lmr = log(liverdeath_rate, 10) ) %>% 
-  smooth_var(., group_vars = c("group", "sex"), smooth_var = "lmr", 0.4) %>% 
-  filter(age >=30) %>%
-  contourplot(
-    lmr ~ year * age | sex + group,
-    data = . ,
-    region=T, 
-    xlab=list(label="Year", cex=1.1),
-    ylab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    cuts =15,
-    aspect="iso",
-    main = "Liver deaths, log mortality, slightly smoothed",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    xlim=c(1999, 2013),
-    ylim=c(30, 80), 
-    scales=list(
-      y=list(cex=1.1, at = seq(30, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
-    ),
-    strip.left = T,
-    strip = F,
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
 
 
 
@@ -1124,7 +836,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/liver_deaths_per_100000_level.png", 
-    width=25, height=40, res=300, units="cm"
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
@@ -1134,20 +846,22 @@ dta %>%
     liverdeath_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    xlab=list(label="Year", cex=1.1),
-    ylab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
+    xlab=list(label="Year", cex=1.4),
+    ylab=list(label="Age in Years", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    main = "Liver deaths per 100 000, smoothed",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main = list(label="Liver", cex = 1.4),
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
     xlim=c(1999, 2013),
     ylim=c(30, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(30, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(30, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
+    colorkey= list(label = list(cex = 1.4)),
     strip.left = T,
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
@@ -1160,71 +874,37 @@ dev.off()
 
 
 
-png(filename="figures/case_deaton/suicides_per_100000(smoothed).png", 
-    width=40, height=25, res=300, units="cm"
+png(filename="figures/case_deaton/suicides_per_100000_smoothed_levelplot_portrait.png", 
+    width=15, height=40, res=300, units="cm"
 )
 
 dta %>% 
   mutate(suicide_rate = 100000 * suicides / population) %>% 
   select(year, age, sex, group, suicide_rate) %>% 
-  smooth_var(group_vars = c("sex", "group"), smooth_par = 0.4,
-             smooth_var = "suicide_rate") %>% 
-  levelplot(
-    suicide_rate ~ age * year | group + sex,
-    data = . ,
-    region=T, 
-    par.strip.text=list(cex=1.1, fontface="bold"),
-    ylab=list(label="Year", cex=1.1),
-    xlab=list(label="Age in Years", cex=1.1),
-    cex=1.1,
-    at = seq(0, 50, by = 2),
-    aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Suicides per 100 000 (Slightly smoothed data)",
-    ylim=c(1999, 2013),
-    xlim=c(20, 80), 
-    scales=list(
-      x=list(cex=1.1, at = seq(10, 70, by =10)), 
-      y=list(cex=1.1),
-      alternating=3
-    ),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    panel = function(x, y, z, ...){
-      panel.levelplot(x, y, z, ...)
-      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
-    }
-  )
-dev.off()
-
-png(filename="figures/case_deaton/suicides_per_100000_slightly_smoothed_levelplot_portrait.png", 
-    width=25, height=40, res=300, units="cm"
-)
-
-dta %>% 
-  mutate(suicide_rate = 100000 * suicides / population) %>% 
-  select(year, age, sex, group, suicide_rate) %>% 
-  smooth_var(group_vars = c("sex", "group"), smooth_par = 0.4,
+  smooth_var(group_vars = c("sex", "group"), smooth_par = 0.7,
              smooth_var = "suicide_rate") %>% 
   levelplot(
     suicide_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     layout = c(2,3),
     at = seq(0, 50, by = 2),
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Suicides per 100 000 (Slightly smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label="Suicides", cex = 1.4),
     xlim=c(1999, 2013),
-    ylim=c(20, 80), 
+    ylim=c(0, 80), 
     strip = F, 
     strip.left = T,
+    colorkey = list(label = list(cex=1.4)),
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
-      alternating=3
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
     ),
     par.settings=list(strip.background=list(col="lightgrey")),
     panel = function(x, y, z, ...){
