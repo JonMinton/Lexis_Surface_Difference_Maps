@@ -534,7 +534,7 @@ dta <- read_csv("data/usa_multiple_cause/tidied_and_simplified.csv")
 # All cause, portrait
 
 png(filename="figures/case_deaton/cdc_all_cause__portrait.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -546,8 +546,8 @@ dta %>%
     lmr ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in Years", cex=1.1),
-    xlab=list(label="Year", cex=1.1 ),
+    ylab=list(label="Age in Years", cex=1.4),
+    xlab=list(label="Year", cex=1.4 ),
     cex=1.4,
     cuts =20,
     aspect="iso",
@@ -580,13 +580,13 @@ dev.off()
 # Smoothed levelplot
 
 png(filename="figures/case_deaton/cdc_poisonings_per_100000__portrait_smoothed.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
   mutate(poisonings_rate = 100000 * poisonings / population
   ) %>%
-  smooth_var(., group_vars = c("sex", "group"), smooth_var = "poisonings_rate", smooth_par = 1.0) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "poisonings_rate", smooth_par = 0.7) %>% 
   levelplot(
     poisonings_rate ~ year * age | sex + group,
     data = . ,
@@ -623,34 +623,36 @@ dev.off()
 
 # Smoothed car accident plot, level
 
-png(filename="figures/case_deaton/car_deaths_per_100000_portrait_smoothed_level.png", 
-    width=15, height=40, res=300, units="cm"
+png(filename="figures/case_deaton/vehicle_deaths_per_100000_portrait_smoothed_level.png", 
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
   mutate(cardeath_rate = 100000 * vehicle_transport / population
   ) %>% 
-  smooth_var(., group_vars = c("sex", "group"), smooth_var = "cardeath_rate", smooth_par = 1.0) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "cardeath_rate", smooth_par = 0.7) %>% 
   levelplot(
     cardeath_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
-    cex=1.1,
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
     cuts =15,
     aspect="iso",
-    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main="Car deaths per 100 000 (Smoothed data)",
+    col.regions = rev(gray(1:100/100)),
+#    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label = "Vehicles", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
     scales=list(
-      y=list(cex=1.1, at = seq(10, 70, by =10)), 
-      x=list(cex=1.1, rot = 90),
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
       alternating=1
     ),
     strip.left = T,
+    colorkey = list(label = list(cex = 1.4)),
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
     panel = function(x, y, z, ...){
@@ -667,7 +669,7 @@ dev.off()
 # Alcohol induced
 
 png(filename="figures/case_deaton/alcohol_induced_per_100000_portrait_smoothed_level.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -707,7 +709,7 @@ dev.off()
 # drug induced
 
 png(filename="figures/case_deaton/drug_induced_per_100000_portrait_smoothed_level.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -749,7 +751,7 @@ dev.off()
 # legal intervention
 
 png(filename="figures/case_deaton/legal_intervention_per_100000_portrait_smoothed_level.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -760,14 +762,14 @@ dta %>%
     legal_intervention_rate ~ year * age | sex + group,
     data = . ,
     region=T, 
-    ylab=list(label="Age in years", cex=1.1),
-    xlab=list(label="Year", cex=1.1),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
     cex=1.4,
     cuts =15,
     aspect="iso",
     col.regions = rev(gray(1:100/100)),
 #    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-    main=list(label="Legal intervention", cex = 1.4),
+    main=list(label="Police", cex = 1.4),
     xlim=c(1999, 2013),
     layout = c(2, 3),
     ylim=c(0, 80), 
@@ -776,6 +778,7 @@ dta %>%
       x=list(cex=1.4, rot = 90),
       alternating=1
     ),
+    colorkey = list(label = list(cex = 1.4)),
     strip.left = T,
     strip = F,
     par.settings=list(strip.background=list(col="lightgrey")),
@@ -791,7 +794,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/assault_homicide_per_100000_portrait_smoothed_level.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -836,7 +839,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/liver_deaths_per_100000_level.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
@@ -875,7 +878,7 @@ dev.off()
 
 
 png(filename="figures/case_deaton/suicides_per_100000_smoothed_levelplot_portrait.png", 
-    width=15, height=40, res=300, units="cm"
+    width=15, height=35, res=300, units="cm"
 )
 
 dta %>% 
