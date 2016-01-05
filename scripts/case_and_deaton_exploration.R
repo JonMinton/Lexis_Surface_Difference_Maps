@@ -71,6 +71,8 @@ source("scripts/smoother_function.R")
 source("scripts/scotland_in_context__helper_functions.R")
 
 
+
+
 # base data  --------------------------------------------------------------
 
 
@@ -1233,4 +1235,125 @@ dta %>%
     }
   )
 dev.off()
+
+
+
+
+# Longer term data looking at convergence of all-cause mort by race -------
+
+
+dta_old <- read_delim(file = "data/usa_multiple_cause/Compressed Mortality, 1979-1998.txt", delim = "\t", na = "Not Applicable")
+
+require(car)
+
+dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+    ), 
+    sex = tolower(sex)
+    ) %>% 
+  arrange(sex, race) %>% 
+  ggplot(data = ., aes(y = log(death_rate, 10), x = year, group = age, colour = age)) +
+  geom_line() + facet_grid(sex ~ race) + theme_minimal()
+
+
+
+
+# black:white convergence
+
+
+dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+  ), 
+  sex = tolower(sex)
+  ) %>% 
+  filter(race %in% c("white", "black")) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black/white) %>% 
+  ggplot(data = ., aes(y = ratio, x = year, group = age, colour = age)) +
+  geom_line() + facet_grid(sex ~ .) + theme_minimal()
+
+
+
+
+rr_old <- dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+  ), 
+  sex = tolower(sex)
+  ) %>% 
+  filter(race %in% c("white", "black")) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black/white) %>%
+  select(-black, -white) %>% 
+  group_by(year) %>% 
+  summarise(mean_ratio = mean(ratio)) %>% 
+  mutate(dta_source = "old")
+
+
+
+
+dta <- read_csv("data/usa_multiple_cause/tidied_and_simplified.csv")
+
+rr_new <- dta  %>% 
+  select(year, age, sex, group, all_cause, population) %>% 
+  mutate(
+    race = recode(
+      group,
+      "'Black Non-Hispanic' = 'black';
+      'White Non-Hispanic' = 'white';
+      'Hispanic' = 'hispanic'"
+    ),
+    sex = tolower(sex)
+  ) %>% select(year, age, sex, race, all_cause, population) %>% 
+  filter(race %in% c("black", "white")) %>% 
+  mutate(death_rate = all_cause / population) %>% 
+  select(-all_cause, -population) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black / white) %>% 
+  group_by(year) %>% 
+  summarise(mean_ratio = mean(ratio)) %>% 
+  mutate(dta_source = "new")
+
+
+
+rr_combined <- rbind(rr_old, rr_new)
+
+rr_combined %>% ggplot(data = ., aes(y = mean_ratio, x = year, group = dta_source)) +
+  geom_line() + theme_minimal() + labs(y = "Mean black/white mortality ratio", x = "Year")
+
+
+ggsave("figures/case_deaton/mean_black_white_mort_ratio.png", dpi = 150, height = 10, width = 10, units = "cm")
+
+
+
+
 
