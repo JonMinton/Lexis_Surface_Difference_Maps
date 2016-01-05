@@ -997,7 +997,7 @@ rr_old <- dta_old %>%
   spread(key = race, value = death_rate) %>% 
   mutate(ratio = black/white) %>%
   select(-black, -white) %>% 
-  group_by(year) %>% 
+  group_by(year, sex) %>% 
   summarise(mean_ratio = mean(ratio)) %>% 
   mutate(dta_source = "old")
 
@@ -1022,7 +1022,7 @@ rr_new <- dta  %>%
   select(-all_cause, -population) %>% 
   spread(key = race, value = death_rate) %>% 
   mutate(ratio = black / white) %>% 
-  group_by(year) %>% 
+  group_by(year, sex) %>% 
   summarise(mean_ratio = mean(ratio)) %>% 
   mutate(dta_source = "new")
 
@@ -1030,7 +1030,9 @@ rr_new <- dta  %>%
 
 rr_combined <- rbind(rr_old, rr_new)
 
-rr_combined %>% ggplot(data = ., aes(y = mean_ratio, x = year, group = dta_source)) +
+
+rr_combined %>% unite(col = sexage, sex, dta_source, remove = F) %>% 
+ggplot(data = ., aes(y = mean_ratio, x = year, linetype = sex, group = sexage)) +
   geom_line() + theme_minimal() + labs(y = "Mean black/white mortality ratio", x = "Year")
 
 
