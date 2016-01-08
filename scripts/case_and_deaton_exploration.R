@@ -96,6 +96,81 @@ smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
 }
 
 
+# Quick bathtub curves for illustration -----------------------------------
+
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(1855, 1900, 1950, 2000)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex != "total") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate, group = year, colour = year, linetype = year)) +
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) + 
+  facet_wrap(~ sex) + 
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_selected_years.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(1855, 1900, 1950, 2000)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex != "total") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate, group = year, colour = year, linetype = year)) + 
+  scale_y_log10() + 
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) + 
+  facet_wrap(~ sex) + 
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_selected_years_log10.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+
+# e0 and e5 for each year
+
+dta %>% filter(country == "GBR_SCO") %>% 
+  filter(sex != "total") %>% 
+  filter(age <= 90) %>% 
+  group_by(year, sex) %>% 
+  mutate(ad = age * death_count) %>% 
+  summarise(
+    e0 = sum(ad) / sum(death_count), 
+    e5 = sum(ad[age >= 5]) / sum(death_count[age >= 5])
+    ) %>% 
+  gather(key = measure, value = value, e0, e5) %>% 
+  ggplot(data = .) +
+  geom_line(aes(x = year, y = value, group = measure, linetype = measure)) + 
+  facet_wrap( ~ sex) + 
+  scale_x_continuous(breaks = seq(1860, 2000, by = 20)) + 
+  labs(x = "Year", y = "Period life expectancy in years of age") + 
+  theme_bw()
+
+ggsave("figures/e0_e5_scotland.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(2010)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex == "male") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate)) + 
+  scale_y_log10() + 
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) +  
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_male_2010.png", width = 15, height = 15, units = "cm", dpi = 300)
+
 #
 
 # Figure 1: SCP of Scotland, 1900-2010, less smoothing --------------------
