@@ -71,6 +71,8 @@ source("scripts/smoother_function.R")
 source("scripts/scotland_in_context__helper_functions.R")
 
 
+
+
 # base data  --------------------------------------------------------------
 
 
@@ -93,6 +95,81 @@ smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
   return(out)
 }
 
+
+# Quick bathtub curves for illustration -----------------------------------
+
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(1855, 1900, 1950, 2000)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex != "total") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate, group = year, colour = year, linetype = year)) +
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) + 
+  facet_wrap(~ sex) + 
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_selected_years.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(1855, 1900, 1950, 2000)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex != "total") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate, group = year, colour = year, linetype = year)) + 
+  scale_y_log10() + 
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) + 
+  facet_wrap(~ sex) + 
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_selected_years_log10.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+
+# e0 and e5 for each year
+
+dta %>% filter(country == "GBR_SCO") %>% 
+  filter(sex != "total") %>% 
+  filter(age <= 90) %>% 
+  group_by(year, sex) %>% 
+  mutate(ad = age * death_count) %>% 
+  summarise(
+    e0 = sum(ad) / sum(death_count), 
+    e5 = sum(ad[age >= 5]) / sum(death_count[age >= 5])
+    ) %>% 
+  gather(key = measure, value = value, e0, e5) %>% 
+  ggplot(data = .) +
+  geom_line(aes(x = year, y = value, group = measure, linetype = measure)) + 
+  facet_wrap( ~ sex) + 
+  scale_x_continuous(breaks = seq(1860, 2000, by = 20)) + 
+  labs(x = "Year", y = "Period life expectancy in years of age") + 
+  theme_bw()
+
+ggsave("figures/e0_e5_scotland.png", width = 25, height = 15, units = "cm", dpi = 300)
+
+
+dta %>% 
+  filter(country =="GBR_SCO") %>% 
+  mutate(death_rate = death_count  / population_count) %>% 
+  filter(year %in% c(2010)) %>% 
+  mutate(year = as.factor(year)) %>% 
+  filter(age <=90) %>% 
+  filter(sex == "male") %>% 
+  ggplot(data = .) + 
+  geom_line(aes(x = age, y = death_rate)) + 
+  scale_y_log10() + 
+  scale_x_continuous(breaks = c(0, seq(5, 90, by = 5))) +  
+  labs(x = "Age in years", y = "Risk of dying in next year") + 
+  theme_bw()
+
+ggsave("figures/scot_bathtub_male_2010.png", width = 15, height = 15, units = "cm", dpi = 300)
 
 #
 
@@ -916,4 +993,127 @@ dta %>%
     }
   )
 dev.off()
+
+
+
+
+# Longer term data looking at convergence of all-cause mort by race -------
+
+
+dta_old <- read_delim(file = "data/usa_multiple_cause/Compressed Mortality, 1979-1998.txt", delim = "\t", na = "Not Applicable")
+
+require(car)
+
+dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+    ), 
+    sex = tolower(sex)
+    ) %>% 
+  arrange(sex, race) %>% 
+  ggplot(data = ., aes(y = log(death_rate, 10), x = year, group = age, colour = age)) +
+  geom_line() + facet_grid(sex ~ race) + theme_minimal()
+
+
+
+
+# black:white convergence
+
+
+dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+  ), 
+  sex = tolower(sex)
+  ) %>% 
+  filter(race %in% c("white", "black")) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black/white) %>% 
+  ggplot(data = ., aes(y = ratio, x = year, group = age, colour = age)) +
+  geom_line() + facet_grid(sex ~ .) + theme_minimal()
+
+
+
+
+rr_old <- dta_old %>% 
+  slice(1:1674) %>% 
+  select(age = `Age Group`, year = Year, sex = `Gender`, race = `Race`, death_count=`Deaths`, population = `Population`) %>% 
+  mutate(death_rate = death_count / population) %>% 
+  filter(!is.na(death_rate)) %>% 
+  
+  select(-death_count, -population) %>% 
+  mutate(race = recode(
+    race, 
+    "'Black or African American' = 'black'; 
+    'White' = 'white'; 
+    'Other Race' = 'other'"
+  ), 
+  sex = tolower(sex)
+  ) %>% 
+  filter(race %in% c("white", "black")) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black/white) %>%
+  select(-black, -white) %>% 
+  group_by(year, sex) %>% 
+  summarise(mean_ratio = mean(ratio)) %>% 
+  mutate(dta_source = "old")
+
+
+
+
+dta <- read_csv("data/usa_multiple_cause/tidied_and_simplified.csv")
+
+rr_new <- dta  %>% 
+  select(year, age, sex, group, all_cause, population) %>% 
+  mutate(
+    race = recode(
+      group,
+      "'Black Non-Hispanic' = 'black';
+      'White Non-Hispanic' = 'white';
+      'Hispanic' = 'hispanic'"
+    ),
+    sex = tolower(sex)
+  ) %>% select(year, age, sex, race, all_cause, population) %>% 
+  filter(race %in% c("black", "white")) %>% 
+  mutate(death_rate = all_cause / population) %>% 
+  select(-all_cause, -population) %>% 
+  spread(key = race, value = death_rate) %>% 
+  mutate(ratio = black / white) %>% 
+  group_by(year, sex) %>% 
+  summarise(mean_ratio = mean(ratio)) %>% 
+  mutate(dta_source = "new")
+
+
+
+rr_combined <- rbind(rr_old, rr_new)
+
+
+rr_combined %>% unite(col = sexage, sex, dta_source, remove = F) %>% 
+ggplot(data = ., aes(y = mean_ratio, x = year, linetype = sex, group = sexage)) +
+  geom_line() + theme_minimal() + labs(y = "Mean black/white mortality ratio", x = "Year")
+
+
+ggsave("figures/case_deaton/mean_black_white_mort_ratio.png", dpi = 150, height = 10, width = 10, units = "cm")
+
+
+
+
 
