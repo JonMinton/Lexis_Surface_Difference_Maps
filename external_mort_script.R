@@ -254,6 +254,7 @@ homassault_icd_08_09_10_rates %>%
   labs(y = "Death rate from assault/homicide per 100 000")
 
 
+# Grouping together hispanic/other and non-black for more comparability with ICD-08 and ICD-09 groups
 homassault_icd_08_09_10_rates %>% 
   select(race, sex, year, death_rate) %>%
   spread(key = race, value = death_rate) %>%
@@ -302,8 +303,6 @@ ext_icd08_rate %>%
   scale_y_log10(breaks = c(1, 2, 5, 10, 20, 50, 100, 200))
 
 
-
-
 ext_icd09_rate <- dta_ext_icd09 %>% 
 select(
   age = `Age Group`, sex = Gender, 
@@ -322,6 +321,9 @@ ext_icd09_rate %>%
   geom_line(aes(x = year, y = death_rate, group = race, colour = race, linetype = race)) + 
   facet_wrap(~sex) + 
   scale_y_log10(breaks = c(1, 2, 5, 10, 20, 50, 100, 200))
+
+
+ext_icd08_09_rate <- rbind(ext_icd08_rate, ext_icd09_rate)
 
 
 ext_icd10_rate <- dta_ext_icd10 %>% 
@@ -380,36 +382,21 @@ tmp_08_09 <- ext_icd08_09_rate %>%
   ) %>% ungroup() %>%
 select(race = r2, sex, year, death_count, population_count, death_rate) 
 
+ext_icd_08_09_10_rates <- rbind(tmp_08_09, tmp_10)
 
-homassault_icd_08_09_10_rates <- rbind(tmp_08_09, tmp_10)
 
-
-homassault_icd_08_09_10_rates %>% 
+ext_icd_08_09_10_rates %>% 
 ggplot() +
   geom_line(aes(x = year, y = death_rate, group = race, colour = race, linetype = race)) + 
   facet_wrap(~sex, scales = "free_y") + 
   geom_vline(xintercept = c(1979, 1999)) +
-  scale_y_log10(breaks= c(1, 2, 5, 10, 20, 50, 100)) + 
-  labs(y = "Death rate from assault/homicide per 100 000")
+  scale_y_log10(breaks= c(1, 2, 5, 10, 20, 50, 100, 200)) + 
+  labs(y = "Death rate from all external causes per 100 000")
 
 
-homassault_icd_08_09_10_rates %>% 
-select(race, sex, year, death_rate) %>%
-spread(key = race, value = death_rate) %>%
-mutate(`Non-Black` = (White * `Hispanic/Other`)^0.5) %>%
-gather(key = race, value = death_rate, -sex, -year) %>%
-mutate(
-  death_rate = ifelse(race == "White" & year >= 1999, NA, death_rate),
-  death_rate = ifelse(race == "Hispanic/Other" & year >= 1999, NA, death_rate),
-  death_rate = ifelse(race == "Non-Black" & year < 1999, NA, death_rate)
-) %>% 
-ggplot() +
-  geom_line(aes(x = year, y = death_rate, group = race, colour = race, linetype = race)) + 
-  facet_wrap(~sex, scales = "free_y") + 
-  geom_vline(xintercept = c(1979, 1999)) +
-  scale_y_log10(breaks= c(1, 2, 5, 10, 20, 50, 100)) + 
-  labs(y = "Death rate from assault/homicide per 100 000")
 
+
+# Now to do the above but with suicides and undetermined 
 
 
 
