@@ -29,7 +29,6 @@ require(spatstat)
 
 dta <- read_csv("data/tidy/counts.csv")
 
-
 this_dta <- dta %>% 
   filter(country == "GBRTENW" & sex !="total") %>% 
   mutate(birth_year = year - age) %>% 
@@ -42,10 +41,14 @@ this_dta <- dta %>%
   select(sex, birth_year, age, lg_cmr)
 
 
+
 png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png", 
     width=30, height=20, res=300, units="cm"
 )
 
+this_is_a_very_long_name_that_i_have_decided_to_use_because_i_really_like_typing_for_the_sake_of_it <- 2
+
+this
 
   contourplot(
     lg_cmr ~ age * birth_year | sex, 
