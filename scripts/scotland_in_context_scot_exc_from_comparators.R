@@ -411,7 +411,9 @@ dev.off()
 
 ages <- c(1, 5, 10, 20, 30, 40, 50, 60, 70, 80)
 
-calculate_survivors <- function(x, init_size = 100000){
+init_cohort_size <- 50000 # 50 000 as males and females 
+# need to be combined
+calculate_survivors <- function(x, init_size = init_cohort_size){
     k <- dim(x)[1]
     cohort_size <- rep(NA, k)
     cohort_size[1] <- init_size
@@ -447,7 +449,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -496,7 +498,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -548,7 +550,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -603,7 +605,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, birth_cohort, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 
 dta_synth %>% 
@@ -654,7 +656,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, birth_cohort, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 dta_synth %>% 
   select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
@@ -705,7 +707,7 @@ dta_synth <- dta_both %>%
   mutate(death_rate = death_count / population_count) %>% 
   group_by(country, birth_cohort, sex) %>% 
   do(calculate_survivors(.)) %>% 
-  mutate(cumulative_deaths = 100000 - cohort_size)
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
 dta_synth %>% 
   select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
