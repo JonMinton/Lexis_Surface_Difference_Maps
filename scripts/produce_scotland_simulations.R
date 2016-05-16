@@ -164,76 +164,6 @@ dta_anglo_noscot_overall <- grouper(dta_anglo_noscot)
 
 
 
-# Data allowing comparison of broad European regions against European average
-
-tmp1 <- dta_we_overall %>% mutate(country="Western Europe")
-tmp2 <- dta_ee_overall %>% mutate(country="Eastern Europe")
-tmp3 <- dta_ne_overall %>% mutate(country="Northern Europe")
-tmp4 <- dta_se_overall %>% mutate(country="Southern Europe")
-tmp5 <- dta_europe_overall %>% mutate(country = "Europe Overall")
-
-dta_euro_regions <- tmp1 %>% 
-  bind_rows(tmp2) %>% 
-  bind_rows(tmp3) %>% 
-  bind_rows(tmp4) %>% 
-  bind_rows(tmp5)
-  
-tmp1 <- dta_we_noscot_overall %>% mutate(country="Western Europe")
-
-dta_euro_regions_noscot <- tmp1 %>% 
-  bind_rows(tmp2) %>% 
-  bind_rows(tmp3) %>% 
-  bind_rows(tmp4) %>% 
-  bind_rows(tmp5)
-
-
-dta_euro_regions_smoothed <- 
-  dta_euro_regions %>% 
-  smooth_var(dta=., group_vars = c("sex", "country"), smooth_var="lg_cmr", smooth_par=1.3)
-
-dta_euro_regions_noscot_smoothed <-
-  dta_euro_regions_noscot %>% 
-  smooth_var(dta=., group_vars = c("sex", "country"), smooth_var="lg_cmr", smooth_par=1.3)
-
-
-
-rm(tmp1, tmp2, tmp3, tmp4, tmp5)
-
-fn <- function(DTA) {
-  out <- DTA %>%   
-    mutate(
-      cmr = death_count / population_count,
-      lg_cmr = log(cmr, base=10)     
-    ) %>% smooth_var(
-      dta =.,
-      group_vars= c("sex"),
-      smooth_var = "lg_cmr",
-      smooth_par = 1.3
-    ) 
-  return(out)
-}
-
-dta_uk_overall_smoothed <- fn(dta_uk_overall)
-dta_we_overall_smoothed <- fn(dta_we_overall)
-dta_europe_overall_smoothed <- fn(dta_europe_overall)
-dta_all_overall_smoothed <- fn(dta_all_overall)
-
-dta_ne_overall_smoothed <- fn(dta_ne_overall)
-dta_se_overall_smoothed <- fn(dta_se_overall)
-dta_ee_overall_smoothed <- fn(dta_ee_overall)
-dta_na_overall_smoothed <- fn(dta_na_overall)
-dta_anglo_overall_smoothed <- fn(dta_anglo_overall)
-
-
-dta_uk_noscot_overall_smoothed <- fn(dta_uk_noscot_overall)
-dta_we_noscot_overall_smoothed <- fn(dta_we_noscot_overall)
-dta_europe_noscot_overall_smoothed <- fn(dta_europe_noscot_overall)
-dta_all_noscot_overall_smoothed <- fn(dta_all_noscot_overall)
-dta_anglo_noscot_overall_smoothed <- fn(dta_anglo_noscot_overall)
-
-
-rm(fn)
-
 
 # country group selections - combined and smoothed -------------------------------
 
@@ -275,7 +205,7 @@ dta_both <- bind_rows(dta_ruk, dta_scot)
 
 # for each region, year, and sex, produce cumulative mortality by 
 # different ages 
-# 
+
 
 
 dta_synth <- dta_both %>% 
@@ -284,6 +214,10 @@ dta_synth <- dta_both %>%
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+# Write out this for an appendix
+#write_csv(x = dta_synth, path = "tables/period_based_lifetables_scotland_ruk.csv" )
+
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -333,6 +267,9 @@ dta_synth <- dta_both %>%
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+# Save this for an appendix
+#write_csv(dta_synth, path = "tables/period_based_lifetables_scotland_rwe.csv")
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -385,6 +322,8 @@ dta_synth <- dta_both %>%
   group_by(country, year, sex) %>% 
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+write_csv(dta_synth, path = "tables/period_based_lifetables_uk_rwe.csv")
 
 # this calculates and presents the excess deaths per 100 000 population 
 # for each decade by certain ages 
@@ -441,6 +380,8 @@ dta_synth <- dta_both %>%
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
+# Write out 
+write_csv(dta_synth, "tables/cohort_based_lifetables_scotland_ruk.csv")
 
 dta_synth %>% 
   select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
@@ -492,6 +433,9 @@ dta_synth <- dta_both %>%
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
 
+# write out 
+#write_csv(dta_both, path = "tables/cohort_based_lifetables_scotland_rwe.csv")
+
 dta_synth %>% 
   select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
   spread(country, cumulative_deaths) %>% 
@@ -542,6 +486,8 @@ dta_synth <- dta_both %>%
   group_by(country, birth_cohort, sex) %>% 
   do(calculate_survivors(.)) %>% 
   mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+#write_csv(dta_synth, path = "tables/cohort_based_lifetables_uk_rwe.csv") 
 
 dta_synth %>% 
   select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
@@ -602,5 +548,7 @@ addDataFrame(
 saveWorkbook(wb, 
              file = "tables/scotland_excess_deaths.xlsx"
              )
+
+# Now to do the above but for each of the components
 
 
