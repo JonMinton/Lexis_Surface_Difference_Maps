@@ -46,11 +46,8 @@ png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png",
     width=30, height=20, res=300, units="cm"
 )
 
-this_is_a_very_long_name_that_i_have_decided_to_use_because_i_really_like_typing_for_the_sake_of_it <- 2
 
-this
-
-  contourplot(
+contourplot(
     lg_cmr ~ age * birth_year | sex, 
     data=this_dta, 
     region=T, 
@@ -111,4 +108,43 @@ contourplot(
 )
 
 dev.off()
+
+
+
+# quick more standard version for IJE blog --------------------------------
+
+this_dta <- dta %>% 
+  filter(country == "GBR_SCO" & sex !="total") %>% 
+  arrange(year, age) %>%
+  mutate(
+    cmr  = death_count / population_count, 
+    lg_cmr = log(cmr, base = 10)
+  ) %>% 
+  select(sex, year, age, lg_cmr)
+
+png(filename="figures/shifting_hurdles/ije_blog_scot_spectral.png", 
+    width=30, height=20, res=300, units="cm"
+)
+
+this_dta %>% 
+  filter(age <= 90) %>% 
+contourplot(
+  lg_cmr ~ year * age | sex, 
+  data=., 
+  region=T, 
+  par.strip.text=list(cex=1.4, fontface="bold"),
+  xlab=list(label="Year", cex=1.4),
+  ylab=list(label="Age in years", cex=1.4),
+  par.settings=list(strip.background=list(col="lightgrey")),
+  scales=list(
+    y=list(cex=1.2, at = seq(0, 90, by = 10)), 
+    x=list(cex=1.2, at = seq(1850, 2010, by = 20), rot = 90),
+    alternating=3
+  ),
+  col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+  cuts = 15
+)
+
+dev.off()
+
   
