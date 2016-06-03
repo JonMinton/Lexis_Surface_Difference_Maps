@@ -123,7 +123,7 @@ this_dta <- dta %>%
   select(sex, year, age, lg_cmr)
 
 png(filename="figures/shifting_hurdles/ije_blog_scot_spectral.png", 
-    width=30, height=20, res=300, units="cm"
+    width=25, height=30, res=300, units="cm"
 )
 
 this_dta %>% 
@@ -137,12 +137,22 @@ contourplot(
   ylab=list(label="Age in years", cex=1.4),
   par.settings=list(strip.background=list(col="lightgrey")),
   scales=list(
-    y=list(cex=1.2, at = seq(0, 90, by = 10)), 
+    y=list(cex=1.2, at = seq(0, 90, by = 20)), 
     x=list(cex=1.2, at = seq(1850, 2010, by = 20), rot = 90),
     alternating=3
   ),
   col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
-  cuts = 15
+  cuts = 15,
+  labels = F,
+  aspect = "iso",
+  panel = function(x, y, z, ...){
+    panel.contourplot(x, y, z, ...)
+    panel.abline(v = seq(1870, 2010, by= 10), lty = "dashed", col = "gray")
+    panel.abline(h = seq(0, 90, by= 10), lty = "dashed", col = "gray")
+    
+  },
+  colorkey = list(labels = list(cex = 1.3))
+  
 )
 
 dev.off()
