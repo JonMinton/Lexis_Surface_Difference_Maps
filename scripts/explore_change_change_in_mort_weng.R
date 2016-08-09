@@ -32,9 +32,9 @@ this_dta <- dta %>%
 
 
 
-png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png", 
-    width=30, height=20, res=300, units="cm"
-)
+# png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png", 
+#     width=30, height=20, res=300, units="cm"
+# )
 
 
 contourplot(
@@ -54,8 +54,7 @@ contourplot(
   cuts = 20
 )
 
-dev.off()
-
+# dev.off()
 
 
 dta %>% 
@@ -72,14 +71,15 @@ dta %>%
     data=., 
     region=T, 
     par.strip.text=list(cex=1.4, fontface="bold"),
-    ylab=list(label="Year", cex=1.4),
-    xlab=list(label="Age in years", cex=1.4),
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
     par.settings=list(strip.background=list(col="lightgrey")),
     scales=list(
       y=list(cex=1.2, at = seq(40, 90, by = 10)), 
       x=list(cex=1.2, at = seq(1900, 2010, by = 10), rot = 90),
       alternating=T
     ),
+    aspect = "iso",
     col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
     cuts = 20
   )
@@ -117,6 +117,7 @@ dta %>%
       x=list(cex=1.2, at = seq(1900, 2010, by = 10), rot = 90),
       alternating=T
     ),
+    aspect = "iso",
     col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
     at = seq(-0.1, 0.1, by = 0.025)
   )
