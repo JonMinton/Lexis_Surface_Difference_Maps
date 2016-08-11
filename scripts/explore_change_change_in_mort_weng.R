@@ -438,7 +438,7 @@ dta %>%
 
 
 dta %>% 
-  filter(country %in% c("DEUTE", "DEUTW", "GBRCENW", "GBR_SCO", "FRACNP", "USA", "CAN") & sex !="total") %>% 
+  filter(country %in% c("DEUTE", "DEUTW") & sex !="total") %>% 
   filter(year >= 1900 & age >= 40 & age <=90) %>% 
   arrange(sex, year, age) %>%
   mutate(
@@ -472,6 +472,41 @@ dta %>%
     at = seq(-0.1, 0.1, by = 0.025)
   )
 
+
+dta %>% 
+  filter(country %in% c("RUS") & sex !="total") %>% 
+  filter(year >= 1900 & age >= 40 & age <=90) %>% 
+  arrange(sex, year, age) %>%
+  mutate(
+    cmr  = death_count / population_count, 
+    lg_cmr = log(cmr, base = 10)
+  ) %>% 
+  select(country, sex, year, age, lg_cmr) %>% 
+  group_by(country, sex, age) %>% 
+  arrange(year) %>% 
+  mutate(lagger = lag(lg_cmr)) %>% 
+  mutate(change_lg_cmr = lg_cmr - lagger) %>%
+  mutate(
+    change_lg_cmr = ifelse(change_lg_cmr > 0.1, 0.1, change_lg_cmr),
+    change_lg_cmr = ifelse(change_lg_cmr < -0.1, -0.1, change_lg_cmr)
+  ) %>%      
+  ungroup() %>% 
+  levelplot(
+    change_lg_cmr ~ year * age | sex + country, 
+    data=., 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    ylab=list(label="Year", cex=1.4),
+    xlab=list(label="Age in years", cex=1.4),
+    par.settings=list(strip.background=list(col="lightgrey")),
+    scales=list(
+      y=list(cex=1.2, at = seq(40, 90, by = 10)), 
+      x=list(cex=1.2, at = seq(1900, 2010, by = 10), rot = 90),
+      alternating=T
+    ),
+    aspect = "iso",
+    col.regions = rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    at = seq(-0.1, 0.1, by = 0.025)
+  )
 
 
   
