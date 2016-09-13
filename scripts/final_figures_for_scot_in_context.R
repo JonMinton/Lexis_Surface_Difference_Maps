@@ -188,6 +188,7 @@ make_scp(
 dev.off()
 
 
+<<<<<<< HEAD
 
 # Figure 2 : composite: CLP Scot - rUK, Scot - rWE, UK - rWE ---------------
 
@@ -446,6 +447,8 @@ png(filename="figures/scotland_in_context/final_figures/figure_02a_clp_scot_uk_w
   
   dev.off()
   
+=======
+>>>>>>> ebf0e3395271da053b80811afc93dad003cfe72a
   
   
 # Scotland compared with different European regions -----------------------

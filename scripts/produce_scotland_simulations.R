@@ -549,6 +549,9 @@ saveWorkbook(wb,
              file = "tables/scotland_excess_deaths.xlsx"
              )
 
+<<<<<<< HEAD
 # Now to do the above but for each of the components
 
+=======
+>>>>>>> ebf0e3395271da053b80811afc93dad003cfe72a
 

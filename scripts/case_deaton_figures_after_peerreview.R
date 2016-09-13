@@ -499,3 +499,132 @@ dta %>%
 dev.off()
 
 
+<<<<<<< HEAD
+=======
+# Assault/Homicide, colour
+
+# 9) vehicles, ident, all groups, colour
+
+png(filename="figures/case_deaton/revision/assault_colour.png", 
+     width=15, height=35, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(assault_rate = 100000 * assault_homicide / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "assault_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    assault_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    cuts =15,
+    aspect="iso",
+    #col.regions = rev(gray(1:100/100)),
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label = "Assault/Homicide", cex = 1.4),
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
+    ),
+    strip.left = T,
+    colorkey = list(label = list(cex = 1.4)),
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+
+# Legal Intervention, colour
+
+png(filename="figures/case_deaton/revision/legal_intervention.png", 
+     width=15, height=35, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(legal_rate = 100000 * legal_intervention / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "legal_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    legal_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    cuts =15,
+    aspect="iso",
+    #col.regions = rev(gray(1:100/100)),
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label = "Legal Intervention", cex = 1.4),
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
+    ),
+    strip.left = T,
+    colorkey = list(label = list(cex = 1.4)),
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+
+
+# Liver-related, colour
+
+png(filename="figures/case_deaton/revision/liver.png", 
+    width=15, height=35, res=300, units="cm"
+)
+
+dta %>% 
+  mutate(liver_rate = 100000 * chronic_liver_disease / population
+  ) %>% 
+  smooth_var(., group_vars = c("sex", "group"), smooth_var = "liver_rate", smooth_par = 0.7) %>% 
+  levelplot(
+    liver_rate ~ year * age | sex + group,
+    data = . ,
+    region=T, 
+    ylab=list(label="Age in years", cex=1.4),
+    xlab=list(label="Year", cex=1.4),
+    cex=1.4,
+    cuts =15,
+    aspect="iso",
+    #col.regions = rev(gray(1:100/100)),
+    col.regions=rev(colorRampPalette(brewer.pal(6, "Spectral"))(200)),
+    main=list(label = "Chronic Liver Disease", cex = 1.4),
+    xlim=c(1999, 2013),
+    layout = c(2, 3),
+    ylim=c(0, 80), 
+    scales=list(
+      y=list(cex=1.4, at = seq(10, 70, by =10)), 
+      x=list(cex=1.4, rot = 90),
+      alternating=1
+    ),
+    strip.left = T,
+    colorkey = list(label = list(cex = 1.4)),
+    strip = F,
+    par.settings=list(strip.background=list(col="lightgrey")),
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      #        panel.rect(xleft = 1990, xright = 2013, ybottom = 45, ytop = 54, lty="dashed")
+    }
+  )
+dev.off()
+>>>>>>> ebf0e3395271da053b80811afc93dad003cfe72a
