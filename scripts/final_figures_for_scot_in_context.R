@@ -413,6 +413,38 @@ comparisons %>%
 
   dev.off()
   
+# Produce 'plain' version of above for adding annotations to  
+png(filename="figures/scotland_in_context/final_figures/figure_02a_clp_scot_uk_we_plain.png", 
+      width=30, height=30, res=300, units="cm"
+  )
+  
+  comparisons %>% 
+    mutate(
+      dif_logs = ifelse(dif_logs < -0.30, -0.30, dif_logs),
+      dif_logs = ifelse(dif_logs > 0.30, 0.30, dif_logs)
+    ) %>%   
+    smooth_var(., 
+               group_vars = c("sex", "comparison"), 
+               smooth_var = "dif_logs", 
+               smooth_par = 0.7
+    ) %>% 
+    levelplot(
+      dif_logs ~ year * age | comparison + sex,
+      data=., 
+      region=T,
+      ylab="Age in years",
+      xlab="Year",
+      at = seq(from= -0.30, to = 0.30, by=0.01),
+      col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+      scales=list(alternating=3),
+      main=NULL,
+      aspect= "iso",
+      ylim=c(0, 90),
+      xlim=c(1950, 2010),
+      par.settings=list(strip.background=list(col="lightgrey")), 
+    )
+  
+  dev.off()
   
   
   

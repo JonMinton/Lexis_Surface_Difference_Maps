@@ -51,7 +51,7 @@ require(spatstat)
 
 #tables
 require(xtable)
-
+require(xlsx)
 
 
 
@@ -144,9 +144,6 @@ dta_we_noscot_overall <- grouper(dta_we_noscot)
 dta_europe_noscot_overall <- grouper(dta_europe_noscot)
 dta_all_noscot_overall <- grouper(dta_all_noscot)
 dta_anglo_noscot_overall <- grouper(dta_anglo_noscot)
-
-
-
 
 
 
@@ -407,5 +404,369 @@ print(make_single_clp(
 ))
 dev.off()
 
+
+
+# Tables showing excess deaths by particular ages per 100 000 popu --------
+
+
+ages <- c(1, 5, 10, 20, 30, 40, 50, 60, 70, 80)
+
+init_cohort_size <- 50000 # 50 000 as males and females 
+# need to be combined
+calculate_survivors <- function(x, init_size = init_cohort_size){
+    k <- dim(x)[1]
+    cohort_size <- rep(NA, k)
+    cohort_size[1] <- init_size
+    for (i in 2:k){
+      cohort_size[i] <- cohort_size[i - 1] * (1 - x$death_rate[i - 1])
+    }
+    output <- data.frame(x, cohort_size = cohort_size)
+}
+
+# Period-based, Scotland against rest of UK -------------------------------
+
+dta_scot <- dta %>% 
+  filter(country == "GBR_SCO") %>% 
+  filter(year >= 1950) %>%
+  filter(sex != "total") %>% 
+  mutate(country = "scotland")
+
+dta_ruk <- dta_uk_noscot_overall %>% 
+  mutate(country = "ruk") %>% 
+  filter(sex != "total") %>% 
+  select(country, year, age, sex, death_count, population_count) %>% 
+  filter(year >= 1950)
+
+dta_both <- bind_rows(dta_ruk, dta_scot)
+
+# for each region, year, and sex, produce cumulative mortality by 
+# different ages 
+# 
+
+
+dta_synth <- dta_both %>% 
+  arrange(country, year, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, year, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+# this calculates and presents the excess deaths per 100 000 population 
+# for each decade by certain ages 
+dta_synth %>% 
+  select(country, year, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = scotland - ruk) %>% 
+  filter(age %in% ages) %>% 
+  mutate(
+    decade = cut(
+      year, 
+      seq(1950, 2010, by = 10), 
+      include.lowest = T,
+      labels = c("1950s", "1960S", "1970S", "1980S", "1990s", "2000s")
+    )) %>% 
+  group_by(decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total) %>% 
+  filter(!is.na(decade)) -> excess_deaths_scot_ruk
+
+
+
+# Now to compare Scotland with rest of Western Europe
+
+dta_scot <- dta %>% 
+  filter(country == "GBR_SCO") %>% 
+  filter(year >= 1950) %>%
+  filter(sex != "total") %>% 
+  mutate(country = "scotland")
+
+dta_rwe <- dta_we_noscot_overall %>% 
+  mutate(country = "rwe") %>% 
+  filter(sex != "total") %>% 
+  select(country, year, age, sex, death_count, population_count) %>% 
+  filter(year >= 1950)
+
+dta_both <- bind_rows(dta_rwe, dta_scot)
+
+
+dta_synth <- dta_both %>% 
+  arrange(country, year, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, year, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+# this calculates and presents the excess deaths per 100 000 population 
+# for each decade by certain ages 
+
+dta_synth %>% 
+  select(country, year, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = scotland - rwe) %>% 
+  filter(age %in% ages) %>% 
+  mutate(
+    decade = cut(
+      year, 
+      seq(1950, 2010, by = 10), 
+      include.lowest = T,
+      labels = c("1950s", "1960S", "1970S", "1980S", "1990s", "2000s")
+    )) %>% 
+  group_by(decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total) %>% 
+  filter(!is.na(decade)) -> excess_deaths_scot_rwe
+
+
+# Now to compare UK with rest of Western Europe
+
+dta_rwe <- dta_we %>% 
+  filter(!(country %in% c("GRBCENW", "GBR_NIR", "GBR_SCO"))) %>% 
+  filter(year >= 1950) %>%
+  filter(sex != "total") %>% 
+  group_by(year, age, sex) %>% 
+  summarise(death_count = sum(death_count), population_count = sum(population_count)) %>% 
+  mutate(country = "rwe") %>% 
+  select(country, year, age, sex, death_count, population_count)
+
+dta_uk <- dta_uk_overall %>% 
+  mutate(country = "uk") %>% 
+  filter(sex != "total") %>% 
+  select(country, year, age, sex, death_count, population_count) %>% 
+  filter(year >= 1950)
+
+dta_both <- bind_rows(dta_rwe, dta_uk)
+
+
+dta_synth <- dta_both %>% 
+  arrange(country, year, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, year, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+# this calculates and presents the excess deaths per 100 000 population 
+# for each decade by certain ages 
+
+dta_synth %>% 
+  select(country, year, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = uk - rwe) %>% 
+  filter(age %in% ages) %>% 
+  mutate(
+    decade = cut(
+      year, 
+      seq(1950, 2010, by = 10), 
+      include.lowest = T,
+      labels = c("1950s", "1960S", "1970S", "1980S", "1990s", "2000s")
+    )) %>% 
+  group_by(decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total) %>% 
+  filter(!is.na(decade)) -> excess_deaths_uk_rwe
+
+
+# Something similar by cohort 
+
+
+# cohort-based, Scotland against rest of UK -------------------------------
+
+dta_scot <- dta %>%
+  mutate(birth_cohort = year - age) %>% 
+  filter(country == "GBR_SCO") %>% 
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>%
+  filter(sex != "total") %>% 
+  mutate(country = "scotland") %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count)
+
+
+dta_ruk <- dta_uk_noscot_overall %>%
+  mutate(birth_cohort = year - age) %>% 
+  mutate(country = "ruk") %>% 
+  filter(sex != "total") %>% 
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count) 
+  
+dta_both <- bind_rows(dta_ruk, dta_scot)
+
+dta_synth <- dta_both %>% 
+  arrange(country, birth_cohort, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, birth_cohort, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+
+dta_synth %>% 
+  select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = scotland - ruk) %>% 
+  filter(age %in% ages) %>% 
+  mutate(
+    cohort_decade = cut(
+      birth_cohort, 
+      seq(1930, 1980, by = 10), 
+      include.lowest = T,
+      labels = c("1930s", "1940S", "1950S", "1960S", "1970s")
+    )) %>% 
+  group_by(cohort_decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(cohort_decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total)  -> cohort_excess_deaths_scot_ruk
+
+
+# Cohort-based, Scotland compared with rest of WE
+
+dta_scot <- dta %>%
+  mutate(birth_cohort = year - age) %>% 
+  filter(country == "GBR_SCO") %>% 
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>%
+  filter(sex != "total") %>% 
+  mutate(country = "scotland") %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count)
+
+
+dta_rwe <- dta_we_noscot_overall %>% 
+  mutate(birth_cohort = year - age) %>% 
+  mutate(country = "rwe") %>% 
+  filter(sex != "total") %>%   
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count)  
+
+
+dta_both <- bind_rows(dta_rwe, dta_scot)
+
+
+dta_synth <- dta_both %>% 
+  arrange(country, birth_cohort, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, birth_cohort, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+dta_synth %>% 
+  select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = scotland - rwe) %>% 
+  filter(age %in% ages ) %>% 
+  mutate(
+    cohort_decade = cut(
+      birth_cohort, 
+      seq(1930, 1980, by = 10), 
+      include.lowest = T,
+      labels = c("1930s", "1940S", "1950S", "1960S", "1970s")
+    )) %>% 
+  group_by(cohort_decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(cohort_decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total)  -> cohort_excess_deaths_scot_rwe
+
+
+# Now to compare UK with rest of Western Europe
+
+dta_rwe <- dta_we %>% 
+  filter(!(country %in% c("GRBCENW", "GBR_NIR", "GBR_SCO"))) %>% 
+  mutate(birth_cohort = year - age) %>% 
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>% 
+  filter(sex != "total") %>% 
+  group_by(birth_cohort, age, sex) %>% 
+  summarise(death_count = sum(death_count), population_count = sum(population_count)) %>% 
+  mutate(country = "rwe") %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count)
+
+
+dta_uk <- dta_uk_overall %>% 
+  mutate(country = "uk") %>% 
+  mutate(birth_cohort = year - age) %>% 
+  filter(birth_cohort >= 1930 & birth_cohort < 1980) %>% 
+  filter(sex != "total") %>% 
+  select(country, birth_cohort, age, sex, death_count, population_count)  
+
+dta_both <- bind_rows(dta_rwe, dta_uk)
+
+
+dta_synth <- dta_both %>% 
+  arrange(country, birth_cohort, sex, age) %>% 
+  mutate(death_rate = death_count / population_count) %>% 
+  group_by(country, birth_cohort, sex) %>% 
+  do(calculate_survivors(.)) %>% 
+  mutate(cumulative_deaths = init_cohort_size - cohort_size)
+
+dta_synth %>% 
+  select(country, birth_cohort, age, sex, cumulative_deaths) %>% 
+  spread(country, cumulative_deaths) %>% 
+  mutate(excess_deaths = uk - rwe) %>% 
+  filter(age %in% ages ) %>% 
+  mutate(
+    cohort_decade = cut(
+      birth_cohort, 
+      seq(1930, 1980, by = 10), 
+      include.lowest = T,
+      labels = c("1930s", "1940S", "1950S", "1960S", "1970s")
+    )) %>% 
+  group_by(cohort_decade, sex, age) %>% 
+  summarise(excess_deaths = sum(excess_deaths) / length(excess_deaths)) %>% 
+  spread(sex, excess_deaths) %>% 
+  mutate(total = female + male) %>% 
+  select(cohort_decade, age, total) %>%
+  mutate(total = round(total, 0)) %>% 
+  spread(age, total)  -> cohort_excess_deaths_uk_rwe
+
+
+
+# produce excel table of these period excess charts 
+
+wb <- createWorkbook()
+
+addDataFrame(
+  x = excess_deaths_scot_ruk, 
+  sheet = createSheet(wb, sheetName = "period_Scotland_less_rUK")
+  )
+
+addDataFrame(
+  x = excess_deaths_scot_rwe, 
+  sheet = createSheet(wb, sheetName = "period_Scotland_less_rWE")
+)
+
+addDataFrame(
+  x = excess_deaths_uk_rwe, 
+  sheet = createSheet(wb, sheetName = "period_UK_less_rWE")
+)
+
+addDataFrame(
+  x = cohort_excess_deaths_scot_ruk, 
+  sheet = createSheet(wb, sheetName = "cohort_Scotland_less_rUK")
+)
+
+addDataFrame(
+  x = cohort_excess_deaths_scot_rwe, 
+  sheet = createSheet(wb, sheetName = "cohort_Scotland_less_rWE")
+)
+
+addDataFrame(
+  x = cohort_excess_deaths_uk_rwe, 
+  sheet = createSheet(wb, sheetName = "cohort_UK_less_rWE")
+)
+
+saveWorkbook(wb, 
+             file = "tables/scotland_excess_deaths.xlsx"
+             )
 
 
