@@ -244,38 +244,6 @@ this_dta_smoothed %>%
 dev.off()
 
 
-#Paired quantitative colour example
-this_dta_smoothed %>% 
-  filter(age <= 90) %>%
-  filter(year >= 1900) %>% 
-  filter(year <= 2006) %>% 
-  contourplot(
-    lg_cmr ~ year * age | sex + country, 
-    data=., 
-    region=T, 
-    par.strip.text=list(cex=1.4, fontface="bold"),
-    xlab=list(label="Year", cex=1.4),
-    ylab=list(label="Age in years", cex=1.4),
-    par.settings=list(strip.background=list(col="lightgrey")),
-    scales=list(
-      y=list(cex=1.2, at = seq(0, 90, by = 20)), 
-      x=list(cex=1.2, at = seq(1850, 2010, by = 20), rot = 90),
-      alternating=3
-    ),
-    col.regions = rev(colorRampPalette(brewer.pal(12, "Paired"))(200)),
-    cuts = 30,
-    labels = T,
-    aspect = "iso",
-    panel = function(x, y, z, ...){
-      panel.contourplot(x, y, z, ...)
-      panel.abline(v = seq(1870, 2010, by= 10), lty = "dashed", col = "gray")
-      panel.abline(h = seq(0, 90, by= 10), lty = "dashed", col = "gray")
-      
-    },
-    colorkey = list(labels = list(cex = 1.3))
-    
-  )
-
 # Question: 
 # Why is the last displayed year not the last year for which data are available? 
 # What would happen if the smoothed values for the last few years were displayed? How might this be misleading?
@@ -667,6 +635,42 @@ this_dta %>%
   )
 
 dev.off()
+
+
+png(filename="figures/ssm_examples/weng_more_level_qualpair.png",
+    width=25, height=50, res=300, units="cm"
+)
+
+this_dta %>% 
+  filter(age <= 90) %>%
+  filter(year >= 1900) %>% 
+  levelplot(
+    lg_cmr ~ year * age | sex, 
+    data=., 
+    par.strip.text=list(cex=1.4, fontface="bold"),
+    xlab=list(label="Year", cex=1.4),
+    ylab=list(label="Age in years", cex=1.4),
+    par.settings=list(strip.background=list(col="lightgrey")),
+    scales=list(
+      y=list(cex=1.2, at = seq(0, 90, by = 20)), 
+      x=list(cex=1.2, at = seq(1850, 2010, by = 20), rot = 90),
+      alternating=3
+    ),
+    col.regions = rev(colorRampPalette(brewer.pal(12, "Paired"))(200)),
+    cuts = 60,
+    aspect = "iso",
+    panel = function(x, y, z, ...){
+      panel.levelplot(x, y, z, ...)
+      panel.abline(v = seq(1870, 2010, by= 10), lty = "dashed", col = "gray")
+      panel.abline(h = seq(0, 90, by= 10), lty = "dashed", col = "gray")
+      
+    },
+    colorkey = list(labels = list(cex = 1.3))
+    
+  )
+
+dev.off()
+
 
 
 png(filename="figures/ssm_examples/weng_more_level_nogrid.png",
