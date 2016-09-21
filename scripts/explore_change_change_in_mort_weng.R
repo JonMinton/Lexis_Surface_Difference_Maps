@@ -259,7 +259,7 @@ dta %>%
 
 dta %>% 
   filter(country == "FRATNP" & sex !="total") %>% 
-  filter(year >= 1900 & age >= 40 & age <=90) %>% 
+  filter(year >= 1900 & age >= 0 & age <=90) %>% 
   arrange(sex, year, age) %>%
   mutate(
     cmr  = death_count / population_count, 
@@ -283,7 +283,7 @@ dta %>%
     xlab=list(label="Age in years", cex=1.4),
     par.settings=list(strip.background=list(col="lightgrey")),
     scales=list(
-      y=list(cex=1.2, at = seq(40, 90, by = 10)), 
+      y=list(cex=1.2, at = seq(0, 90, by = 10)), 
       x=list(cex=1.2, at = seq(1900, 2010, by = 10), rot = 90),
       alternating=T
     ),
