@@ -46,6 +46,9 @@ png(filename="figures/shifting_hurdles/shifting_hurdles_spectral.png",
     width=30, height=20, res=300, units="cm"
 )
 
+this_is_a_very_long_name_that_i_have_decided_to_use_because_i_really_like_typing_for_the_sake_of_it <- 2
+
+this
 
 contourplot(
     lg_cmr ~ age * birth_year | sex, 
@@ -108,6 +111,8 @@ contourplot(
 )
 
 dev.off()
+<<<<<<< HEAD
+=======
 
 
 
@@ -157,4 +162,5 @@ contourplot(
 
 dev.off()
 
+>>>>>>> ebf0e3395271da053b80811afc93dad003cfe72a
   

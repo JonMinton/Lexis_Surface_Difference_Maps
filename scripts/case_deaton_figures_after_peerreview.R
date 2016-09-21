@@ -499,6 +499,8 @@ dta %>%
 dev.off()
 
 
+<<<<<<< HEAD
+=======
 # Assault/Homicide, colour
 
 # 9) vehicles, ident, all groups, colour
@@ -625,3 +627,4 @@ dta %>%
     }
   )
 dev.off()
+>>>>>>> ebf0e3395271da053b80811afc93dad003cfe72a
