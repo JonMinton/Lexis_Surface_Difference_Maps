@@ -45,7 +45,7 @@ smooth_var <- function(dta,  group_vars, smooth_var, smooth_par){
     return(dta_smoothed)
   }
   
-  smoothed_df <- ddply(dta_ss, group_vars, manage_smooth_fn)
+  smoothed_df <- plyr::ddply(dta_ss, group_vars, manage_smooth_fn)
   names(smoothed_df)[length(names(smoothed_df))] <- smooth_var
   smoothed_df$year <- as.numeric(smoothed_df$year)
   smoothed_df <- smoothed_df %>% tbl_df
