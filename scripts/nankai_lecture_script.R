@@ -67,109 +67,109 @@ ggsave("figures/nankai_lecture/western_europe_population_size.png",
        width = 10, height = 10, units = "cm", dpi = 300)
 
 
-# Age groups in Western Europe by year 
+categorise_to_age_groups <- function(data, region_name){
+  region_name <- enquo(region_name)
+  
+  data %>% 
+    filter(year >= 1950, year <= 2010) %>% 
+    filter(year != 1981) %>% 
+    filter(year != 1975) %>% 
+    filter(year != 1954) %>% 
+    mutate(age_type = case_when(
+      age == 0 ~ "babies",
+      age > 0 & age < 18 ~ "children",
+      age >= 18 & age <= 25 ~ "young adults",
+      age >= 26 & age < 60 ~ "working age",
+      age >= 60  & age <= 80 ~ "retired",
+      age > 80 ~ "elderly"
+    )) %>% 
+    mutate(age_type = factor(
+      age_type, 
+      levels = c("babies", "children", "young adults", 
+                 "working age", "retired", "elderly")
+      )
+    ) %>% 
+    group_by(year) %>% 
+    mutate(total_population = sum(population, na.rm = T)) %>% 
+    group_by(year, age_type) %>% 
+    summarise(
+      total_population = total_population[1],
+      pop_by_group = sum(population, na.rm = T)) %>% 
+    mutate(proportion = pop_by_group / total_population) %>% 
+    mutate(region = !!region_name) %>% 
+    select(year, region, age_type, proportion)  -> output
+  
+  output
+}
 
-dta_pop_ss %>% 
-  filter(year >= 1950, year <= 2010) %>% 
-  filter(year != 1981) %>% 
-  filter(year != 1975) %>% 
-  filter(year != 1954) %>% 
-  mutate(age_type = case_when(
-    age == 0 ~ "babies",
-    age > 0 & age < 18 ~ "children",
-    age >= 18 & age < 60 ~ "working age",
-    age >= 60  & age <= 80 ~ "retired",
-    age > 80 ~ "elderly"
-  )) %>% 
-  group_by(year) %>% 
-  mutate(total_population = sum(population, na.rm = T)) %>% 
-  group_by(year, age_type) %>% 
-  summarise(
-    total_population = total_population[1],
-    pop_by_group = sum(population, na.rm = T)) %>% 
-  mutate(proportion = pop_by_group / total_population) %>% 
-  mutate(region = "Western Europe") %>% 
-  select(year, region, age_type, proportion) -> props_we
+age_grp_we <- categorise_to_age_groups(data_pop_ss, "Western Europe")
+age_grp_uk <- categorise_to_age_groups(dta_pop_ss %>% filter(full_name == "United Kingdom"), "United Kingdom")
+age_grp_scot <- categorise_to_age_groups(dta_pop %>% filter(country_code == "GBR_SCO"), "Scotland")
 
-dta_pop_ss %>% 
-  filter(full_name == "United Kingdom") %>% 
-  filter(year >= 1950, year <= 2010) %>% 
-  filter(year != 1981) %>% 
-  filter(year != 1975) %>% 
-  filter(year != 1954) %>% 
-  mutate(age_type = case_when(
-    age == 0 ~ "babies",
-    age > 0 & age < 18 ~ "children",
-    age >= 18 & age < 60 ~ "working age",
-    age >= 60  & age <= 80 ~ "retired",
-    age > 80 ~ "elderly"
-  )) %>% 
-  group_by(year) %>% 
-  mutate(total_population = sum(population, na.rm = T)) %>% 
-  group_by(year, age_type) %>% 
-  summarise(
-    total_population = total_population[1],
-    pop_by_group = sum(population, na.rm = T)) %>% 
-  mutate(proportion = pop_by_group / total_population) %>% 
-  mutate(region = "United Kingdom") %>% 
-  select(year, region, age_type, proportion) -> props_uk
+age_grp_joined <- bind_rows(age_grp_we, age_grp_uk, age_grp_scot)
 
-dta_pop %>% 
-  filter(country_code == "GBR_SCO") %>% 
-  filter(year >= 1950, year <= 2010) %>% 
-  filter(year != 1981) %>% 
-  filter(year != 1975) %>% 
-  filter(year != 1954) %>% 
-  mutate(age_type = case_when(
-    age == 0 ~ "babies",
-    age > 0 & age < 18 ~ "children",
-    age >= 18 & age < 60 ~ "working age",
-    age >= 60  & age <= 80 ~ "retired",
-    age > 80 ~ "elderly"
-  )) %>% 
-  group_by(year) %>% 
-  mutate(total_population = sum(population, na.rm = T)) %>% 
-  group_by(year, age_type) %>% 
-  summarise(
-    total_population = total_population[1],
-    pop_by_group = sum(population, na.rm = T)) %>% 
-  mutate(proportion = pop_by_group / total_population) %>% 
-  mutate(region = "Scotland") %>% 
-  select(year, region, age_type, proportion) -> props_scot
-
-
-props <- bind_rows(props_scot, props_we, props_uk)
-
-props %>% 
+age_grp_joined %>% 
   ggplot(., aes(x = year, y = proportion, size = region, colour = region, linetype = region)) + 
   geom_line() + 
   theme_minimal() + 
   facet_wrap(~age_type, scale = "free_y") + 
-  scale_colour_manual(values = c("blue", "grey", "black")) + 
-  scale_linetype_manual(values = c("solid", "dashed", "dashed")) + 
+  scale_colour_manual(values = c("blue", "red", "black")) + 
+  scale_linetype_manual(values = c("solid", "twodash", "longdash")) + 
   scale_size_manual(values = c(1.2, 1, 1))
 
 ggsave("figures/nankai_lecture/population_proportion_types.png",
        width = 25, height = 20, units = "cm", dpi = 300)
 
 
-ggsave("figures/nankai_lecture/western_europe_workers.png",
-       width = 10, height = 10, units = "cm", dpi = 300)
+# Now to present dependency ratios 
 
-dta_pop_ss %>% 
-  filter(year >= 1950, year <= 2010) %>% 
-  filter(year != 1981) %>% 
-  filter(year != 1975) %>% 
-  filter(year != 1954) %>% 
-  filter(age >= 60) %>% 
-  group_by(year) %>% 
-  summarise(population = sum(population, na.rm = T) / 1E6) %>% 
-  ggplot(., aes(x = year, y = population)) + 
+calculate_dependency_ratio <- function(data, region_name, male_dep_age = 65, female_dep_age = 60){
+  region_name <- enquo(region_name)
+  male_dep_age <- enquo(male_dep_age)
+  female_dep_age <- enquo(female_dep_age)
+  data %>% 
+    filter(year >= 1950, year <= 2010) %>% 
+    filter(year != 1981) %>% 
+    filter(year != 1975) %>% 
+    filter(year != 1954) %>% 
+    mutate(dep_status = case_when(
+      age < 18  ~ "young", 
+      sex == "female" & age >= !!female_dep_age ~ "female_older",
+      sex == "male" & age >= !!male_dep_age ~ "male_older",
+      TRUE ~ "independent"
+      )
+    ) %>% 
+    group_by(year, dep_status) %>% 
+    summarise(total_population = sum(population, na.rm = T)) %>% 
+    group_by(year) %>% 
+    mutate(young_dep = total_population[dep_status == "young"] / total_population[dep_status == "independent"]) %>% 
+    mutate(old_dep = sum(total_population[dep_status %in% c("female_older", "male_older")]) / total_population[dep_status == "independent"]) %>% 
+    mutate(dep_ratio = sum(total_population[!(dep_status == "independent")]) / total_population[dep_status == "independent"]) %>% 
+    mutate(region = !!region_name) %>% 
+    select(year, region, young_dep, old_dep, dep_ratio) %>% 
+    distinct() -> output
+  
+  output
+}
+
+dep_we <- calculate_dependency_ratio(dta_pop_ss, "Western Europe")
+dep_uk <- calculate_dependency_ratio(dta_pop_ss %>% filter(full_name == "United Kingdom"), "United Kingdom")
+dep_scot <- calculate_dependency_ratio(dta_pop %>% filter(country_code == "GBR_SCO"), "Scotland")
+
+dep_joined <- bind_rows(dep_we, dep_uk, dep_scot) %>% 
+  ungroup() %>% 
+  gather(key = "dep_type", value = "ratio", young_dep:dep_ratio) %>% 
+  mutate(dep_type = recode_factor(dep_type, young_dep = "Youth", old_dep = "Elderly", dep_ratio = "Overall")) %>% 
+  mutate(ratio = 1000 * ratio)
+
+dep_joined %>% 
+  ggplot(., aes(x = year, y = ratio, size = region, colour = region, linetype = region)) + 
   geom_line() + 
   theme_minimal() + 
-  scale_y_continuous(labels = comma, limits = c(0, 200)) + 
-  labs(y = "Elderly (Millions)")
+  facet_wrap(~dep_type, scale = "free_y") +
+  scale_colour_manual(values = c("blue", "red", "black")) + 
+  scale_linetype_manual(values = c("solid", "twodash", "longdash")) + 
+  scale_size_manual(values = c(1.2, 1, 1))
 
-ggsave("figures/nankai_lecture/western_europe_workers.png",
-       width = 10, height = 10, units = "cm", dpi = 300)
-
+ggsave("figures/nankai_lecture/dependency_per_1000.png",
+       width = 25, height = 20, units = "cm", dpi = 300)
