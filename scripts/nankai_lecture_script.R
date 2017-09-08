@@ -11,7 +11,7 @@ dta_pop <- read_csv("data/tidy/new_counts.csv")
 
 places_in_europe <- c(
   "Austria", "Belgium", "Switzerland", "Germany (East & West Combined)",
-  "Denmark", "Spain", "Finland", "France (Total)", "United Kingdom", 
+  "Denmark", "Spain", "Finland", "France (Total)", 
   "Ireland", "Iceland", "Italy", "Luxembourg", "Netherlands", "Norway", 
   "Sweden"
 )
@@ -102,19 +102,20 @@ categorise_to_age_groups <- function(data, region_name){
   output
 }
 
-age_grp_we <- categorise_to_age_groups(data_pop_ss, "Western Europe")
-age_grp_uk <- categorise_to_age_groups(dta_pop_ss %>% filter(full_name == "United Kingdom"), "United Kingdom")
+age_grp_we <- categorise_to_age_groups(dta_pop_ss, "Western Europe")
+age_grp_uk <- categorise_to_age_groups(dta_pop %>% filter(country_code == "GBRTENW"), "England & Wales")
 age_grp_scot <- categorise_to_age_groups(dta_pop %>% filter(country_code == "GBR_SCO"), "Scotland")
 
-age_grp_joined <- bind_rows(age_grp_we, age_grp_uk, age_grp_scot)
+age_grp_joined <- bind_rows(age_grp_we, age_grp_uk, age_grp_scot) %>% 
+  mutate(region = factor(region, levels = c("Western Europe", "England & Wales", "Scotland"), ordered = T))
 
 age_grp_joined %>% 
   ggplot(., aes(x = year, y = proportion, size = region, colour = region, linetype = region)) + 
   geom_line() + 
   theme_minimal() + 
   facet_wrap(~age_type, scale = "free_y") + 
-  scale_colour_manual(values = c("blue", "red", "black")) + 
-  scale_linetype_manual(values = c("solid", "twodash", "longdash")) + 
+  scale_colour_manual(values = c("grey", "black", "blue")) + 
+  scale_linetype_manual(values = c("longdash", "twodash", "solid")) + 
   scale_size_manual(values = c(1.2, 1, 1))
 
 ggsave("figures/nankai_lecture/population_proportion_types.png",
@@ -153,10 +154,11 @@ calculate_dependency_ratio <- function(data, region_name, male_dep_age = 65, fem
 }
 
 dep_we <- calculate_dependency_ratio(dta_pop_ss, "Western Europe")
-dep_uk <- calculate_dependency_ratio(dta_pop_ss %>% filter(full_name == "United Kingdom"), "United Kingdom")
+dep_uk <- calculate_dependency_ratio(dta_pop %>% filter(country_code == "GBRTENW"), "England & Wales")
 dep_scot <- calculate_dependency_ratio(dta_pop %>% filter(country_code == "GBR_SCO"), "Scotland")
 
 dep_joined <- bind_rows(dep_we, dep_uk, dep_scot) %>% 
+  mutate(region = factor(region, levels = c("Western Europe", "England & Wales", "Scotland"), ordered = T)) %>% 
   ungroup() %>% 
   gather(key = "dep_type", value = "ratio", young_dep:dep_ratio) %>% 
   mutate(dep_type = recode_factor(dep_type, young_dep = "Youth", old_dep = "Elderly", dep_ratio = "Overall")) %>% 
@@ -167,9 +169,50 @@ dep_joined %>%
   geom_line() + 
   theme_minimal() + 
   facet_wrap(~dep_type, scale = "free_y") +
-  scale_colour_manual(values = c("blue", "red", "black")) + 
-  scale_linetype_manual(values = c("solid", "twodash", "longdash")) + 
+  scale_colour_manual(values = c("grey", "black", "blue")) + 
+  scale_linetype_manual(values = c("longdash", "twodash", "solid")) + 
   scale_size_manual(values = c(1.2, 1, 1))
 
 ggsave("figures/nankai_lecture/dependency_per_1000.png",
        width = 25, height = 20, units = "cm", dpi = 300)
+
+# Different retirement ages 
+
+dep_ratio_w_diff_retirement <- function(ret_age){
+
+  male_dep_age <- enquo(ret_age)
+  female_dep_age <- enquo(ret_age)
+  
+  dep_we <- calculate_dependency_ratio(dta_pop_ss, "Western Europe", male_dep_age = !!male_dep_age, female_dep_age = !!female_dep_age)
+  dep_uk <- calculate_dependency_ratio(dta_pop %>% filter(country_code == "GBRTENW"), "England & Wales",
+                                       male_dep_age = !!male_dep_age, female_dep_age = !!female_dep_age)
+  dep_scot <- calculate_dependency_ratio(dta_pop %>% filter(country_code == "GBR_SCO"), "Scotland", 
+                                         male_dep_age = !!male_dep_age, female_dep_age = !!female_dep_age)
+  
+  
+  output <- bind_rows(dep_we, dep_uk, dep_scot) %>% 
+    mutate(region = factor(region, levels = c("Western Europe", "England & Wales", "Scotland"), ordered = T)) %>% 
+    mutate(retire_at = !!ret_age)
+  
+  output
+}
+
+
+dep_at_various <- data_frame(ret_age = c(65, 67, 70, 75)) %>% 
+  mutate(dep_data = map(ret_age, .f = dep_ratio_w_diff_retirement)) %>% 
+  unnest()
+
+dep_at_various %>% 
+  ggplot(., aes(x = year, y = old_dep, group = region, colour = region, linetype = region)) + 
+  geom_line() + 
+  theme_minimal() + 
+  scale_colour_manual(values = c("grey", "black", "blue")) + 
+  scale_linetype_manual(values = c("longdash", "twodash", "solid")) + 
+  scale_size_manual(values = c(1.2, 1, 1)) +
+  facet_wrap(~retire_at) + 
+  labs(y = "Old Age Dependency Ratio")
+
+ggsave("figures/nankai_lecture/old_age_dependency_by_retirement_age.png",
+       width = 25, height = 20, units = "cm", dpi = 300)
+
+
