@@ -1,0 +1,372 @@
+---
+title: "One page briefing"
+output: html_notebook
+---
+
+# Does Scotland deserve its reputation as the 'sick man of Europe'? 
+
+## It depends where you mean by 'Europe' *(But the answer's probably 'yes')*
+
+Text goes here
+
+
+```{r}
+pacman::p_load(
+  tidyverse
+)
+
+source("scripts/smoother_function.R")
+source("scripts/scotland_in_context__helper_functions.R")
+
+dta <- read_csv("data/tidy/new_counts.csv")
+
+# country_code group definitions
+source("scripts/scotland_in_context__country_group_definitions.R")
+
+smooth_fn <- function(DTA, SMOOTH_PAR = 1.3){
+  out <- DTA %>%   
+    mutate(
+      cmr = deaths / exposure,
+      lg_cmr = log(cmr, base=10)     
+    ) %>% smooth_var(
+      dta =.,
+      group_vars= c("country_code", "sex"),
+      smooth_var = "lg_cmr",
+      smooth_par = SMOOTH_PAR
+    ) 
+  return(out)
+}
+
+
+```
+
+
+```{r}
+dta_ne <- dta %>% 
+  group_by(country_code, year, age) %>% 
+  summarise(
+    deaths = sum(deaths),
+    population = sum(population),
+    exposure = sum(exposure)
+            ) %>% 
+  ungroup() %>% 
+  filter(
+    country_code %in% europe_northern,
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(
+    year, age
+  ) %>% 
+  summarise(
+    deaths = sum(deaths, na.rm = T), 
+    exposure = sum(exposure, na.rm=T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    death_rate = deaths / exposure,
+    lg_death_rate = log(death_rate, base = 10)
+  )
+
+dta_se  <- dta %>% 
+  group_by(country_code, year, age) %>% 
+  summarise(
+    deaths = sum(deaths),
+    population = sum(population),
+    exposure = sum(exposure)
+            ) %>% 
+  ungroup() %>% 
+  filter(
+    country_code %in% europe_southern,
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(
+    year, age
+  ) %>% 
+  summarise(
+    deaths = sum(deaths, na.rm = T), 
+    exposure = sum(exposure, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    death_rate = deaths / exposure,
+    lg_death_rate = log(death_rate, base = 10)
+  )
+
+
+dta_ee  <- dta %>% 
+  group_by(country_code, year, age) %>% 
+  summarise(
+    deaths = sum(deaths),
+    population = sum(population),
+    exposure = sum(exposure)
+            ) %>% 
+  ungroup() %>% 
+  filter(
+    country_code %in% europe_eastern,
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(
+    year, age
+  ) %>% 
+  summarise(
+    deaths = sum(deaths, na.rm = T), 
+    exposure = sum(exposure, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    death_rate = deaths / exposure,
+    lg_death_rate = log(death_rate, base = 10)
+  )
+
+dta_rwe  <- dta %>% 
+  filter(
+    country_code %in% europe_western[europe_western != "GBR_SCO"],
+    year >= 1950 & year <= 2010
+  ) %>% 
+  group_by(country_code, year, age) %>% 
+  summarise(
+    deaths = sum(deaths),
+    population = sum(population),
+    exposure = sum(exposure)
+            ) %>% 
+  ungroup() %>% 
+  group_by(
+    year, age
+  ) %>% 
+  summarise(
+    deaths = sum(deaths, na.rm = T), 
+    exposure = sum(exposure, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    death_rate = deaths / exposure,
+    lg_death_rate = log(death_rate, base = 10)
+  )
+
+dta_scot <- dta %>% 
+  filter(country_code == "GBR_SCO") %>% 
+    group_by(country_code, year, age) %>% 
+  summarise(
+    deaths = sum(deaths),
+    population = sum(population),
+    exposure = sum(exposure)
+            ) %>% 
+  ungroup() %>% 
+  mutate(death_rate = deaths / exposure,
+         lg_death_rate = log(death_rate, base = 10)
+  )
+
+
+# Difference between Scot and rwe
+tmp1 <- dta_scot %>% 
+  select(year, age, `Scotland` = lg_death_rate)  
+
+tmp2 <- dta_rwe  %>% 
+  select(year, age, `Rest of Western Europe` = lg_death_rate) 
+
+dif_scot_rwe <- tmp1 %>% 
+  left_join(tmp2) %>% 
+  mutate(
+    `Scot cf rest Western Europe` = `Scotland` - `Rest of Western Europe`
+  ) %>% 
+  select(
+    year, age, `Scot cf rest Western Europe`
+  )
+
+rm(tmp1, tmp2)
+
+
+
+# Difference between Scot and ne
+tmp1 <- dta_scot %>% 
+  select(year, age, `Scotland` = lg_death_rate)  
+
+tmp2 <- dta_rwe  %>% 
+  select(year, age, `Northern Europe` = lg_death_rate) 
+
+dif_scot_ne <- tmp1 %>% 
+  left_join(tmp2) %>% 
+  mutate(
+    `Scot cf Northern Europe` = `Scotland` - `Northern Europe`
+  ) %>% 
+  select(
+    year, age, `Scot cf Northern Europe`
+  )
+
+rm(tmp1, tmp2)
+
+
+# Difference between Scot and ne
+tmp1 <- dta_scot %>% 
+  select(year, age, `Scotland` = lg_death_rate)  
+
+tmp2 <- dta_ee  %>% 
+  select(year, age, `Eastern Europe` = lg_death_rate) 
+
+dif_scot_ee <- tmp1 %>% 
+  left_join(tmp2) %>% 
+  mutate(
+    `Scot cf Eastern Europe` = `Scotland` - `Eastern Europe`
+  ) %>% 
+  select(
+    year, age, `Scot cf Eastern Europe`
+  )
+
+rm(tmp1, tmp2)
+
+# Difference between Scot and se
+tmp1 <- dta_scot %>% 
+  select(year, age, `Scotland` = lg_death_rate)  
+
+tmp2 <- dta_se  %>% 
+  select(year, age, `Southern Europe` = lg_death_rate) 
+
+dif_scot_se <- tmp1 %>% 
+  left_join(tmp2) %>% 
+  mutate(
+    `Scot cf Southern Europe` = `Scotland` - `Southern Europe`
+  ) %>% 
+  select(
+    year, age, `Scot cf Southern Europe`
+  )
+
+rm(tmp1, tmp2)
+
+
+# Join the above together
+
+comparisons <- dif_scot_rwe %>% 
+  left_join(dif_scot_ne) %>% 
+  left_join(dif_scot_se) %>% 
+  left_join(dif_scot_ee) %>% 
+  gather(key = "comparison", value = "dif_logs", -year, -age)
+
+
+# 
+# png(filename="figures/rostock/figure_02_clps.png", 
+#     width=60, height=30, res=300, units="cm"
+# )
+# 
+# comparisons %>% 
+#   mutate(
+#     dif_logs = ifelse(dif_logs < -0.40, -0.40, dif_logs),
+#     dif_logs = ifelse(dif_logs > 0.40, 0.40, dif_logs)
+#   ) %>%   
+#   smooth_var(., 
+#              group_vars = c("sex", "comparison"), 
+#              smooth_var = "dif_logs", 
+#              smooth_par = 0.7
+#   ) %>% 
+#   levelplot(
+#     dif_logs ~ year * age | comparison + sex,
+#     data=., 
+#     region=T,
+#     ylab="Age in years",
+#     xlab="Year",
+#     at = seq(from= -0.40, to = 0.40, by=0.01),
+#     col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+#     scales=list(alternating=3),
+#     main=NULL,
+#     aspect= "iso",
+#     ylim=c(0, 90),
+#     xlim=c(1950, 2010),
+#     par.settings=list(strip.background=list(col="lightgrey"))
+#   )
+# 
+# dev.off()
+
+# Produce 'plain' version of above for adding annotations to  
+# png(filename="figures/scotland_in_context/final_figures/figure_02a_clp_scot_uk_we_plain.png", 
+#     width=30, height=30, res=300, units="cm"
+# )
+# 
+# comparisons %>% 
+#   mutate(
+#     dif_logs = ifelse(dif_logs < -0.30, -0.30, dif_logs),
+#     dif_logs = ifelse(dif_logs > 0.30, 0.30, dif_logs)
+#   ) %>%   
+#   smooth_var(., 
+#              group_vars = c("sex", "comparison"), 
+#              smooth_var = "dif_logs", 
+#              smooth_par = 0.7
+#   ) %>% 
+#   levelplot(
+#     dif_logs ~ year * age | comparison + sex,
+#     data=., 
+#     region=T,
+#     ylab="Age in years",
+#     xlab="Year",
+#     at = seq(from= -0.30, to = 0.30, by=0.01),
+#     col.regions = colorRampPalette(rev(brewer.pal(6, "RdBu")))(200),
+#     scales=list(alternating=3),
+#     main=NULL,
+#     aspect= "iso",
+#     ylim=c(0, 90),
+#     xlim=c(1950, 2010),
+#     par.settings=list(strip.background=list(col="lightgrey")) 
+#   )
+
+dev.off()
+
+
+```
+
+```{r produce_clp}
+comparisons %>% 
+  filter(year >= 1950) %>% 
+  filter(year <= 2010) %>% 
+  mutate(
+         dif_logs = ifelse(dif_logs < -0.30, -0.30, dif_logs),
+         dif_logs = ifelse(dif_logs > 0.30, 0.30, dif_logs)
+  ) %>% 
+  filter(age <= 90) %>% 
+  mutate(comparison = stringr::str_replace(comparison, "Scot cf ", "")) %>%
+  mutate(comparison = stringr::str_replace(comparison, " Europe", "")) %>%  
+  ggplot(aes(x = year, y = age, fill = dif_logs)) + 
+  geom_tile() + 
+  facet_wrap(~comparison) +   
+  scale_fill_gradientn(
+    "",
+    colours = rev(scales::brewer_pal(palette = "RdBu")(5)),
+    limits = c(-0.301, 0.301)
+  ) + 
+  coord_fixed() + 
+  guides(fill = F) + 
+  geom_abline(slope = 1, intercept = seq(-2010, -1800, by = 10), linetype = "dashed", alpha = 0.5) + 
+  theme_minimal() + 
+  geom_vline(xintercept = seq(1950, 2010, by = 10), linetype = "dashed", alpha = 0.5) + 
+  geom_hline(yintercept = seq(0, 90, by = 10), linetype = "dashed", alpha = 0.5) + 
+  labs(x = "Year", y = "Age in single years", title = "Relative mortality risk for Scottish populations", subtitle = "Red means higher mortality in Scotland; darker shades are bigger differences", caption = "Source: Human Mortality Database") + 
+  scale_y_continuous(sec.axis = sec_axis(~ 2010 - ., name = "Birth Cohort")) +
+  theme(axis.text.y.right = element_text(angle = 45, hjust = -0.5))
+
+
+```
+
+Now difference in life expectancy 
+
+```{r dif_e0}
+e0_ee <- dta_ee %>% group_by(year) %>% mutate(da = age * deaths) %>% summarise(Eastern = sum(da) / sum(deaths))
+
+e0_rwe <- dta_rwe %>% group_by(year) %>% mutate(da = age * deaths) %>% summarise(Western = sum(da) / sum(deaths))
+
+e0_se <- dta_se %>% group_by(year) %>% mutate(da = age * deaths) %>% summarise(Southern = sum(da) / sum(deaths))
+
+e0_ne <- dta_ne %>% group_by(year) %>% mutate(da = age * deaths) %>% summarise(Northern = sum(da) / sum(deaths))
+
+e0_scot <- dta_scot %>% group_by(year) %>% mutate(da = age * deaths) %>% summarise(Scotland = sum(da) / sum(deaths))
+
+e0_all <- e0_ee %>%
+  left_join(e0_rwe) %>% 
+  left_join(e0_se) %>% 
+  left_join(e0_ne) %>% 
+  left_join(e0_scot) %>% 
+  gather(key = "Population", value = "e0", -year)
+
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
